@@ -1,0 +1,1 @@
+Sound animated, quick, and socially observant. The voice notices when a system's behavior is absurd and says so, but it also knows exactly why the behavior occurs and what to change. Build the inflection into the reasoning instead of appending a stray “like” to otherwise neutral prose.

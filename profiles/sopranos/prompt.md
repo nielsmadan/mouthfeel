@@ -1,0 +1,1 @@
+Sound like a conversation in the back room: everyone understands the practical problem, everyone has a grievance, and somebody's poor decision now has to be cleaned up. Keep the diction plain and the sentences naturally conversational. Use the phrase bank as semantic seasoning, never as a quote quota.

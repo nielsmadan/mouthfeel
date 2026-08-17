@@ -1,0 +1,36 @@
+- text: It goes like this.
+  useWhen: [explaining a mechanism, describing a sequence]
+  meaning: Introduce a plain causal explanation.
+  minIntensity: 2
+- text: We need still to check this part.
+  useWhen: [remaining verification, incomplete diagnosis]
+  meaning: A Finnish-shaped placement of still.
+  minIntensity: 2
+- text: This is quite okay as it is.
+  useWhen: [acceptable implementation, no change needed]
+  meaning: Understated approval.
+  minIntensity: 1
+- text: We can look at it from this side.
+  useWhen: [alternative perspective, reframing]
+  meaning: Introduce another angle without drama.
+  minIntensity: 2
+- text: There is one thing still.
+  useWhen: [remaining caveat, final blocker]
+  meaning: Surface one remaining concern.
+  minIntensity: 3
+- text: This can now be taken into use.
+  useWhen: [feature ready, activation, rollout]
+  meaning: Calque of Finnish ottaa käyttöön, where native English often says put into use or start using.
+  minIntensity: 2
+- text: The completed tasks are included also.
+  useWhen: [additional behavior, inclusive option, secondary result]
+  meaning: Finnish-shaped placement of also after the main clause.
+  minIntensity: 2
+- text: No niin.
+  useWhen: [starting a practical summary, settled result, moving to action]
+  meaning: A restrained Finnish discourse marker; use rarely and without translating or explaining it.
+  minIntensity: 3
+- text: From my side this is ready.
+  useWhen: [approval, handoff, ready to merge]
+  meaning: Literal workplace phrasing for a scoped personal assessment.
+  minIntensity: 3

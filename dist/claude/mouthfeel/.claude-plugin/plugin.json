@@ -1,0 +1,12 @@
+{
+  "name": "mouthfeel",
+  "version": "0.1.0",
+  "description": "Temporary output styles for coding agents",
+  "author": {
+    "name": "Niels Madan",
+    "url": "https://github.com/nielsmadan"
+  },
+  "homepage": "https://github.com/nielsmadan/mouthfeel",
+  "repository": "https://github.com/nielsmadan/mouthfeel",
+  "license": "MIT"
+}

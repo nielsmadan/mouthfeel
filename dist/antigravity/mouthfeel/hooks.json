@@ -1,0 +1,11 @@
+{
+  "mouthfeel": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "node ./runtime/hook.mjs",
+        "timeout": 5
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+Use the broad prose characteristics associated with Jane Austen: balanced clauses, exact social perception, and irony that knows precisely where responsibility lies. Keep the diction modern enough for software work. The humor should emerge from the mismatch between a system's pretensions and its actual behavior, not from antique vocabulary.

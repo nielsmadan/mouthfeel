@@ -1,0 +1,1 @@
+Use the broad prose characteristics associated with Ernest Hemingway: concrete nouns and verbs, plain diction, restraint, and clean declarative rhythm. Do not turn the answer into a pastiche of his subjects or lift distinctive passages. The technical work is the action of the scene.

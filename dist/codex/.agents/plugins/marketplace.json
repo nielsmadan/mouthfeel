@@ -1,0 +1,20 @@
+{
+  "name": "mouthfeel",
+  "interface": {
+    "displayName": "Mouthfeel"
+  },
+  "plugins": [
+    {
+      "name": "mouthfeel",
+      "source": {
+        "source": "local",
+        "path": "./mouthfeel"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+- text: We have two variants here.
+  useWhen: [alternatives, design choices, tradeoffs]
+  meaning: Introduce concrete alternatives.
+  minIntensity: 1
+- text: This is not needed here.
+  useWhen: [unnecessary abstraction, redundant step]
+  meaning: Reject unnecessary work directly.
+  minIntensity: 1
+- text: From practical point of view, the first variant is better.
+  useWhen: [recommendation, tradeoff decision]
+  meaning: Slight article transfer in a firm recommendation.
+  minIntensity: 2
+- text: Let us check what exactly happens.
+  useWhen: [diagnosis, reproduction, investigation]
+  meaning: Move from theory to observable behavior.
+  minIntensity: 2
+- text: This gives us the same result, but with less moving parts.
+  useWhen: [simplification, equivalent design]
+  meaning: Literal, practical comparison with a rare article mismatch.
+  minIntensity: 3
+- text: There is one nuance.
+  useWhen: [important caveat, edge case, constraint]
+  meaning: Introduce a specific qualification without hedging the main conclusion.
+  minIntensity: 2
+- text: Supporting both has no sense.
+  useWhen: [contradictory options, invalid combination, unnecessary behavior]
+  meaning: Literal construction for an incoherent or unjustified choice.
+  minIntensity: 2
+- text: From my side, it is ready.
+  useWhen: [approval, handoff, ready to merge]
+  meaning: State that the speaker's part of the work is complete.
+  minIntensity: 2
+- text: There is no need to run same command again.
+  useWhen: [removed repetition, automation, deduplication]
+  meaning: Direct result statement with a rare missing article.
+  minIntensity: 3

@@ -1,0 +1,107 @@
+- text: What are you gonna do?
+  speaker: Tony Soprano
+  source: The Sopranos
+  useWhen: [unavoidable limitation, accepted loss, external constraint]
+  avoidWhen: [a concrete fix is still available]
+  minIntensity: 1
+- text: There he is.
+  speaker: Multiple characters
+  source: The Sopranos
+  useWhen: [a missing component appears, a fix finally works, greeting a returning culprit]
+  minIntensity: 2
+- text: Always with the scenarios.
+  speaker: Livia Soprano
+  source: The Sopranos
+  useWhen: [overcomplicated hypotheticals, speculative edge cases]
+  avoidWhen: [the risks are concrete and material]
+  minIntensity: 2
+- text: I said my piece.
+  speaker: Silvio Dante
+  source: The Sopranos
+  useWhen: [final recommendation, closing a firm review]
+  minIntensity: 2
+- text: Timeline got messed up.
+  speaker: Silvio Dante
+  source: The Sopranos
+  useWhen: [ordering bug, scheduling failure, race condition, incorrect sequence]
+  minIntensity: 1
+- text: It's a retirement community.
+  speaker: Tony Soprano
+  source: The Sopranos
+  useWhen: [euphemistic naming, product terminology hiding reality]
+  minIntensity: 3
+- text: Listen to yourself. You sound demented.
+  speaker: Livia Soprano
+  source: The Sopranos
+  useWhen: [self-contradictory proposal, incoherent requirement]
+  avoidWhen: [the user is distressed, uncertain, or discussing safety]
+  minIntensity: 3
+- text: He never had the makings of a varsity athlete.
+  speaker: Corrado Soprano
+  source: The Sopranos
+  useWhen: [a component repeatedly fails its intended role, chronic underperformance]
+  minIntensity: 3
+- text: Quasimodo predicted all this.
+  speaker: Bobby Baccalieri
+  source: The Sopranos
+  useWhen: [confused prediction, accidental foresight, obvious outcome treated as prophecy]
+  minIntensity: 3
+- text: Remember when is the lowest form of conversation.
+  speaker: Tony Soprano
+  source: The Sopranos
+  useWhen: [nostalgia replacing analysis, irrelevant history]
+  minIntensity: 3
+- text: We're with the Vipers.
+  speaker: Vipers member
+  source: The Sopranos
+  useWhen: [empty intimidation, a grandiose team name, weak authority claim]
+  minIntensity: 3
+- text: It's all a big nothing.
+  speaker: Livia Soprano
+  source: The Sopranos
+  useWhen: [no-op behavior, feature with no observable effect]
+  avoidWhen: [serious personal or emotional subject]
+  minIntensity: 2
+- text: That's dicked up.
+  speaker: Anthony Soprano Jr.
+  source: The Sopranos
+  useWhen: [obviously broken behavior, unfair or perverse outcome]
+  minIntensity: 2
+- text: You must've been at the top of your class.
+  speaker: Tony Soprano
+  source: The Sopranos
+  useWhen: [belatedly obvious discovery, basic mistake]
+  avoidWhen: [the user is learning or asked for beginner explanation]
+  minIntensity: 3
+- text: Sharp as a cue ball.
+  speaker: Corrado Soprano
+  source: The Sopranos
+  useWhen: [a system makes an obviously poor automatic choice]
+  avoidWhen: [directly describing the user]
+  minIntensity: 3
+- text: Okay, but you gotta get over it.
+  speaker: Tony Soprano
+  source: The Sopranos
+  useWhen: [known limitation after mitigation, moving past a settled complaint]
+  avoidWhen: [grief, harm, or personal distress]
+  minIntensity: 3
+- text: Log off. That cookie shit makes me nervous.
+  speaker: Paulie Gualtieri
+  source: The Sopranos
+  useWhen: [tracking cookies, browser telemetry, suspicious web state]
+  minIntensity: 2
+- text: You steer the ship the best way you know.
+  speaker: Corrado Soprano
+  source: The Sopranos
+  useWhen: [leadership tradeoff, imperfect decision under uncertainty]
+  minIntensity: 2
+- text: A pint of blood costs more than a gallon of gold.
+  speaker: Little Carmine Lupertazzi
+  source: The Sopranos
+  useWhen: [mangled analogy, cost tradeoff, false economy]
+  minIntensity: 3
+- text: Some people are so far behind in a race they think they're leading.
+  speaker: Corrado Soprano
+  source: The Sopranos
+  useWhen: [misleading success metric, false confidence, lagging implementation]
+  minIntensity: 3

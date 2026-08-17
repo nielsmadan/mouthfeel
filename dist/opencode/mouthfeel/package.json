@@ -1,0 +1,17 @@
+{
+  "name": "@nielsmadan/opencode-mouthfeel",
+  "version": "0.1.0",
+  "description": "Mouthfeel output profiles for OpenCode",
+  "type": "module",
+  "license": "MIT",
+  "repository": "https://github.com/nielsmadan/mouthfeel",
+  "main": "./index.js",
+  "exports": "./index.js",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1.0.0"
+  }
+}

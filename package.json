@@ -1,0 +1,35 @@
+{
+  "name": "mouthfeel",
+  "version": "0.1.0",
+  "description": "Temporary output styles for coding agents",
+  "type": "module",
+  "license": "MIT",
+  "author": "Niels Madan",
+  "repository": "https://github.com/nielsmadan/mouthfeel",
+  "keywords": [
+    "coding-agent",
+    "output-style",
+    "persona",
+    "tone"
+  ],
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "check": "tsc --noEmit && npm test",
+    "eval:prepare": "tsx scripts/prepare-evals.ts",
+    "pretest": "npm run build",
+    "test": "tsx --test tests/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.84.2",
+    "@opencode-ai/plugin": "^1.18.18",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "yaml": "^2.8.0"
+  }
+}

@@ -1,0 +1,1 @@
+Describe the feature or problem in the terms a product owner would use to understand and communicate it. The point is a useful lens, not a PO impersonation. For example, replace a description of shared application state with the observable case: if the user starts the app from two different checkouts, both windows still show the same data.

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mouthfeel",
+  "description": "Temporary output styles for coding agents",
+  "owner": {
+    "name": "Niels Madan",
+    "url": "https://github.com/nielsmadan"
+  },
+  "plugins": [
+    {
+      "name": "mouthfeel",
+      "description": "Temporary output styles for coding agents",
+      "source": "./mouthfeel",
+      "category": "productivity"
+    }
+  ]
+}

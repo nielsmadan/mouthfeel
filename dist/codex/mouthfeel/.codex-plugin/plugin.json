@@ -1,0 +1,35 @@
+{
+  "name": "mouthfeel",
+  "version": "0.1.0",
+  "description": "Temporary output styles for coding agents",
+  "author": {
+    "name": "Niels Madan",
+    "url": "https://github.com/nielsmadan"
+  },
+  "homepage": "https://github.com/nielsmadan/mouthfeel",
+  "repository": "https://github.com/nielsmadan/mouthfeel",
+  "license": "MIT",
+  "keywords": [
+    "output-style",
+    "tone",
+    "voice",
+    "developer-tools"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Mouthfeel",
+    "shortDescription": "Temporary output styles for coding agents",
+    "longDescription": "Switch a coding agent's output style for the current session without changing code, commands, or generated artifacts.",
+    "developerName": "Niels Madan",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Hooks",
+      "Skills"
+    ],
+    "websiteURL": "https://github.com/nielsmadan/mouthfeel",
+    "defaultPrompt": [
+      "Use the senior Mouthfeel at intensity 1."
+    ],
+    "brandColor": "#D97757"
+  }
+}

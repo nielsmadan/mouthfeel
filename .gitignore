@@ -1,0 +1,5 @@
+node_modules/
+evals/candidates/
+evals/runs/
+.DS_Store
+coverage/

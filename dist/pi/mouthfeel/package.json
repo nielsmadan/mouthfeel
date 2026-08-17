@@ -1,0 +1,17 @@
+{
+  "name": "@nielsmadan/mouthfeel-pi",
+  "version": "0.1.0",
+  "description": "Mouthfeel output profiles for Pi",
+  "type": "module",
+  "license": "MIT",
+  "repository": "https://github.com/nielsmadan/mouthfeel",
+  "pi": {
+    "extensions": [
+      "./index.js"
+    ]
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ]
+}
