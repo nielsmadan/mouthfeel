@@ -14,14 +14,14 @@
   ],
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "build": "tsx scripts/build.ts",
     "check": "tsc --noEmit && npm test",
     "eval:prepare": "tsx scripts/prepare-evals.ts",
     "pretest": "npm run build",
-    "test": "tsx --test tests/**/*.test.ts"
+    "test": "tsx --test \"tests/**/*.test.ts\""
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2",
