@@ -67,13 +67,28 @@ test("generated entrypoints and lifecycle hooks are executable", async () => {
 test("generated lifecycle configuration covers every session transition", async () => {
   for (const host of ["claude", "codex"] as const) {
     const config = JSON.parse(await readFile(join(dist, host, "mouthfeel/hooks/hooks.json"), "utf8")) as {
-      hooks: { SessionStart: { matcher: string }[] };
+      hooks: {
+        SessionStart: { matcher: string; hooks: { additionalContextLimit: number }[] }[];
+        UserPromptSubmit: { hooks: { additionalContextLimit: number }[] }[];
+      };
     };
     assert.equal(config.hooks.SessionStart[0]?.matcher, "startup|resume|clear|compact", host);
+    assert.equal(config.hooks.SessionStart[0]?.hooks[0]?.additionalContextLimit, 2500, host);
+    assert.equal(config.hooks.UserPromptSubmit[0]?.hooks[0]?.additionalContextLimit, 2500, host);
   }
   for (const host of ["pi", "opencode"] as const) {
     const manifest = JSON.parse(await readFile(join(dist, host, "mouthfeel/package.json"), "utf8")) as { files: string[] };
     assert.deepEqual(manifest.files, ["index.js", "README.md"], host);
+  }
+});
+
+test("generated controller skills do not echo an internal command marker", async () => {
+  for (const host of ["claude", "codex"] as const) {
+    const skill = await readFile(join(dist, host, "mouthfeel/skills/use/SKILL.md"), "utf8");
+    assert.doesNotMatch(skill, /MOUTHFEEL_COMMAND/);
+    assert.match(skill, /return only that response/i);
+    assert.match(skill, /only acknowledge success when.*control-turn instruction/i);
+    assert.match(skill, /Respond exactly: Mouthfeel hook did not run; profile unchanged\./);
   }
 });
 

@@ -74,7 +74,8 @@ test("Pi registers /mouthfeel and keeps activation prospective", async () => {
   assert.match(pi.notices.at(-1) ?? "", /sailor, intensity 2/i);
 
   const result = await inject(pi, "Explain it");
-  assert.match(result?.systemPrompt ?? "", /base\n\ntwo/);
+  assert.match(result?.systemPrompt ?? "", /^base\n\n/);
+  assert.match(result?.systemPrompt ?? "", /two$/);
 });
 
 test("Pi restores active state after extension recreation", async () => {
@@ -83,7 +84,20 @@ test("Pi restores active state after extension recreation", async () => {
 
   const restored = harness(first.entries);
   await restored.handlers.get("session_start")?.({}, restored.context);
-  assert.match((await inject(restored, "Continue"))?.systemPrompt ?? "", /base\n\nthree/);
+  const result = (await inject(restored, "Continue"))?.systemPrompt ?? "";
+  assert.match(result, /^base\n\n/);
+  assert.match(result, /three$/);
+});
+
+test("Pi restores an off tombstone without styling later replies", async () => {
+  const first = harness();
+  await first.commands.get("mouthfeel")?.("sailor", first.context);
+  await first.commands.get("mouthfeel")?.("off", first.context);
+  assert.equal(await inject(first, "Continue"), undefined);
+
+  const restored = harness(first.entries);
+  await restored.handlers.get("session_start")?.({}, restored.context);
+  assert.equal(await inject(restored, "Continue"), undefined);
 });
 
 test("Pi follows state when navigating between session-tree branches", async () => {
@@ -97,7 +111,9 @@ test("Pi follows state when navigating between session-tree branches", async () 
 
   pi.setVisibleEntries(activeBranch);
   await pi.handlers.get("session_tree")?.({}, pi.context);
-  assert.match((await inject(pi, "Back on the active branch"))?.systemPrompt ?? "", /base\n\none/);
+  const result = (await inject(pi, "Back on the active branch"))?.systemPrompt ?? "";
+  assert.match(result, /^base\n\n/);
+  assert.match(result, /one$/);
 });
 
 test("Pi scheduled tasks clear untranslate eligibility", async () => {

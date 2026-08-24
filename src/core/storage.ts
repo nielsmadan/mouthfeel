@@ -15,13 +15,21 @@ function isIntensity(value: unknown): value is Intensity {
 export function isSessionState(value: unknown): value is MouthfeelSessionState {
   if (!value || typeof value !== "object") return false;
   const candidate = value as Record<string, unknown>;
+  if (candidate.version !== 1 || typeof candidate.updatedAt !== "string" || Number.isNaN(Date.parse(candidate.updatedAt))) {
+    return false;
+  }
+  if (candidate.mode === "off") {
+    return candidate.lastReplyStyled === false
+      && candidate.profileId === undefined
+      && candidate.intensity === undefined;
+  }
   return candidate.version === 1
+    && (candidate.mode === undefined || candidate.mode === "active")
     && typeof candidate.profileId === "string"
     && candidate.profileId.length <= 64
     && isIntensity(candidate.intensity)
     && typeof candidate.lastReplyStyled === "boolean"
-    && typeof candidate.updatedAt === "string"
-    && !Number.isNaN(Date.parse(candidate.updatedAt));
+    && typeof candidate.updatedAt === "string";
 }
 
 export class SidecarStore {

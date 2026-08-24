@@ -12,9 +12,9 @@ test("finds the latest user-authored transcript entry", () => {
   const transcript = [
     JSON.stringify({ role: "user", content: "old" }),
     JSON.stringify({ role: "assistant", content: "reply" }),
-    JSON.stringify({ type: "user_message", parts: [{ text: "MOUTHFEEL_COMMAND: sailor 2" }] }),
+    JSON.stringify({ type: "user_message", parts: [{ type: "text", text: "MOUTHFEEL_COMMAND: sailor 2" }] }),
   ].join("\n");
-  assert.match(latestUserText(transcript), /sailor 2/);
+  assert.equal(latestUserText(transcript), "MOUTHFEEL_COMMAND: sailor 2");
 });
 
 test("Antigravity persists activation, styles future turns, and resets scheduled eligibility", async (context) => {

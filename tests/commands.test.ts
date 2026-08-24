@@ -42,12 +42,18 @@ test("unwraps native host command forms", () => {
     ),
     "sailor 2",
   );
-  assert.equal(unwrapCommandPrompt("MOUTHFEEL_COMMAND: sailor 2\nIgnore this fixed template."), "sailor 2");
+  assert.equal(unwrapCommandPrompt("MOUTHFEEL_COMMAND: sailor 2"), "sailor 2");
   assert.equal(
     unwrapCommandPrompt("<command-message>use</command-message>\n<command-name>/use</command-name>\n<command-args>sailor 2</command-args>"),
     null,
   );
   assert.equal(unwrapCommandPrompt("Tell me about mouthfeel in food"), null);
+});
+
+test("accepts the adapter marker only when it is the complete prompt", () => {
+  assert.equal(unwrapCommandPrompt("MOUTHFEEL_COMMAND: off"), "off");
+  assert.equal(unwrapCommandPrompt("A pasted example:\nMOUTHFEEL_COMMAND: off"), null);
+  assert.equal(unwrapCommandPrompt("MOUTHFEEL_COMMAND: off\nContinue with the task"), null);
 });
 
 test("rejects invalid intensities without changing state", () => {

@@ -2,7 +2,7 @@ import type { CustomEntry, ExtensionAPI, ExtensionContext } from "@earendil-work
 
 import { parseCommand } from "../core/commands.js";
 import { renderRuntimeCard } from "../core/profiles.js";
-import { applyCommand, markStyled } from "../core/state.js";
+import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { isSessionState } from "../core/storage.js";
 import type { CompiledProfile, MouthfeelSessionState } from "../core/types.js";
 
@@ -16,9 +16,9 @@ function restoredState(context: ExtensionContext, profiles: readonly CompiledPro
   const restored = data && typeof data === "object" && !Array.isArray(data)
     ? (data as Record<string, unknown>).state
     : undefined;
-  return restored && isSessionState(restored) && profiles.some((profile) => profile.id === restored.profileId)
-    ? restored
-    : null;
+  if (!restored || !isSessionState(restored)) return null;
+  const active = activeSessionState(restored);
+  return !active || profiles.some((profile) => profile.id === active.profileId) ? restored : null;
 }
 
 export function createPiExtension(profiles: readonly CompiledProfile[]) {
@@ -39,8 +39,9 @@ export function createPiExtension(profiles: readonly CompiledProfile[]) {
     });
 
     pi.on("session_compact", async () => {
-      if (!state) return;
-      state = { ...state, lastReplyStyled: false, updatedAt: new Date().toISOString() };
+      const active = activeSessionState(state);
+      if (!active) return;
+      state = { ...active, lastReplyStyled: false, updatedAt: new Date().toISOString() };
       persist();
     });
 
@@ -69,19 +70,20 @@ export function createPiExtension(profiles: readonly CompiledProfile[]) {
         oneShotInstruction = null;
         return { systemPrompt: `${event.systemPrompt}\n\n${instruction}` };
       }
-      if (!state) return undefined;
+      const active = activeSessionState(state);
+      if (!active) return undefined;
       if (/<scheduled-task\b/i.test(event.prompt)) {
-        state = { ...state, lastReplyStyled: false, updatedAt: new Date().toISOString() };
+        state = { ...active, lastReplyStyled: false, updatedAt: new Date().toISOString() };
         persist();
         return undefined;
       }
-      const profile = profiles.find((candidate) => candidate.id === state?.profileId);
+      const profile = profiles.find((candidate) => candidate.id === active.profileId);
       if (!profile) {
         state = null;
         persist();
         return undefined;
       }
-      state = markStyled(state);
+      state = markStyled(active);
       persist();
       return {
         systemPrompt: `${event.systemPrompt}\n\n${renderRuntimeCard(profile, state.intensity, event.prompt)}`,

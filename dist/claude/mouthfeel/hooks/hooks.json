@@ -8,7 +8,7 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\"",
             "timeout": 5,
-            "additionalContextLimit": 0
+            "additionalContextLimit": 2500
           }
         ]
       }
@@ -20,7 +20,7 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\"",
             "timeout": 5,
-            "additionalContextLimit": 0
+            "additionalContextLimit": 2500
           }
         ]
       }

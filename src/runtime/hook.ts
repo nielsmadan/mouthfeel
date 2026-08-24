@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { parseCommand, unwrapCommandPrompt } from "../core/commands.js";
 import { renderRuntimeCard, renderRuntimeReminder } from "../core/profiles.js";
 import { loadRegistry } from "../core/registry.js";
-import { applyCommand, markStyled } from "../core/state.js";
+import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { SidecarStore } from "../core/storage.js";
 import type { CompiledProfile } from "../core/types.js";
 
@@ -16,12 +16,16 @@ export interface HookInput {
   source?: string;
 }
 
-interface HookOptions {
-  profiles: readonly CompiledProfile[];
+interface HookOptionBase {
   store: SidecarStore;
   random?: () => number;
   now?: () => Date;
 }
+
+type HookOptions = HookOptionBase & (
+  | { profiles: readonly CompiledProfile[]; loadProfiles?: never }
+  | { profiles?: never; loadProfiles: () => Promise<readonly CompiledProfile[]> }
+);
 
 export interface HookOutput {
   hookSpecificOutput: {
@@ -29,6 +33,8 @@ export interface HookOutput {
     additionalContext: string;
   };
 }
+
+const PROFILE_REVOCATION = "Mouthfeel is off for future replies. Ignore every earlier Mouthfeel profile card and reminder in this conversation. Use the host baseline voice unless the user explicitly requests another style.";
 
 function output(event: "SessionStart" | "UserPromptSubmit", additionalContext: string): HookOutput {
   return {
@@ -41,6 +47,10 @@ function output(event: "SessionStart" | "UserPromptSubmit", additionalContext: s
 
 function profileFor(profiles: readonly CompiledProfile[], id: string): CompiledProfile | null {
   return profiles.find((profile) => profile.id === id) ?? null;
+}
+
+async function profilesFor(options: HookOptions): Promise<readonly CompiledProfile[]> {
+  return options.profiles ?? options.loadProfiles();
 }
 
 export async function handleHook(input: HookInput, options: HookOptions): Promise<HookOutput | null> {
@@ -57,14 +67,17 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
     if (input.source !== "resume" && input.source !== "compact") return null;
     const state = await options.store.read(sessionId);
     if (!state) return null;
-    const profile = profileFor(options.profiles, state.profileId);
+    const active = activeSessionState(state);
+    if (!active) return output("SessionStart", PROFILE_REVOCATION);
+    const profiles = await profilesFor(options);
+    const profile = profileFor(profiles, active.profileId);
     if (!profile) {
       await options.store.delete(sessionId);
       return null;
     }
     const restored = input.source === "compact"
-      ? { ...state, lastReplyStyled: false, updatedAt: (options.now?.() ?? new Date()).toISOString() }
-      : state;
+      ? { ...active, lastReplyStyled: false, updatedAt: (options.now?.() ?? new Date()).toISOString() }
+      : active;
     if (input.source === "compact") {
       await options.store.write(sessionId, restored);
     }
@@ -78,9 +91,10 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
   if (event !== "UserPromptSubmit" || typeof input.prompt !== "string") return null;
   const state = await options.store.read(sessionId);
   if (/<scheduled-task\b/i.test(input.prompt)) {
-    if (state?.lastReplyStyled) {
+    const active = activeSessionState(state);
+    if (active?.lastReplyStyled) {
       await options.store.write(sessionId, {
-        ...state,
+        ...active,
         lastReplyStyled: false,
         updatedAt: (options.now?.() ?? new Date()).toISOString(),
       });
@@ -89,30 +103,43 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
   }
   const commandText = unwrapCommandPrompt(input.prompt);
   if (commandText !== null) {
-    const command = parseCommand(commandText, options.profiles.map((profile) => profile.id));
-    const result = applyCommand(state, command, options.profiles, {
+    const profiles = await profilesFor(options);
+    const command = parseCommand(commandText, profiles.map((profile) => profile.id));
+    const result = applyCommand(state, command, profiles, {
       ...(options.random ? { random: options.random } : {}),
       ...(options.now ? { now: options.now } : {}),
     });
     if (result.state) await options.store.write(sessionId, result.state);
     else await options.store.delete(sessionId);
-    return output("UserPromptSubmit", [
+    const activeResult = activeSessionState(result.state);
+    const selectedProfile = result.effect === "profile-selected" && activeResult
+      ? profileFor(profiles, activeResult.profileId)
+      : null;
+    const context = [
+      ...(selectedProfile && activeResult
+        ? [
+            "The profile card below applies only to future replies. Do not apply it to this control response.",
+            renderRuntimeCard(selectedProfile, activeResult.intensity, ""),
+          ]
+        : []),
+      ...(result.effect === "profile-disabled" ? [PROFILE_REVOCATION] : []),
       "This is a Mouthfeel control turn. Do not apply any Mouthfeel profile to the response.",
       result.instruction,
-    ].join("\n"));
+    ].join("\n\n");
+    return output("UserPromptSubmit", context);
   }
 
-  if (!state) return null;
-  const profile = profileFor(options.profiles, state.profileId);
+  const active = activeSessionState(state);
+  if (!active) return null;
+  const profiles = await profilesFor(options);
+  const profile = profileFor(profiles, active.profileId);
   if (!profile) {
     await options.store.delete(sessionId);
     return null;
   }
-  const context = state.lastReplyStyled
-    ? renderRuntimeReminder(profile, state.intensity, input.prompt)
-    : renderRuntimeCard(profile, state.intensity, input.prompt);
-  await options.store.write(sessionId, markStyled(state, options.now));
-  return output("UserPromptSubmit", context);
+  const context = renderRuntimeReminder(profile, active.intensity, input.prompt);
+  await options.store.write(sessionId, markStyled(active, options.now));
+  return context ? output("UserPromptSubmit", context) : null;
 }
 
 function packageRoot(): string {
@@ -141,8 +168,10 @@ async function main(): Promise<void> {
     const raw = await readStandardInput();
     if (!raw.trim()) return;
     const input = JSON.parse(raw) as HookInput;
-    const profiles = await loadRegistry(join(packageRoot(), "registry.json"));
-    const result = await handleHook(input, { profiles, store: new SidecarStore(stateRoot()) });
+    const result = await handleHook(input, {
+      loadProfiles: () => loadRegistry(join(packageRoot(), "registry.json")),
+      store: new SidecarStore(stateRoot()),
+    });
     if (result) process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {
     process.stderr.write(`mouthfeel: ${error instanceof Error ? error.message : String(error)}\n`);

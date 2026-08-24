@@ -164,23 +164,23 @@ export function selectPhrases(
     .map(({ entry }) => entry);
 }
 
-export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
-  const selected = selectPhrases(profile, intensity, prompt);
-  if (selected.length === 0) return profile.cards[intensity];
-  const phraseLines = selected.map((entry) => {
-    const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
-    return `- Candidate: “${entry.text}” Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
-  });
-  return `${profile.cards[intensity]}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
+function renderPhraseCandidate(entry: PhraseEntry): string {
+  const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
+  return `- Candidate: “${entry.text}” Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
 }
 
-export function renderRuntimeReminder(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
+export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
   const selected = selectPhrases(profile, intensity, prompt);
+  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\n${profile.cards[intensity]}`;
+  if (selected.length === 0) return card;
+  const phraseLines = selected.map(renderPhraseCandidate);
+  return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
+}
+
+export function renderRuntimeReminder(profile: CompiledProfile, intensity: Intensity, prompt: string): string | null {
+  const selected = selectPhrases(profile, intensity, prompt);
+  if (selected.length === 0) return null;
   const reminder = `Mouthfeel remains active: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. Keep its hard boundaries.`;
-  if (selected.length === 0) return reminder;
-  const candidates = selected.map((entry) => {
-    const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
-    return `- Candidate: “${entry.text}” Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
-  });
+  const candidates = selected.map(renderPhraseCandidate);
   return `${reminder}\nOptional phrase candidates for this turn:\n${candidates.join("\n")}\nUse at most one. Never force a quotation.`;
 }

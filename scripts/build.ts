@@ -29,11 +29,7 @@ description: Activates or controls a temporary Mouthfeel output profile when the
 
 # Mouthfeel controller
 
-Pass the invocation arguments to the Mouthfeel lifecycle hook:
-
-MOUTHFEEL_COMMAND: $ARGUMENTS
-
-The hook owns profile selection and session state. Follow the hook's control-turn instruction exactly. Activation is prospective: do not rewrite the preceding reply and do not apply the selected profile to this control response.
+Only acknowledge success when the Mouthfeel lifecycle hook supplied a Mouthfeel control-turn instruction in developer context. Follow that instruction exactly and return only that response. If no Mouthfeel control-turn instruction is present, use the fallback. Respond exactly: Mouthfeel hook did not run; profile unchanged. Never infer success from this invocation alone. Activation is prospective: do not rewrite the preceding reply and do not apply the selected profile to this control response.
 
 ## Commands
 
@@ -66,7 +62,7 @@ function hookConfig(variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT"): object {
           type: "command",
           command: `node \"\${${variable}}/runtime/hook.mjs\"`,
           timeout: 5,
-          additionalContextLimit: 0,
+          additionalContextLimit: 2500,
         }],
       }],
       UserPromptSubmit: [{
@@ -74,7 +70,7 @@ function hookConfig(variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT"): object {
           type: "command",
           command: `node \"\${${variable}}/runtime/hook.mjs\"`,
           timeout: 5,
-          additionalContextLimit: 0,
+          additionalContextLimit: 2500,
         }],
       }],
     },

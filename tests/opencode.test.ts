@@ -74,6 +74,20 @@ test("OpenCode restores persisted state after plugin recreation", async (context
   assert.match((await transform(restored, "s")).join("\n"), /senior three/);
 });
 
+test("OpenCode restores an off tombstone without styling later replies", async (context) => {
+  const root = await tempDirectory(context, "mouthfeel-opencode-");
+  const first = await plugin(root);
+  await command(first, "s", "senior");
+  await transform(first, "s");
+  await command(first, "s", "off");
+  assert.match((await transform(first, "s")).join("\n"), /Mouthfeel is off/i);
+
+  const restored = await plugin(root);
+  await message(restored, "s", "Continue");
+  assert.deepEqual(await transform(restored, "s"), []);
+  assert.equal((await new SidecarStore(root).read("s"))?.mode, "off");
+});
+
 test("OpenCode scheduled tasks clear untranslate eligibility", async (context) => {
   const root = await tempDirectory(context, "mouthfeel-opencode-");
   const hooks = await plugin(root);

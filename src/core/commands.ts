@@ -80,7 +80,7 @@ export function unwrapCommandPrompt(prompt: string): string | null {
     return commandArgs?.trim() ?? "";
   }
 
-  const marker = prompt.match(/^MOUTHFEEL_COMMAND:[ \t]*(.*)$/im)?.[1];
+  const marker = prompt.trim().match(/^MOUTHFEEL_COMMAND:[ \t]*([^\r\n]*)$/i)?.[1];
   if (marker !== undefined) return marker.trim();
 
   const direct = prompt.trim().match(/^(?:\/mouthfeel(?::use)?|\$mouthfeel:use)(?:\s+([\s\S]*))?$/i);

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { parseCommand, unwrapCommandPrompt } from "../core/commands.js";
 import { renderRuntimeCard } from "../core/profiles.js";
 import { loadRegistry } from "../core/registry.js";
-import { applyCommand, markStyled } from "../core/state.js";
+import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { SidecarStore } from "../core/storage.js";
 
 interface AntigravityInput {
@@ -23,6 +23,15 @@ function collectStrings(value: unknown, result: string[]): void {
   }
 }
 
+function collectText(value: unknown, result: string[]): void {
+  if (typeof value === "string") result.push(value);
+  else if (Array.isArray(value)) for (const item of value) collectText(item, result);
+  else if (value && typeof value === "object") {
+    const entry = value as Record<string, unknown>;
+    for (const key of ["content", "message", "parts", "text", "prompt"]) collectText(entry[key], result);
+  }
+}
+
 function looksUserAuthored(value: Record<string, unknown>): boolean {
   const labels: string[] = [];
   for (const key of ["role", "author", "type", "kind"]) collectStrings(value[key], labels);
@@ -35,9 +44,10 @@ export function latestUserText(raw: string): string {
     try {
       const value = JSON.parse(lines[index] ?? "") as unknown;
       if (!value || typeof value !== "object" || Array.isArray(value)) continue;
-      if (!looksUserAuthored(value as Record<string, unknown>)) continue;
+      const entry = value as Record<string, unknown>;
+      if (!looksUserAuthored(entry)) continue;
       const strings: string[] = [];
-      collectStrings(value, strings);
+      collectText(entry, strings);
       return strings.join("\n");
     } catch {
       continue;
@@ -96,8 +106,9 @@ async function main(): Promise<void> {
     }
 
     if (/<scheduled-task\b/i.test(prompt)) {
-      if (state?.lastReplyStyled) await store.write(input.conversationId, {
-        ...state,
+      const active = activeSessionState(state);
+      if (active?.lastReplyStyled) await store.write(input.conversationId, {
+        ...active,
         lastReplyStyled: false,
         updatedAt: new Date().toISOString(),
       });
@@ -105,19 +116,20 @@ async function main(): Promise<void> {
       return;
     }
 
-    if (!state) {
+    const active = activeSessionState(state);
+    if (!active) {
       process.stdout.write("{}\n");
       return;
     }
-    const profile = profiles.find((candidate) => candidate.id === state.profileId);
+    const profile = profiles.find((candidate) => candidate.id === active.profileId);
     if (!profile) {
       await store.delete(input.conversationId);
       process.stdout.write("{}\n");
       return;
     }
-    await store.write(input.conversationId, markStyled(state));
+    await store.write(input.conversationId, markStyled(active));
     process.stdout.write(`${JSON.stringify({
-      injectSteps: [{ ephemeralMessage: renderRuntimeCard(profile, state.intensity, prompt) }],
+      injectSteps: [{ ephemeralMessage: renderRuntimeCard(profile, active.intensity, prompt) }],
     })}\n`);
   } catch (error) {
     process.stderr.write(`mouthfeel: ${error instanceof Error ? error.message : String(error)}\n`);

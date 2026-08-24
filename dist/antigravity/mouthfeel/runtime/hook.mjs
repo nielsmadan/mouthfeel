@@ -68,7 +68,7 @@ function unwrapCommandPrompt(prompt) {
   if (commandName === "mouthfeel:use" || commandName === "mouthfeel") {
     return commandArgs?.trim() ?? "";
   }
-  const marker = prompt.match(/^MOUTHFEEL_COMMAND:[ \t]*(.*)$/im)?.[1];
+  const marker = prompt.trim().match(/^MOUTHFEEL_COMMAND:[ \t]*([^\r\n]*)$/i)?.[1];
   if (marker !== void 0) return marker.trim();
   const direct = prompt.trim().match(/^(?:\/mouthfeel(?::use)?|\$mouthfeel:use)(?:\s+([\s\S]*))?$/i);
   if (direct) return direct[1]?.trim() ?? "";
@@ -151,14 +151,18 @@ function selectPhrases(profile, intensity, prompt, limit = 3) {
     }, 0)
   })).filter(({ score }) => score >= 2).sort((left, right) => right.score - left.score || left.entry.text.localeCompare(right.entry.text)).slice(0, limit).map(({ entry }) => entry);
 }
+function renderPhraseCandidate(entry) {
+  const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
+  return `- Candidate: \u201C${entry.text}\u201D Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
+}
 function renderRuntimeCard(profile, intensity, prompt) {
   const selected = selectPhrases(profile, intensity, prompt);
-  if (selected.length === 0) return profile.cards[intensity];
-  const phraseLines = selected.map((entry) => {
-    const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
-    return `- Candidate: \u201C${entry.text}\u201D Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
-  });
-  return `${profile.cards[intensity]}
+  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.
+
+${profile.cards[intensity]}`;
+  if (selected.length === 0) return card;
+  const phraseLines = selected.map(renderPhraseCandidate);
+  return `${card}
 
 ## Optional phrase candidates
 ${phraseLines.join("\n")}
@@ -174,12 +178,13 @@ async function loadRegistry(path) {
 }
 
 // src/core/state.ts
-function notify(state, instruction, notification) {
-  return { state, instruction, notification, effect: "notify" };
+function notify(state, instruction, notification, effect = "notify") {
+  return { state, instruction, notification, effect };
 }
 function newState(profileId, intensity, now) {
   return {
     version: 1,
+    mode: "active",
     profileId,
     intensity,
     lastReplyStyled: false,
@@ -189,17 +194,32 @@ function newState(profileId, intensity, now) {
 function touch(state, now, patch) {
   return { ...state, ...patch, updatedAt: now().toISOString() };
 }
+function activeSessionState(state) {
+  return state?.mode === "off" ? null : state;
+}
+function neutralState(state, now) {
+  const active = activeSessionState(state);
+  if (active) return touch(active, now, { lastReplyStyled: false });
+  return state ? { ...state, updatedAt: now().toISOString() } : null;
+}
 function applyCommand(state, command, profiles, options = {}) {
   const now = options.now ?? (() => /* @__PURE__ */ new Date());
   const random = options.random ?? Math.random;
   if (command.type === "invalid") {
     return notify(
-      state ? touch(state, now, { lastReplyStyled: false }) : null,
+      neutralState(state, now),
       `Respond exactly: ${command.message}`,
       command.message
     );
   }
-  if (command.type === "off") return notify(null, "Respond exactly: Mouthfeel is off.", "Mouthfeel is off.");
+  if (command.type === "off") {
+    return notify({
+      version: 1,
+      mode: "off",
+      lastReplyStyled: false,
+      updatedAt: now().toISOString()
+    }, "Respond exactly: Mouthfeel is off.", "Mouthfeel is off.", "profile-disabled");
+  }
   if (command.type === "list") {
     const practical = profiles.filter((profile) => profile.category === "practical");
     const fun = profiles.filter((profile) => profile.category === "fun");
@@ -209,16 +229,17 @@ ${practical.map(format).join("\n")}
 Fun:
 ${fun.map(format).join("\n")}`;
     return notify(
-      state ? touch(state, now, { lastReplyStyled: false }) : null,
+      neutralState(state, now),
       `Reply neutrally with this profile list:
 ${notification}`,
       notification
     );
   }
   if (command.type === "status") {
-    const notification = state ? `Mouthfeel: ${state.profileId}, intensity ${state.intensity}.` : "Mouthfeel is off.";
+    const active2 = activeSessionState(state);
+    const notification = active2 ? `Mouthfeel: ${active2.profileId}, intensity ${active2.intensity}.` : "Mouthfeel is off.";
     return notify(
-      state ? touch(state, now, { lastReplyStyled: false }) : null,
+      neutralState(state, now),
       `Respond exactly: ${notification}`,
       notification
     );
@@ -228,7 +249,8 @@ ${notification}`,
     return notify(
       newState(command.profileId, command.intensity, now),
       `Respond exactly: ${notification}`,
-      notification
+      notification,
+      "profile-selected"
     );
   }
   if (command.type === "surprise") {
@@ -245,25 +267,29 @@ ${notification}`,
     return notify(
       newState(profile.id, command.intensity, now),
       `Respond exactly: ${notification}`,
-      notification
+      notification,
+      "profile-selected"
     );
   }
   if (command.type === "intensity") {
-    if (!state) {
+    const active2 = activeSessionState(state);
+    if (!active2) {
       return notify(state, "Respond exactly: Activate a profile before changing intensity.", "Activate a profile before changing intensity.");
     }
     const notification = `Mouthfeel intensity ${command.intensity}. This applies to future replies.`;
     return notify(
-      touch(state, now, { intensity: command.intensity, lastReplyStyled: false }),
+      touch(active2, now, { intensity: command.intensity, lastReplyStyled: false }),
       `Respond exactly: ${notification}`,
-      notification
+      notification,
+      "profile-selected"
     );
   }
-  if (!state?.lastReplyStyled) {
+  const active = activeSessionState(state);
+  if (!active?.lastReplyStyled) {
     return notify(state, "Respond exactly: There is nothing to untranslate.", "There is nothing to untranslate.");
   }
   return {
-    state: touch(state, now, { lastReplyStyled: false }),
+    state: touch(active, now, { lastReplyStyled: false }),
     instruction: "Do not apply Mouthfeel to this control turn. Rewrite the immediately preceding assistant reply in the host baseline voice. Preserve every fact, conclusion, caveat, code block, command, exact quote, and requested format. Output only the rewritten reply. Keep the active Mouthfeel profile for future replies.",
     notification: "Rewriting the previous reply without Mouthfeel.",
     effect: "rewrite-previous"
@@ -286,7 +312,13 @@ function isIntensity(value) {
 function isSessionState(value) {
   if (!value || typeof value !== "object") return false;
   const candidate = value;
-  return candidate.version === 1 && typeof candidate.profileId === "string" && candidate.profileId.length <= 64 && isIntensity(candidate.intensity) && typeof candidate.lastReplyStyled === "boolean" && typeof candidate.updatedAt === "string" && !Number.isNaN(Date.parse(candidate.updatedAt));
+  if (candidate.version !== 1 || typeof candidate.updatedAt !== "string" || Number.isNaN(Date.parse(candidate.updatedAt))) {
+    return false;
+  }
+  if (candidate.mode === "off") {
+    return candidate.lastReplyStyled === false && candidate.profileId === void 0 && candidate.intensity === void 0;
+  }
+  return candidate.version === 1 && (candidate.mode === void 0 || candidate.mode === "active") && typeof candidate.profileId === "string" && candidate.profileId.length <= 64 && isIntensity(candidate.intensity) && typeof candidate.lastReplyStyled === "boolean" && typeof candidate.updatedAt === "string";
 }
 var SidecarStore = class {
   constructor(root) {
@@ -383,6 +415,14 @@ function collectStrings(value, result) {
     for (const item of Object.values(value)) collectStrings(item, result);
   }
 }
+function collectText(value, result) {
+  if (typeof value === "string") result.push(value);
+  else if (Array.isArray(value)) for (const item of value) collectText(item, result);
+  else if (value && typeof value === "object") {
+    const entry = value;
+    for (const key of ["content", "message", "parts", "text", "prompt"]) collectText(entry[key], result);
+  }
+}
 function looksUserAuthored(value) {
   const labels = [];
   for (const key of ["role", "author", "type", "kind"]) collectStrings(value[key], labels);
@@ -394,9 +434,10 @@ function latestUserText(raw) {
     try {
       const value = JSON.parse(lines[index] ?? "");
       if (!value || typeof value !== "object" || Array.isArray(value)) continue;
-      if (!looksUserAuthored(value)) continue;
+      const entry = value;
+      if (!looksUserAuthored(entry)) continue;
       const strings2 = [];
-      collectStrings(value, strings2);
+      collectText(entry, strings2);
       return strings2.join("\n");
     } catch {
       continue;
@@ -451,27 +492,29 @@ ${result.instruction}` }]
       return;
     }
     if (/<scheduled-task\b/i.test(prompt)) {
-      if (state?.lastReplyStyled) await store.write(input.conversationId, {
-        ...state,
+      const active2 = activeSessionState(state);
+      if (active2?.lastReplyStyled) await store.write(input.conversationId, {
+        ...active2,
         lastReplyStyled: false,
         updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       });
       process.stdout.write("{}\n");
       return;
     }
-    if (!state) {
+    const active = activeSessionState(state);
+    if (!active) {
       process.stdout.write("{}\n");
       return;
     }
-    const profile = profiles.find((candidate) => candidate.id === state.profileId);
+    const profile = profiles.find((candidate) => candidate.id === active.profileId);
     if (!profile) {
       await store.delete(input.conversationId);
       process.stdout.write("{}\n");
       return;
     }
-    await store.write(input.conversationId, markStyled(state));
+    await store.write(input.conversationId, markStyled(active));
     process.stdout.write(`${JSON.stringify({
-      injectSteps: [{ ephemeralMessage: renderRuntimeCard(profile, state.intensity, prompt) }]
+      injectSteps: [{ ephemeralMessage: renderRuntimeCard(profile, active.intensity, prompt) }]
     })}
 `);
   } catch (error) {

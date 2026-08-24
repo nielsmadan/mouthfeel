@@ -88,6 +88,14 @@ codex plugin add mouthfeel@mouthfeel
 
 Use `$mouthfeel:use sailor 2` in a new thread.
 
+During local development, rebuild and reinstall with a unique cache-busted version in one command:
+
+```sh
+npm run dev:codex
+```
+
+The command restores the canonical generated files after installation. Start a new thread to load the updated plugin.
+
 ### Pi
 
 ```sh
@@ -112,9 +120,11 @@ Use `/mouthfeel sailor 2`. The adapter restores state through a conversation sid
 
 ## State and privacy
 
-Mouthfeel stores only the active profile id, intensity, a last-reply flag, schema version, and timestamp. It never stores response or transcript content. Sidecars use hashed session ids, atomic writes, user-only permissions, symlink checks, an 8 KiB size cap, and 90-day pruning. Pi uses native custom session entries instead.
+Mouthfeel stores only activation state—either an active profile id and intensity or an off marker—plus a last-reply flag, schema version, and timestamp. It never stores response or transcript content. Sidecars use hashed session ids, atomic writes, user-only permissions, symlink checks, an 8 KiB size cap, and 90-day pruning. Pi uses native custom session entries instead.
 
 New conversations start with Mouthfeel off. Activating, switching, changing intensity, and `surprise` affect future replies only. `untranslate` is one-shot and leaves the active profile in place.
+
+Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Ordinary turns stay quiet; a profile with a phrase bank emits a short per-turn addendum only when the prompt strongly matches a candidate phrase.
 
 ## Development
 
@@ -123,8 +133,9 @@ New conversations start with Mouthfeel off. Activating, switching, changing inte
 - Host adapters: `src/adapters/` and `src/runtime/`
 - Generated packages: `dist/`
 - Sanitized evaluation cases: `evals/cases/`
+- Direct host-smoke prompts: `evals/host-cases/`
 
-`npm run eval:prepare` produces the 108-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all five cases. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
+`npm run eval:prepare` produces the 108-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all six synthetic cases. The host-smoke prompts exercise rebuilt plugins in real agent sessions, where host instructions can weaken or distort a profile. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
 
 Mouthfeel was informed by existing output-style and persona tools; [`docs/precedents.md`](docs/precedents.md) records what it reuses and deliberately changes.
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { loadProfiles } from "../src/core/load.js";
 import {
   compileProfile,
   renderRuntimeCard,
@@ -94,9 +95,36 @@ test("renders phrase candidates and their guards in cards and reminders", () => 
     minIntensity: 1,
   }]);
   const prompt = "The ordering bug produced an incorrect sequence";
-  for (const rendered of [renderRuntimeCard(compiled, 2, prompt), renderRuntimeReminder(compiled, 2, prompt)]) {
+  const reminder = renderRuntimeReminder(compiled, 2, prompt);
+  assert.ok(reminder);
+  for (const rendered of [renderRuntimeCard(compiled, 2, prompt), reminder]) {
     assert.match(rendered, /Timeline got messed up/);
     assert.match(rendered, /Avoid when: literal timeline output/);
     assert.match(rendered, /at most one/i);
   }
+});
+
+test("omits per-turn reminders when no phrase candidate strongly matches", () => {
+  const compiled = compileProfile(source, "Use sailor cadence.", [{
+    text: "Timeline got messed up.",
+    useWhen: ["ordering bug", "incorrect sequence"],
+    minIntensity: 1,
+  }]);
+
+  assert.equal(renderRuntimeReminder(compiled, 2, "Explain the index"), null);
+});
+
+test("sailor intensity 2 requires the core explanation to stay in voice", async () => {
+  const profiles = await loadProfiles("profiles");
+  const sailor = profiles.find((profile) => profile.id === "sailor");
+  assert.ok(sailor);
+  assert.match(sailor.cards[2], /most prose sentences.*recognizably/i);
+  assert.match(sailor.cards[2], /every prose paragraph/i);
+  assert.match(sailor.cards[2], /silently rewrite/i);
+  assert.match(sailor.cards[2], /ordinary assistant/i);
+  assert.match(sailor.cards[2], /core explanatory sentences/i);
+  assert.match(sailor.cards[2], /neutral technical prose.*nautical/i);
+  assert.match(sailor.cards[2], /technical facts.*literal/i);
+  assert.match(sailor.cards[2], /first and second person/i);
+  assert.match(sailor.cards[2], /keep the imagined setting aboard ship/i);
 });

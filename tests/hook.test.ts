@@ -23,6 +23,11 @@ const profiles: CompiledProfile[] = [
     summary: "Sea dog",
     surpriseEligible: true,
     cards: { 1: "sailor one", 2: "sailor two", 3: "sailor three" },
+    phrases: [{
+      text: "The tide has turned.",
+      useWhen: ["ordering bug", "incorrect sequence"],
+      minIntensity: 1,
+    }],
   },
 ];
 
@@ -31,7 +36,7 @@ async function fixture(context: TestContext) {
   return { store: new SidecarStore(root), profiles };
 }
 
-test("activation is prospective and the next prompt receives the card", async (context) => {
+test("activation provides the profile once and ordinary turns stay quiet", async (context) => {
   const options = await fixture(context);
   const activation = await handleHook({
     session_id: "session",
@@ -39,14 +44,16 @@ test("activation is prospective and the next prompt receives the card", async (c
     prompt: "/mouthfeel sailor 2",
   }, options);
   assert.match(JSON.stringify(activation), /future replies/);
-  assert.doesNotMatch(JSON.stringify(activation), /sailor two/);
+  assert.match(JSON.stringify(activation), /sailor two/);
+  assert.match(JSON.stringify(activation), /supersedes every earlier Mouthfeel profile card/i);
+  assert.match(JSON.stringify(activation), /do not apply.*control response/i);
 
   const ordinary = await handleHook({
     session_id: "session",
     hook_event_name: "UserPromptSubmit",
     prompt: "Explain the index",
   }, options);
-  assert.match(JSON.stringify(ordinary), /sailor two/);
+  assert.equal(ordinary, null);
   assert.equal((await options.store.read("session"))?.lastReplyStyled, true);
 
   const next = await handleHook({
@@ -54,8 +61,25 @@ test("activation is prospective and the next prompt receives the card", async (c
     hook_event_name: "UserPromptSubmit",
     prompt: "Continue",
   }, options);
-  assert.match(JSON.stringify(next), /Mouthfeel remains active/);
-  assert.doesNotMatch(JSON.stringify(next), /sailor two/);
+  assert.equal(next, null);
+});
+
+test("an ordinary turn emits only strongly matched phrase candidates", async (context) => {
+  const options = await fixture(context);
+  await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel sailor 2",
+  }, options);
+
+  const ordinary = await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "Diagnose this ordering bug and incorrect sequence",
+  }, options);
+
+  assert.match(JSON.stringify(ordinary), /The tide has turned/);
+  assert.doesNotMatch(JSON.stringify(ordinary), /sailor two/);
 });
 
 test("untranslate bypasses the active card once and preserves state", async (context) => {
@@ -74,6 +98,66 @@ test("compaction restores active context", async (context) => {
   const compact = await handleHook({ session_id: "s", hook_event_name: "SessionStart", source: "compact" }, options);
   assert.match(JSON.stringify(compact), /senior three/);
   assert.equal((await options.store.read("s"))?.lastReplyStyled, false);
+});
+
+test("off revokes prior cards and compaction restores that revocation", async (context) => {
+  const options = await fixture(context);
+  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel sailor 2" }, options);
+
+  const disabled = await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel off" }, options);
+  assert.match(JSON.stringify(disabled), /ignore every earlier Mouthfeel profile card/i);
+  assert.equal((await options.store.read("s"))?.mode, "off");
+
+  assert.equal(await handleHook({
+    session_id: "s",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "Explain the index",
+  }, options), null);
+
+  const compact = await handleHook({ session_id: "s", hook_event_name: "SessionStart", source: "compact" }, options);
+  assert.match(JSON.stringify(compact), /ignore every earlier Mouthfeel profile card/i);
+});
+
+test("intensity and surprise emit complete replacement cards", async (context) => {
+  const options = await fixture(context);
+  await handleHook({ session_id: "intensity", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 1" }, options);
+  const intensity = await handleHook({
+    session_id: "intensity",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel intensity 3",
+  }, options);
+  assert.match(JSON.stringify(intensity), /senior three/);
+  assert.match(JSON.stringify(intensity), /supersedes every earlier Mouthfeel profile card/i);
+
+  const surprise = await handleHook({
+    session_id: "surprise",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel surprise 1",
+  }, { ...options, random: () => 0 });
+  assert.match(JSON.stringify(surprise), /sailor one/);
+  assert.match(JSON.stringify(surprise), /supersedes every earlier Mouthfeel profile card/i);
+});
+
+test("does not load the profile registry for an inactive ordinary turn", async (context) => {
+  const root = await tempDirectory(context, "mouthfeel-hook-lazy-");
+  let loads = 0;
+  const options = {
+    store: new SidecarStore(root),
+    loadProfiles: async () => {
+      loads += 1;
+      return profiles;
+    },
+  };
+
+  assert.equal(await handleHook({
+    session_id: "s",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "Explain the index",
+  }, options), null);
+  assert.equal(loads, 0);
+
+  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel sailor" }, options);
+  assert.equal(loads, 1);
 });
 
 test("resume restores persisted active context without changing styled state", async (context) => {

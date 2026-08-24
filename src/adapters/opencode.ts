@@ -5,7 +5,7 @@ import type { Hooks, Plugin } from "@opencode-ai/plugin";
 
 import { parseCommand, unwrapCommandPrompt } from "../core/commands.js";
 import { renderRuntimeCard } from "../core/profiles.js";
-import { applyCommand, markStyled } from "../core/state.js";
+import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { SidecarStore } from "../core/storage.js";
 import type { CompiledProfile } from "../core/types.js";
 
@@ -90,8 +90,9 @@ export function createOpenCodePlugin(
         if (/<scheduled-task\b/i.test(prompt)) {
           suppressed.add(input.sessionID);
           const state = await store.read(input.sessionID);
-          if (state?.lastReplyStyled) await store.write(input.sessionID, {
-            ...state,
+          const active = activeSessionState(state);
+          if (active?.lastReplyStyled) await store.write(input.sessionID, {
+            ...active,
             lastReplyStyled: false,
             updatedAt: new Date().toISOString(),
           }).catch(() => undefined);
@@ -117,21 +118,23 @@ export function createOpenCodePlugin(
         const prompt = prompts.get(sessionID) ?? "";
         prompts.delete(sessionID);
         const state = await store.read(sessionID);
-        if (!state) return;
-        const profile = profiles.find((candidate) => candidate.id === state.profileId);
+        const active = activeSessionState(state);
+        if (!active) return;
+        const profile = profiles.find((candidate) => candidate.id === active.profileId);
         if (!profile) {
           await store.delete(sessionID).catch(() => undefined);
           return;
         }
-        output.system.push(renderRuntimeCard(profile, state.intensity, prompt));
-        await store.write(sessionID, markStyled(state)).catch(() => undefined);
+        output.system.push(renderRuntimeCard(profile, active.intensity, prompt));
+        await store.write(sessionID, markStyled(active)).catch(() => undefined);
       },
 
       async "experimental.session.compacting"(_input, output) {
         prompts.delete(_input.sessionID);
         const state = await store.read(_input.sessionID);
-        if (state) await store.write(_input.sessionID, {
-          ...state,
+        const active = activeSessionState(state);
+        if (active) await store.write(_input.sessionID, {
+          ...active,
           lastReplyStyled: false,
           updatedAt: new Date().toISOString(),
         }).catch(() => undefined);
