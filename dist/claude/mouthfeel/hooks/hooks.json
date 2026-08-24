@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\" --remind-every-active-turn",
             "timeout": 5,
             "additionalContextLimit": 2500
           }
@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/runtime/hook.mjs\" --remind-every-active-turn",
             "timeout": 5,
             "additionalContextLimit": 2500
           }

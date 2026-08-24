@@ -177,10 +177,16 @@ export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity
   return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
 }
 
-export function renderRuntimeReminder(profile: CompiledProfile, intensity: Intensity, prompt: string): string | null {
+export function renderRuntimeReminder(
+  profile: CompiledProfile,
+  intensity: Intensity,
+  prompt: string,
+  options: { always?: boolean } = {},
+): string | null {
   const selected = selectPhrases(profile, intensity, prompt);
-  if (selected.length === 0) return null;
-  const reminder = `Mouthfeel remains active: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. Keep its hard boundaries.`;
+  if (selected.length === 0 && !options.always) return null;
+  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation to the entire natural-language reply, including its core explanatory prose. Do not merely decorate baseline prose with a few profile markers. Before sending, rewrite prose that could pass for the host's baseline voice. Keep the profile's hard boundaries.`;
+  if (selected.length === 0) return reminder;
   const candidates = selected.map(renderPhraseCandidate);
   return `${reminder}\nOptional phrase candidates for this turn:\n${candidates.join("\n")}\nUse at most one. Never force a quotation.`;
 }

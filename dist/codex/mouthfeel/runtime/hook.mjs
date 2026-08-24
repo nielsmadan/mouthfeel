@@ -168,10 +168,11 @@ ${profile.cards[intensity]}`;
 ${phraseLines.join("\n")}
 Use at most one candidate. Never force a quotation.`;
 }
-function renderRuntimeReminder(profile, intensity, prompt) {
+function renderRuntimeReminder(profile, intensity, prompt, options = {}) {
   const selected = selectPhrases(profile, intensity, prompt);
-  if (selected.length === 0) return null;
-  const reminder = `Mouthfeel remains active: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. Keep its hard boundaries.`;
+  if (selected.length === 0 && !options.always) return null;
+  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation to the entire natural-language reply, including its core explanatory prose. Do not merely decorate baseline prose with a few profile markers. Before sending, rewrite prose that could pass for the host's baseline voice. Keep the profile's hard boundaries.`;
+  if (selected.length === 0) return reminder;
   const candidates = selected.map(renderPhraseCandidate);
   return `${reminder}
 Optional phrase candidates for this turn:
@@ -508,8 +509,14 @@ async function handleHook(input, options) {
     await options.store.delete(sessionId);
     return null;
   }
-  const context = renderRuntimeReminder(profile, active.intensity, input.prompt);
-  await options.store.write(sessionId, markStyled(active, options.now));
+  const context = renderRuntimeReminder(profile, active.intensity, input.prompt, {
+    always: options.remindOnEveryActiveTurn === true
+  });
+  try {
+    await options.store.write(sessionId, markStyled(active, options.now));
+  } catch (error) {
+    if (!context) throw error;
+  }
   return context ? output("UserPromptSubmit", context) : null;
 }
 function packageRoot() {
@@ -535,7 +542,8 @@ async function main() {
     const input = JSON.parse(raw);
     const result = await handleHook(input, {
       loadProfiles: () => loadRegistry(join2(packageRoot(), "registry.json")),
-      store: new SidecarStore(stateRoot())
+      store: new SidecarStore(stateRoot()),
+      remindOnEveryActiveTurn: process.argv.includes("--remind-every-active-turn")
     });
     if (result) process.stdout.write(`${JSON.stringify(result)}
 `);

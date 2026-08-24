@@ -114,6 +114,35 @@ test("omits per-turn reminders when no phrase candidate strongly matches", () =>
   assert.equal(renderRuntimeReminder(compiled, 2, "Explain the index"), null);
 });
 
+test("can reinforce the complete profile on a turn without phrase candidates", () => {
+  const compiled = compileProfile(source, "Use sailor cadence.", []);
+  const reminder = renderRuntimeReminder(compiled, 2, "Explain the index", { always: true });
+
+  assert.ok(reminder);
+  assert.match(reminder, /active for this reply/i);
+  assert.match(reminder, /core explanatory prose/i);
+  assert.match(reminder, /baseline prose/i);
+  assert.doesNotMatch(reminder, /Use sailor cadence/);
+});
+
+test("keeps matching phrase candidates in an always-on reminder", () => {
+  const compiled = compileProfile(source, "Use sailor cadence.", [{
+    text: "Timeline got messed up.",
+    useWhen: ["ordering bug", "incorrect sequence"],
+    minIntensity: 1,
+  }]);
+  const reminder = renderRuntimeReminder(
+    compiled,
+    2,
+    "The ordering bug produced an incorrect sequence",
+    { always: true },
+  );
+
+  assert.ok(reminder);
+  assert.match(reminder, /core explanatory prose/i);
+  assert.match(reminder, /Timeline got messed up/);
+});
+
 test("sailor intensity 2 requires the core explanation to stay in voice", async () => {
   const profiles = await loadProfiles("profiles");
   const sailor = profiles.find((profile) => profile.id === "sailor");

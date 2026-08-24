@@ -64,6 +64,45 @@ test("activation provides the profile once and ordinary turns stay quiet", async
   assert.equal(next, null);
 });
 
+test("an opted-in host reinforces the active profile on every ordinary turn", async (context) => {
+  const options = { ...(await fixture(context)), remindOnEveryActiveTurn: true };
+  await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel sailor 2",
+  }, options);
+
+  const ordinary = await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "Explain the index",
+  }, options);
+
+  assert.match(JSON.stringify(ordinary), /active for this reply/i);
+  assert.match(JSON.stringify(ordinary), /core explanatory prose/i);
+  assert.doesNotMatch(JSON.stringify(ordinary), /sailor two/);
+});
+
+test("returns an active reminder when refreshing its styled timestamp fails", async (context) => {
+  const options = { ...(await fixture(context)), remindOnEveryActiveTurn: true };
+  await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel sailor 2",
+  }, options);
+  options.store.write = async () => {
+    throw new Error("state is read-only");
+  };
+
+  const ordinary = await handleHook({
+    session_id: "session",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "Explain the index",
+  }, options);
+
+  assert.match(JSON.stringify(ordinary), /active for this reply/i);
+});
+
 test("an ordinary turn emits only strongly matched phrase candidates", async (context) => {
   const options = await fixture(context);
   await handleHook({

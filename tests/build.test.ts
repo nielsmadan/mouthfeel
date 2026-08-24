@@ -69,12 +69,15 @@ test("generated lifecycle configuration covers every session transition", async 
     const config = JSON.parse(await readFile(join(dist, host, "mouthfeel/hooks/hooks.json"), "utf8")) as {
       hooks: {
         SessionStart: { matcher: string; hooks: { additionalContextLimit: number }[] }[];
-        UserPromptSubmit: { hooks: { additionalContextLimit: number }[] }[];
+        UserPromptSubmit: { hooks: { additionalContextLimit: number; command: string }[] }[];
       };
     };
     assert.equal(config.hooks.SessionStart[0]?.matcher, "startup|resume|clear|compact", host);
     assert.equal(config.hooks.SessionStart[0]?.hooks[0]?.additionalContextLimit, 2500, host);
     assert.equal(config.hooks.UserPromptSubmit[0]?.hooks[0]?.additionalContextLimit, 2500, host);
+    const command = config.hooks.UserPromptSubmit[0]?.hooks[0]?.command ?? "";
+    if (host === "claude") assert.match(command, /--remind-every-active-turn/);
+    else assert.doesNotMatch(command, /--remind-every-active-turn/);
   }
   for (const host of ["pi", "opencode"] as const) {
     const manifest = JSON.parse(await readFile(join(dist, host, "mouthfeel/package.json"), "utf8")) as { files: string[] };

@@ -79,6 +79,14 @@ claude plugin install mouthfeel@mouthfeel
 
 Use `/mouthfeel:use sailor 2` in a new session.
 
+During local development, rebuild and update the installed plugin with a unique cache-busted version in one command:
+
+```sh
+npm run dev:claude
+```
+
+The command restores the canonical generated manifest after updating. Run `/reload-plugins` in Claude Code or start a new session to load the update.
+
 ### Codex
 
 ```sh
@@ -124,7 +132,7 @@ Mouthfeel stores only activation state—either an active profile id and intensi
 
 New conversations start with Mouthfeel off. Activating, switching, changing intensity, and `surprise` affect future replies only. `untranslate` is one-shot and leaves the active profile in place.
 
-Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Ordinary turns stay quiet; a profile with a phrase bank emits a short per-turn addendum only when the prompt strongly matches a candidate phrase.
+Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Claude Code adds a compact reminder on every active ordinary turn so long tool-heavy replies retain the profile throughout their core explanation. Codex ordinary turns stay quiet. On either host, a profile with a phrase bank adds matching candidates to the reminder only when the prompt strongly matches them.
 
 ## Development
 

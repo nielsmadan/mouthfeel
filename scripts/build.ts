@@ -53,14 +53,18 @@ If the hook reports an unknown profile, use \`${invocation} list\`. If state app
 `;
 }
 
-function hookConfig(variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT"): object {
+function hookConfig(
+  variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT",
+  options: { remindOnEveryActiveTurn?: boolean } = {},
+): object {
+  const arguments_ = options.remindOnEveryActiveTurn ? " --remind-every-active-turn" : "";
   return {
     hooks: {
       SessionStart: [{
         matcher: "startup|resume|clear|compact",
         hooks: [{
           type: "command",
-          command: `node \"\${${variable}}/runtime/hook.mjs\"`,
+          command: `node \"\${${variable}}/runtime/hook.mjs\"${arguments_}`,
           timeout: 5,
           additionalContextLimit: 2500,
         }],
@@ -68,7 +72,7 @@ function hookConfig(variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT"): object {
       UserPromptSubmit: [{
         hooks: [{
           type: "command",
-          command: `node \"\${${variable}}/runtime/hook.mjs\"`,
+          command: `node \"\${${variable}}/runtime/hook.mjs\"${arguments_}`,
           timeout: 5,
           additionalContextLimit: 2500,
         }],
@@ -138,7 +142,9 @@ async function main(): Promise<void> {
     repository,
     license: "MIT",
   });
-  await json(join(claude, "hooks", "hooks.json"), hookConfig("CLAUDE_PLUGIN_ROOT"));
+  await json(join(claude, "hooks", "hooks.json"), hookConfig("CLAUDE_PLUGIN_ROOT", {
+    remindOnEveryActiveTurn: true,
+  }));
   await write(join(claude, "skills", "use", "SKILL.md"), controllerSkill("Claude Code"));
   await bundle("src/runtime/hook.ts", join(claude, "runtime", "hook.mjs"));
 

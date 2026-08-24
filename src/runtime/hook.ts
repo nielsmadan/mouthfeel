@@ -20,6 +20,7 @@ interface HookOptionBase {
   store: SidecarStore;
   random?: () => number;
   now?: () => Date;
+  remindOnEveryActiveTurn?: boolean;
 }
 
 type HookOptions = HookOptionBase & (
@@ -137,8 +138,14 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
     await options.store.delete(sessionId);
     return null;
   }
-  const context = renderRuntimeReminder(profile, active.intensity, input.prompt);
-  await options.store.write(sessionId, markStyled(active, options.now));
+  const context = renderRuntimeReminder(profile, active.intensity, input.prompt, {
+    always: options.remindOnEveryActiveTurn === true,
+  });
+  try {
+    await options.store.write(sessionId, markStyled(active, options.now));
+  } catch (error) {
+    if (!context) throw error;
+  }
   return context ? output("UserPromptSubmit", context) : null;
 }
 
@@ -171,6 +178,7 @@ async function main(): Promise<void> {
     const result = await handleHook(input, {
       loadProfiles: () => loadRegistry(join(packageRoot(), "registry.json")),
       store: new SidecarStore(stateRoot()),
+      remindOnEveryActiveTurn: process.argv.includes("--remind-every-active-turn"),
     });
     if (result) process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {
