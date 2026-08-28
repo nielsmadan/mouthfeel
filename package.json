@@ -21,6 +21,7 @@
     "check": "tsc --noEmit && npm test",
     "dev:claude": "tsx scripts/dev-claude.ts",
     "dev:codex": "tsx scripts/dev-codex.ts",
+    "dev:oc": "tsx scripts/dev-opencode.ts",
     "eval:prepare": "tsx scripts/prepare-evals.ts",
     "pretest": "npm run build",
     "test": "tsx --test \"tests/**/*.test.ts\""

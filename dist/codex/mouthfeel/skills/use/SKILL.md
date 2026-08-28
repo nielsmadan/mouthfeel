@@ -5,7 +5,7 @@ description: Activates or controls a temporary Mouthfeel output profile when the
 
 # Mouthfeel controller
 
-Only acknowledge success when the Mouthfeel lifecycle hook supplied a Mouthfeel control-turn instruction in developer context. Follow that instruction exactly and return only that response. If no Mouthfeel control-turn instruction is present, use the fallback. Respond exactly: Mouthfeel hook did not run; profile unchanged. Never infer success from this invocation alone. Activation is prospective: do not rewrite the preceding reply and do not apply the selected profile to this control response.
+Only acknowledge success when the Mouthfeel lifecycle hook supplied a Mouthfeel control-turn instruction in developer context. Follow that instruction exactly and return only that response. If no Mouthfeel control-turn instruction is present, use the fallback. Respond exactly: Mouthfeel hook did not run; profile unchanged. Never infer success from this invocation alone. Profile selection and surprise may request a brief activation greeting in the selected profile. Do not rewrite the preceding reply; substantive replies remain prospective. Do not apply the profile to other control responses.
 
 ## Commands
 

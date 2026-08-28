@@ -1,8 +1,10 @@
-import { spawn } from "node:child_process";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StdioOptions } from "node:child_process";
+
+import { runCommand, runDevelopmentCli } from "./dev-common.js";
+export { shellForPlatform } from "./dev-common.js";
 
 interface DevelopmentInstallOptions {
   root?: string;
@@ -11,35 +13,6 @@ interface DevelopmentInstallOptions {
   platform?: NodeJS.Platform;
   signal?: AbortSignal;
   stdio?: StdioOptions;
-}
-
-export function shellForPlatform(platform: NodeJS.Platform): boolean {
-  return platform === "win32";
-}
-
-function run(command: string, args: string[], options: {
-  cwd: string;
-  env: NodeJS.ProcessEnv;
-  platform: NodeJS.Platform;
-  signal?: AbortSignal;
-  stdio: StdioOptions;
-}): Promise<void> {
-  return new Promise((fulfill, reject) => {
-    const child = spawn(command, args, {
-      cwd: options.cwd,
-      env: options.env,
-      shell: shellForPlatform(options.platform),
-      ...(options.signal ? { signal: options.signal } : {}),
-      stdio: options.stdio,
-    });
-    child.stdout?.resume();
-    child.stderr?.resume();
-    child.once("error", (error) => reject(new Error(`Failed to start ${command}: ${error.message}`, { cause: error })));
-    child.once("close", (code) => {
-      if (code === 0) fulfill();
-      else reject(new Error(`${command} ${args.join(" ")} exited with code ${code ?? "unknown"}`));
-    });
-  });
 }
 
 function timestamp(now: Date): string {
@@ -56,7 +29,7 @@ export async function installCodexForDevelopment(options: DevelopmentInstallOpti
   const env = options.env ?? process.env;
   const platform = options.platform ?? process.platform;
   const stdio = options.stdio ?? "inherit";
-  const execute = (command: string, args: string[]) => run(command, args, {
+  const execute = (command: string, args: string[]) => runCommand(command, args, {
     cwd: root,
     env,
     platform,
@@ -96,29 +69,9 @@ export async function installCodexForDevelopment(options: DevelopmentInstallOpti
   return version;
 }
 
-async function main(): Promise<void> {
-  const controller = new AbortController();
-  let interrupted: "SIGINT" | "SIGTERM" | null = null;
-  const interrupt = (signal: "SIGINT" | "SIGTERM") => {
-    interrupted = signal;
-    controller.abort();
-  };
-  const onInterrupt = () => interrupt("SIGINT");
-  const onTerminate = () => interrupt("SIGTERM");
-  process.once("SIGINT", onInterrupt);
-  process.once("SIGTERM", onTerminate);
-  try {
-    const version = await installCodexForDevelopment({ signal: controller.signal });
-    process.stdout.write(`Installed Mouthfeel ${version}. Start a new Codex thread to load it.\n`);
-  } catch (error) {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
-    process.exitCode = interrupted === "SIGINT" ? 130 : interrupted === "SIGTERM" ? 143 : 1;
-  } finally {
-    process.off("SIGINT", onInterrupt);
-    process.off("SIGTERM", onTerminate);
-  }
-}
-
 if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
-  void main();
+  void runDevelopmentCli(
+    (signal) => installCodexForDevelopment({ signal }),
+    (version) => `Installed Mouthfeel ${version}. Start a new Codex thread to load it.`,
+  );
 }

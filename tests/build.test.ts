@@ -92,6 +92,8 @@ test("generated controller skills do not echo an internal command marker", async
     assert.match(skill, /return only that response/i);
     assert.match(skill, /only acknowledge success when.*control-turn instruction/i);
     assert.match(skill, /Respond exactly: Mouthfeel hook did not run; profile unchanged\./);
+    assert.match(skill, /brief activation greeting/i);
+    assert.match(skill, /substantive replies remain prospective/i);
   }
 });
 

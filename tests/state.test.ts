@@ -38,7 +38,7 @@ test("activates prospectively and persists an off tombstone", () => {
   });
   assert.equal(activated.state?.profileId, "sailor");
   assert.equal(activated.state?.lastReplyStyled, false);
-  assert.equal(activated.effect, "profile-selected");
+  assert.equal(activated.effect, "profile-greeting");
   assert.match(activated.instruction, /future replies/i);
 
   const off = applyCommand(active, { type: "off" }, profiles);
@@ -54,6 +54,7 @@ test("surprise resolves and persists an eligible profile", () => {
   });
   assert.equal(result.state?.profileId, "sailor");
   assert.equal(result.state?.intensity, 1);
+  assert.equal(result.effect, "profile-greeting");
 });
 
 test("untranslate keeps the profile active and is one-shot", () => {
@@ -72,6 +73,11 @@ test("intensity requires an active profile", () => {
   assert.match(result.instruction, /activate a profile/i);
 });
 
+test("intensity changes select a replacement profile card without requesting a greeting", () => {
+  const result = applyCommand(active, { type: "intensity", intensity: 3 }, profiles);
+  assert.equal(result.effect, "profile-selected");
+});
+
 test("neutral control replies are not eligible for untranslate", () => {
   const status = applyCommand(active, { type: "status" }, profiles);
   assert.equal(status.state?.lastReplyStyled, false);
@@ -83,7 +89,7 @@ test("activating another profile replaces rather than stacks", () => {
   const result = applyCommand(active, { type: "activate", profileId: "sailor", intensity: 1 }, profiles);
   assert.equal(result.state?.profileId, "sailor");
   assert.equal(result.state?.intensity, 1);
-  assert.equal(result.effect, "profile-selected");
+  assert.equal(result.effect, "profile-greeting");
 });
 
 test("disabled state behaves as off until another profile is selected", () => {

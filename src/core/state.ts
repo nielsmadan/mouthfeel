@@ -4,6 +4,7 @@ import type {
   CompiledProfile,
   MouthfeelCommand,
   MouthfeelSessionState,
+  ProfileGreetingCommandResult,
 } from "./types.js";
 
 interface ApplyOptions {
@@ -15,9 +16,21 @@ function notify(
   state: MouthfeelSessionState | null,
   instruction: string,
   notification: string,
-  effect: CommandResult["effect"] = "notify",
+  effect: Exclude<CommandResult["effect"], "profile-greeting"> = "notify",
 ): CommandResult {
   return { state, instruction, notification, effect };
+}
+
+function greet(
+  state: ActiveMouthfeelSessionState,
+  notification: string,
+): ProfileGreetingCommandResult {
+  return {
+    state,
+    instruction: `Respond exactly: ${notification}`,
+    notification,
+    effect: "profile-greeting",
+  };
 }
 
 function newState(profileId: string, intensity: 1 | 2 | 3, now: () => Date): ActiveMouthfeelSessionState {
@@ -100,11 +113,9 @@ export function applyCommand(
 
   if (command.type === "activate") {
     const notification = `Mouthfeel: ${command.profileId}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(command.profileId, command.intensity, now),
-      `Respond exactly: ${notification}`,
       notification,
-      "profile-selected",
     );
   }
 
@@ -119,11 +130,9 @@ export function applyCommand(
       return notify(state, "Respond exactly: No surprise profiles are available.", "No surprise profiles are available.");
     }
     const notification = `Surprise selected ${profile.id}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(profile.id, command.intensity, now),
-      `Respond exactly: ${notification}`,
       notification,
-      "profile-selected",
     );
   }
 

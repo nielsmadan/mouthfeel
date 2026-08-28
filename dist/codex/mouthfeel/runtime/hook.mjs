@@ -168,6 +168,17 @@ ${profile.cards[intensity]}`;
 ${phraseLines.join("\n")}
 Use at most one candidate. Never force a quotation.`;
 }
+function renderActivationGreeting(profile, result) {
+  return [
+    "This is a Mouthfeel activation greeting.",
+    renderRuntimeCard(profile, result.state.intensity, ""),
+    "Apply the selected profile to this greeting.",
+    "Reply immediately, without calling tools or inspecting files.",
+    `In one to three short sentences, greet the user in this voice and clearly convey: ${result.notification}`,
+    "Do not rewrite the preceding reply. Substantive replies remain prospective.",
+    "Output only the greeting."
+  ].join("\n\n");
+}
 function renderRuntimeReminder(profile, intensity, prompt, options = {}) {
   const selected = selectPhrases(profile, intensity, prompt);
   if (selected.length === 0 && !options.always) return null;
@@ -191,6 +202,14 @@ async function loadRegistry(path) {
 // src/core/state.ts
 function notify(state, instruction, notification, effect = "notify") {
   return { state, instruction, notification, effect };
+}
+function greet(state, notification) {
+  return {
+    state,
+    instruction: `Respond exactly: ${notification}`,
+    notification,
+    effect: "profile-greeting"
+  };
 }
 function newState(profileId, intensity, now) {
   return {
@@ -257,11 +276,9 @@ ${notification}`,
   }
   if (command.type === "activate") {
     const notification = `Mouthfeel: ${command.profileId}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(command.profileId, command.intensity, now),
-      `Respond exactly: ${notification}`,
-      notification,
-      "profile-selected"
+      notification
     );
   }
   if (command.type === "surprise") {
@@ -275,11 +292,9 @@ ${notification}`,
       return notify(state, "Respond exactly: No surprise profiles are available.", "No surprise profiles are available.");
     }
     const notification = `Surprise selected ${profile.id}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(profile.id, command.intensity, now),
-      `Respond exactly: ${notification}`,
-      notification,
-      "profile-selected"
+      notification
     );
   }
   if (command.type === "intensity") {
@@ -486,11 +501,13 @@ async function handleHook(input, options) {
       ...options.random ? { random: options.random } : {},
       ...options.now ? { now: options.now } : {}
     });
-    if (result.state) await options.store.write(sessionId, result.state);
-    else await options.store.delete(sessionId);
     const activeResult = activeSessionState(result.state);
-    const selectedProfile = result.effect === "profile-selected" && activeResult ? profileFor(profiles2, activeResult.profileId) : null;
-    const context2 = [
+    const selectedProfile = (result.effect === "profile-selected" || result.effect === "profile-greeting") && activeResult ? profileFor(profiles2, activeResult.profileId) : null;
+    const greetingProfile = result.effect === "profile-greeting" ? selectedProfile : null;
+    const storedState = greetingProfile && result.effect === "profile-greeting" ? markStyled(result.state, options.now) : result.state;
+    if (storedState) await options.store.write(sessionId, storedState);
+    else await options.store.delete(sessionId);
+    const context2 = greetingProfile && result.effect === "profile-greeting" ? renderActivationGreeting(greetingProfile, result) : [
       ...selectedProfile && activeResult ? [
         "The profile card below applies only to future replies. Do not apply it to this control response.",
         renderRuntimeCard(selectedProfile, activeResult.intensity, "")

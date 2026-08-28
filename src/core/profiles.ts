@@ -1,4 +1,10 @@
-import type { CompiledProfile, Intensity, PhraseEntry, ProfileSource } from "./types.js";
+import type {
+  CompiledProfile,
+  Intensity,
+  PhraseEntry,
+  ProfileGreetingCommandResult,
+  ProfileSource,
+} from "./types.js";
 
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -175,6 +181,21 @@ export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
   return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
+}
+
+export function renderActivationGreeting(
+  profile: CompiledProfile,
+  result: ProfileGreetingCommandResult,
+): string {
+  return [
+    "This is a Mouthfeel activation greeting.",
+    renderRuntimeCard(profile, result.state.intensity, ""),
+    "Apply the selected profile to this greeting.",
+    "Reply immediately, without calling tools or inspecting files.",
+    `In one to three short sentences, greet the user in this voice and clearly convey: ${result.notification}`,
+    "Do not rewrite the preceding reply. Substantive replies remain prospective.",
+    "Output only the greeting.",
+  ].join("\n\n");
 }
 
 export function renderRuntimeReminder(

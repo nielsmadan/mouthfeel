@@ -8,7 +8,7 @@ It ships native packages for Claude Code, Codex, Pi, OpenCode, and Antigravity. 
 
 ## Commands
 
-Claude uses `/mouthfeel:use`, Codex uses `$mouthfeel:use`, and Pi, OpenCode, and Antigravity use `/mouthfeel`.
+Every host accepts the same arguments. Claude uses `/mouthfeel:use`, Codex uses `$mouthfeel:use`, and Pi, OpenCode, and Antigravity use `/mouthfeel`; `:use` is the plugin skill namespace on Claude and Codex, not an extra action.
 
 ```text
 <profile> [1|2|3]    activate for future replies; default intensity is 2
@@ -114,7 +114,13 @@ Use `/mouthfeel sailor 2`.
 
 ### OpenCode
 
-For local development, copy `dist/opencode/mouthfeel/index.js` into `.opencode/plugins/mouthfeel.js`. Once published, add `@nielsmadan/opencode-mouthfeel` to the `plugin` array in `opencode.json`.
+During local development, rebuild and install the global plugin in one command:
+
+```sh
+npm run dev:oc
+```
+
+The command respects `OPENCODE_CONFIG_DIR` and `XDG_CONFIG_HOME`, then installs `mouthfeel.js` in the resolved OpenCode plugin directory. Restart OpenCode to load the update. Once published, add `@nielsmadan/opencode-mouthfeel` to the `plugin` array in `opencode.json`.
 
 Use `/mouthfeel sailor 2`. This adapter uses OpenCode’s experimental system-prompt and compaction hooks, so compatibility is version-sensitive.
 
@@ -130,7 +136,7 @@ Use `/mouthfeel sailor 2`. The adapter restores state through a conversation sid
 
 Mouthfeel stores only activation state—either an active profile id and intensity or an off marker—plus a last-reply flag, schema version, and timestamp. It never stores response or transcript content. Sidecars use hashed session ids, atomic writes, user-only permissions, symlink checks, an 8 KiB size cap, and 90-day pruning. Pi uses native custom session entries instead.
 
-New conversations start with Mouthfeel off. Activating, switching, changing intensity, and `surprise` affect future replies only. `untranslate` is one-shot and leaves the active profile in place.
+New conversations start with Mouthfeel off. On Claude Code, Codex, and OpenCode, selecting a profile or using `surprise` produces a brief greeting in the chosen voice; substantive replies are still affected prospectively. Changing intensity affects future replies only. `untranslate` is one-shot and leaves the active profile in place.
 
 Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Claude Code adds a compact reminder on every active ordinary turn so long tool-heavy replies retain the profile throughout their core explanation. Codex ordinary turns stay quiet. On either host, a profile with a phrase bank adds matching candidates to the reminder only when the prompt strongly matches them.
 

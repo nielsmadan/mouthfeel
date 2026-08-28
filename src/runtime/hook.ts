@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseCommand, unwrapCommandPrompt } from "../core/commands.js";
-import { renderRuntimeCard, renderRuntimeReminder } from "../core/profiles.js";
+import { renderActivationGreeting, renderRuntimeCard, renderRuntimeReminder } from "../core/profiles.js";
 import { loadRegistry } from "../core/registry.js";
 import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { SidecarStore } from "../core/storage.js";
@@ -110,23 +110,29 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
       ...(options.random ? { random: options.random } : {}),
       ...(options.now ? { now: options.now } : {}),
     });
-    if (result.state) await options.store.write(sessionId, result.state);
-    else await options.store.delete(sessionId);
     const activeResult = activeSessionState(result.state);
-    const selectedProfile = result.effect === "profile-selected" && activeResult
+    const selectedProfile = (result.effect === "profile-selected" || result.effect === "profile-greeting") && activeResult
       ? profileFor(profiles, activeResult.profileId)
       : null;
-    const context = [
-      ...(selectedProfile && activeResult
-        ? [
-            "The profile card below applies only to future replies. Do not apply it to this control response.",
-            renderRuntimeCard(selectedProfile, activeResult.intensity, ""),
-          ]
-        : []),
-      ...(result.effect === "profile-disabled" ? [PROFILE_REVOCATION] : []),
-      "This is a Mouthfeel control turn. Do not apply any Mouthfeel profile to the response.",
-      result.instruction,
-    ].join("\n\n");
+    const greetingProfile = result.effect === "profile-greeting" ? selectedProfile : null;
+    const storedState = greetingProfile && result.effect === "profile-greeting"
+      ? markStyled(result.state, options.now)
+      : result.state;
+    if (storedState) await options.store.write(sessionId, storedState);
+    else await options.store.delete(sessionId);
+    const context = greetingProfile && result.effect === "profile-greeting"
+      ? renderActivationGreeting(greetingProfile, result)
+      : [
+          ...(selectedProfile && activeResult
+            ? [
+                "The profile card below applies only to future replies. Do not apply it to this control response.",
+                renderRuntimeCard(selectedProfile, activeResult.intensity, ""),
+              ]
+            : []),
+          ...(result.effect === "profile-disabled" ? [PROFILE_REVOCATION] : []),
+          "This is a Mouthfeel control turn. Do not apply any Mouthfeel profile to the response.",
+          result.instruction,
+        ].join("\n\n");
     return output("UserPromptSubmit", context);
   }
 

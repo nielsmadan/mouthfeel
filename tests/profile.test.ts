@@ -157,3 +157,17 @@ test("sailor intensity 2 requires the core explanation to stay in voice", async 
   assert.match(sailor.cards[2], /first and second person/i);
   assert.match(sailor.cards[2], /keep the imagined setting aboard ship/i);
 });
+
+test("sailor intensity 1 reserves sustained paragraph-level voice for intensity 2", async () => {
+  const profiles = await loadProfiles("profiles");
+  const sailor = profiles.find((profile) => profile.id === "sailor");
+  assert.ok(sailor);
+  assert.match(sailor.cards[1], /light touch/i);
+  assert.match(sailor.cards[1], /typically use one crew address/i);
+  assert.match(sailor.cards[1], /two or three distributed sentences/i);
+  assert.match(sailor.cards[1], /old-hand guidance, experience, or dry judgment/i);
+  assert.match(sailor.cards[1], /at most one maritime idiom or comparison/i);
+  assert.match(sailor.cards[1], /faint eye-roll/i);
+  assert.doesNotMatch(sailor.cards[1], /every prose paragraph/i);
+  assert.match(sailor.cards[2], /every prose paragraph/i);
+});

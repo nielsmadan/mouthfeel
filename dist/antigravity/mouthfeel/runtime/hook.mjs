@@ -181,6 +181,14 @@ async function loadRegistry(path) {
 function notify(state, instruction, notification, effect = "notify") {
   return { state, instruction, notification, effect };
 }
+function greet(state, notification) {
+  return {
+    state,
+    instruction: `Respond exactly: ${notification}`,
+    notification,
+    effect: "profile-greeting"
+  };
+}
 function newState(profileId, intensity, now) {
   return {
     version: 1,
@@ -246,11 +254,9 @@ ${notification}`,
   }
   if (command.type === "activate") {
     const notification = `Mouthfeel: ${command.profileId}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(command.profileId, command.intensity, now),
-      `Respond exactly: ${notification}`,
-      notification,
-      "profile-selected"
+      notification
     );
   }
   if (command.type === "surprise") {
@@ -264,11 +270,9 @@ ${notification}`,
       return notify(state, "Respond exactly: No surprise profiles are available.", "No surprise profiles are available.");
     }
     const notification = `Surprise selected ${profile.id}, intensity ${command.intensity}. This applies to future replies.`;
-    return notify(
+    return greet(
       newState(profile.id, command.intensity, now),
-      `Respond exactly: ${notification}`,
-      notification,
-      "profile-selected"
+      notification
     );
   }
   if (command.type === "intensity") {

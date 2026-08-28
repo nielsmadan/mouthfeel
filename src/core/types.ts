@@ -65,9 +65,19 @@ export type MouthfeelCommand =
   | { type: "untranslate" }
   | { type: "invalid"; message: string };
 
-export interface CommandResult {
+interface CommandResultBase {
   state: MouthfeelSessionState | null;
   instruction: string;
   notification: string;
+}
+
+export interface ProfileGreetingCommandResult extends CommandResultBase {
+  state: ActiveMouthfeelSessionState;
+  effect: "profile-greeting";
+}
+
+interface NeutralCommandResult extends CommandResultBase {
   effect: "notify" | "profile-selected" | "profile-disabled" | "rewrite-previous";
 }
+
+export type CommandResult = ProfileGreetingCommandResult | NeutralCommandResult;
