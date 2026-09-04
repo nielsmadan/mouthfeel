@@ -20,6 +20,7 @@ avoid:
 intensity:
   1:
     - Remove filler and use short complete sentences with mostly normal grammar.
+    - Keep articles and verb agreement intact at this level; the compression shows in brevity, not broken grammar.
   2:
     - Drop articles selectively, use readable fragments, and keep the causal chain explicit.
   3:

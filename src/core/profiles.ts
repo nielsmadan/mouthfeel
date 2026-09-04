@@ -177,7 +177,10 @@ function renderPhraseCandidate(entry: PhraseEntry): string {
 
 export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
   const selected = selectPhrases(profile, intensity, prompt);
-  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. Apply it to each entire natural-language reply — long, structured, and technical explanations included — not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.\n\n${profile.cards[intensity]}`;
+  const distribution = intensity === 1
+    ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline."
+    : "Apply it to each entire natural-language reply — long, structured, and technical explanations included — not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
+  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. ${distribution}\n\n${profile.cards[intensity]}`;
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
   return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
