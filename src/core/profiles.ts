@@ -175,12 +175,15 @@ function renderPhraseCandidate(entry: PhraseEntry): string {
   return `- Candidate: “${entry.text}” Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
 }
 
-export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
-  const selected = selectPhrases(profile, intensity, prompt);
-  const distribution = intensity === 1
+function distributionLine(intensity: Intensity): string {
+  return intensity === 1
     ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline."
     : "Apply it to each entire natural-language reply — long, structured, and technical explanations included — not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
-  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. ${distribution}\n\n${profile.cards[intensity]}`;
+}
+
+export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
+  const selected = selectPhrases(profile, intensity, prompt);
+  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. ${distributionLine(intensity)}\n\n${profile.cards[intensity]}`;
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
   return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
@@ -209,7 +212,7 @@ export function renderRuntimeReminder(
 ): string | null {
   const selected = selectPhrases(profile, intensity, prompt);
   if (selected.length === 0 && !options.always) return null;
-  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation to the entire natural-language reply, including its core explanatory prose. Do not merely decorate baseline prose with a few profile markers. Before sending, rewrite prose that could pass for the host's baseline voice. Keep the profile's hard boundaries.`;
+  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. ${distributionLine(intensity)} Keep the profile's hard boundaries.`;
   if (selected.length === 0) return reminder;
   const candidates = selected.map(renderPhraseCandidate);
   return `${reminder}\nOptional phrase candidates for this turn:\n${candidates.join("\n")}\nUse at most one. Never force a quotation.`;

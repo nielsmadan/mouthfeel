@@ -82,7 +82,7 @@ test("an opted-in host reinforces the active profile on every ordinary turn", as
   }, options);
 
   assert.match(JSON.stringify(ordinary), /active for this reply/i);
-  assert.match(JSON.stringify(ordinary), /core explanatory prose/i);
+  assert.match(JSON.stringify(ordinary), /each entire natural-language reply/i);
   assert.doesNotMatch(JSON.stringify(ordinary), /sailor two/);
 });
 

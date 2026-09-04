@@ -120,8 +120,8 @@ test("can reinforce the complete profile on a turn without phrase candidates", (
 
   assert.ok(reminder);
   assert.match(reminder, /active for this reply/i);
-  assert.match(reminder, /core explanatory prose/i);
-  assert.match(reminder, /baseline prose/i);
+  assert.match(reminder, /each entire natural-language reply/i);
+  assert.match(reminder, /pass for the host's baseline voice/i);
   assert.doesNotMatch(reminder, /Use sailor cadence/);
 });
 
@@ -139,7 +139,7 @@ test("keeps matching phrase candidates in an always-on reminder", () => {
   );
 
   assert.ok(reminder);
-  assert.match(reminder, /core explanatory prose/i);
+  assert.match(reminder, /each entire natural-language reply/i);
   assert.match(reminder, /Timeline got messed up/);
 });
 
@@ -170,4 +170,20 @@ test("sailor intensity 1 reserves sustained paragraph-level voice for intensity 
   assert.match(sailor.cards[1], /faint eye-roll/i);
   assert.doesNotMatch(sailor.cards[1], /every prose paragraph/i);
   assert.match(sailor.cards[2], /every prose paragraph/i);
+});
+
+test("card and reminder share intensity-aware distribution guidance", () => {
+  const compiled = compileProfile(source, "Use sailor cadence.", []);
+  const light = /Keep the voice light at this intensity/;
+  const full = /each entire natural-language reply/;
+
+  assert.match(renderRuntimeCard(compiled, 1, ""), light);
+  assert.doesNotMatch(renderRuntimeCard(compiled, 1, ""), full);
+  assert.match(renderRuntimeCard(compiled, 3, ""), full);
+  assert.doesNotMatch(renderRuntimeCard(compiled, 3, ""), light);
+
+  const reminder1 = renderRuntimeReminder(compiled, 1, "Explain the index", { always: true });
+  const reminder3 = renderRuntimeReminder(compiled, 3, "Explain the index", { always: true });
+  assert.ok(reminder1 && light.test(reminder1) && !full.test(reminder1));
+  assert.ok(reminder3 && full.test(reminder3) && !light.test(reminder3));
 });

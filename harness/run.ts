@@ -23,17 +23,24 @@ import {
   tmuxServerReachable,
 } from "./driver.js";
 import { hostAdapters } from "./hosts/index.js";
-import { expandMatrix, jobDirName, parseHostCase, parseRunArgs, shimScript, statusReplyMatches, workerName } from "./lib.js";
+import {
+  expandMatrix,
+  jobDirName,
+  parseHostCase,
+  parseRunArgs,
+  shimScript,
+  statusPaneMatches,
+  statusReplyMatches,
+  workerName,
+} from "./lib.js";
 import type { HostAdapter, HostCase, Job, WorkerHandle } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-// A plugin command (activation, status) is a model turn on some hosts and a
-// synchronous extension response on others. Return the reply either way: from
-// csd converse where the turn confirms, or from the pane after a settle where it
-// does not.
+// Delivery mode per HostAdapter.commandsConfirmAsTurns; the pane is the reply
+// source when a command never confirms as a turn.
 async function deliverCommand(
   worker: WorkerHandle,
   adapter: HostAdapter,
@@ -130,7 +137,7 @@ async function runJob(
   const adapter = hostAdapters[job.host];
   const jobDir = join(runDir, jobDirName(job));
   await mkdir(jobDir, { recursive: true });
-  const workspace = join(runDir, "workspace");
+  const workspace = join(jobDir, "workspace");
   await mkdir(workspace, { recursive: true });
 
   const timingsMs: Record<string, number> = {};
@@ -164,7 +171,10 @@ async function runJob(
     const statusStart = Date.now();
     const statusReply = await deliverCommand(worker, adapter, adapter.status(), converseTimeoutsSeconds.status);
     timingsMs["status"] = Date.now() - statusStart;
-    if (!statusReplyMatches(statusReply, job.profile, job.intensity)) {
+    const statusOk = adapter.commandsConfirmAsTurns
+      ? statusReplyMatches(statusReply, job.profile, job.intensity)
+      : statusPaneMatches(statusReply, job.profile, job.intensity);
+    if (!statusOk) {
       throw new Error(`status assertion failed; reply was: ${statusReply.slice(0, 200)}`);
     }
 

@@ -17,7 +17,7 @@ interface Entry {
 }
 
 async function collect(runDirs: string[]): Promise<Entry[]> {
-  const entries: Entry[] = [];
+  const byKey = new Map<string, Entry>();
   for (const runDir of runDirs) {
     const jobs = (await readdir(join(artifactRoot, runDir), { withFileTypes: true }))
       .filter((e) => e.isDirectory() && e.name !== "shims" && e.name !== "workspace")
@@ -45,20 +45,11 @@ async function collect(runDirs: string[]): Promise<Entry[]> {
       const caseId = String(meta["caseId"]);
       const runMatch = job.match(/-run(\d+)$/);
       const run = runMatch ? Number(runMatch[1]) : 1;
-      entries.push({
-        key: [host, model, caseId, profile, intensity, run].join("_").replace(/[^A-Za-z0-9_.:@+~-]/g, "-"),
-        host,
-        model,
-        profile,
-        intensity,
-        caseId,
-        run,
-        verdict: "",
-        reply,
-        greeting,
-      });
+      const key = [host, model, caseId, profile, intensity, run].join("_").replace(/[^A-Za-z0-9_.:@+~-]/g, "-");
+      byKey.set(key, { key, host, model, profile, intensity, caseId, run, verdict: "", reply, greeting });
     }
   }
+  const entries = [...byKey.values()];
   entries.sort((a, b) =>
     a.profile.localeCompare(b.profile) || a.intensity - b.intensity || a.model.localeCompare(b.model) || a.run - b.run,
   );
@@ -82,6 +73,7 @@ function applyVerdicts(entries: Entry[], verdictsTable: string): void {
 const pageTemplate = (dataJson: string) => `<title>Mouthfeel Voice Lab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <style>
 :root{
   --ground:#FAF9F7;--panel:#F1EEE9;--ink:#211E1A;--muted:#6E675F;--line:#DDD7CE;
@@ -241,7 +233,7 @@ function render(){
     (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + e.verdict + "</span>" : "");
   if (e.greeting && e.host !== "pi") { $("greeting").hidden = false; $("greeting").textContent = e.greeting.trim(); }
   else $("greeting").hidden = true;
-  $("reply").innerHTML = marked.parse(e.reply);
+  $("reply").innerHTML = DOMPurify.sanitize(marked.parse(e.reply));
   loadFeedback(e.key);
 }
 function setRate(r){
@@ -307,21 +299,25 @@ claude.use("db").then((ns) => {
 `;
 
 async function main(): Promise<void> {
-  const runDirs = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const verdictsArg = args.find((a) => a.startsWith("--verdicts="));
+  const runDirs = args.filter((a) => !a.startsWith("--"));
   if (runDirs.length === 0) {
-    console.error("usage: tsx harness/review-page.ts <run-dir-name...> (names under evals/runs/host-smoke/)");
+    console.error(
+      "usage: tsx harness/review-page.ts [--verdicts=<file>] <run-dir-name...> (names under evals/runs/host-smoke/)",
+    );
     process.exitCode = 1;
     return;
   }
   const entries = await collect(runDirs);
+  const verdictsFile = verdictsArg ? verdictsArg.slice("--verdicts=".length) : "SWEEP-2026-09-04-verdicts.md";
   try {
-    const verdicts = await readFile(join(artifactRoot, "SWEEP-2026-09-04-verdicts.md"), "utf8");
-    applyVerdicts(entries, verdicts);
+    applyVerdicts(entries, await readFile(join(artifactRoot, verdictsFile), "utf8"));
   } catch {
-    // verdicts table optional
+    console.warn(`verdicts table ${verdictsFile} not found; page renders without claude verdicts`);
   }
   const out = join(artifactRoot, "review.html");
-  await writeFile(out, pageTemplate(JSON.stringify(entries)));
+  await writeFile(out, pageTemplate(JSON.stringify(entries).replaceAll("<", "\\u003c")));
   console.log(`wrote ${out} with ${entries.length} entries`);
 }
 

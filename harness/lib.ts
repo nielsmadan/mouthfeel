@@ -21,13 +21,17 @@ export function parseHostCase(source: string, path: string): HostCase {
   if (typeof id !== "string" || id === "") {
     throw new Error(`host case ${path} is missing id`);
   }
-  if (!Array.isArray(profiles) || profiles.length === 0 || !profiles.every((p) => typeof p === "string")) {
+  if (
+    !Array.isArray(profiles) ||
+    profiles.length === 0 ||
+    !profiles.every((p): p is string => typeof p === "string")
+  ) {
     throw new Error(`host case ${path} needs a non-empty profiles list`);
   }
   if (
     !Array.isArray(intensities) ||
     intensities.length === 0 ||
-    !intensities.every((i) => typeof i === "number" && [1, 2, 3].includes(i))
+    !intensities.every((i): i is number => typeof i === "number" && [1, 2, 3].includes(i))
   ) {
     throw new Error(`host case ${path} needs intensities from 1-3`);
   }
@@ -39,17 +43,16 @@ export function parseHostCase(source: string, path: string): HostCase {
     id,
     path,
     type: typeof type === "string" ? type : "unspecified",
-    profiles: profiles as string[],
-    intensities: intensities as number[],
+    profiles,
+    intensities,
     body,
   };
 }
 
 export function expandMatrix(options: RunOptions, cases: HostCase[]): Job[] {
   const jobs: Job[] = [];
-  const selected = options.casePattern
-    ? cases.filter((c) => c.id.includes(options.casePattern as string))
-    : cases;
+  const pattern = options.casePattern;
+  const selected = pattern ? cases.filter((c) => c.id.includes(pattern)) : cases;
   const runs = Math.max(1, options.runs);
   for (const host of options.hosts) {
     for (const hostCase of selected) {
@@ -95,11 +98,15 @@ export function shimScript(wrappedCommand: string, preExec?: string): string {
   return `${head}${body}exec ${wrappedCommand} "$@"\n`;
 }
 
+export function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
 export function codexInstallPreExec(distDir: string): string {
   return [
     'if [ -n "$CODEX_HOME" ]; then',
-    `  codex plugin marketplace add ${distDir} >/dev/null 2>&1 || true`,
-    "  codex plugin add mouthfeel@mouthfeel >/dev/null 2>&1 || true",
+    `  codex plugin marketplace add ${shellQuote(distDir)} >/dev/null 2>&1 || true`,
+    "  codex plugin add mouthfeel@mouthfeel >/dev/null || exit 70",
     "fi",
   ].join("\n");
 }
@@ -107,9 +114,16 @@ export function codexInstallPreExec(distDir: string): string {
 export function piInstallPreExec(distDir: string): string {
   return [
     'if [ -n "$PI_CODING_AGENT_DIR" ]; then',
-    `  pi install ${distDir} >/dev/null 2>&1 || true`,
+    `  pi install ${shellQuote(distDir)} >/dev/null || exit 70`,
     "fi",
   ].join("\n");
+}
+
+// Pane text still contains the activation line, so profile/intensity alone
+// always match; a second "Mouthfeel:" line is the status reply itself.
+export function statusPaneMatches(paneText: string, profile: string, intensity: number): boolean {
+  const mentions = paneText.split("Mouthfeel:").length - 1;
+  return mentions >= 2 && statusReplyMatches(paneText, profile, intensity);
 }
 
 export function statusReplyMatches(reply: string, profile: string, intensity: number): boolean {
@@ -139,11 +153,12 @@ export function parseRunArgs(argv: string[]): RunOptions {
         const hosts = next()
           .split(",")
           .map((h) => h.trim())
-          .filter((h) => h !== "");
-        for (const host of hosts) {
-          if (!isHostId(host)) throw new Error(`unknown host ${host}`);
-        }
-        options.hosts = hosts as HostId[];
+          .filter((h) => h !== "")
+          .map((h) => {
+            if (!isHostId(h)) throw new Error(`unknown host ${h}`);
+            return h;
+          });
+        options.hosts = hosts;
         break;
       }
       case "--case":

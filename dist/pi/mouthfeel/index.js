@@ -76,12 +76,14 @@ function renderPhraseCandidate(entry) {
   const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
   return `- Candidate: \u201C${entry.text}\u201D Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
 }
+function distributionLine(intensity) {
+  return intensity === 1 ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline." : "Apply it to each entire natural-language reply \u2014 long, structured, and technical explanations included \u2014 not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
+}
 function renderRuntimeCard(profile, intensity, prompt) {
   const selected = selectPhrases(profile, intensity, prompt);
-  const distribution = intensity === 1 ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline." : "Apply it to each entire natural-language reply \u2014 long, structured, and technical explanations included \u2014 not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
   const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.
 
-The profile stays active for every future reply until it is changed or turned off. ${distribution}
+The profile stays active for every future reply until it is changed or turned off. ${distributionLine(intensity)}
 
 ${profile.cards[intensity]}`;
   if (selected.length === 0) return card;

@@ -189,3 +189,13 @@ describe("parseRunArgs", () => {
     assert.throws(() => parseRunArgs(["--intensity", "2,4"]), /--intensity/);
   });
 });
+
+describe("pane status assertion", () => {
+  it("requires a second Mouthfeel line beyond the activation echo", async () => {
+    const { statusPaneMatches, shellQuote } = await import("../harness/lib.js");
+    const activationOnly = "❯ /mouthfeel sailor 2\n Mouthfeel: sailor, intensity 2. This applies to future replies.";
+    assert.equal(statusPaneMatches(activationOnly, "sailor", 2), false);
+    assert.equal(statusPaneMatches(activationOnly + "\n Mouthfeel: sailor, intensity 2.", "sailor", 2), true);
+    assert.equal(shellQuote("/My Repos/d'ist"), "'/My Repos/d'\\''ist'");
+  });
+});
