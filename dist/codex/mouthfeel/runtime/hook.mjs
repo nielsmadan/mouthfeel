@@ -159,6 +159,8 @@ function renderRuntimeCard(profile, intensity, prompt) {
   const selected = selectPhrases(profile, intensity, prompt);
   const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.
 
+The profile stays active for every future reply until it is changed or turned off. Apply it to each entire natural-language reply \u2014 long, structured, and technical explanations included \u2014 not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.
+
 ${profile.cards[intensity]}`;
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
