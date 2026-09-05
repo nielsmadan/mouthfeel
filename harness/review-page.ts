@@ -176,11 +176,11 @@ function chipRow(el, values, key){
     el.appendChild(b);
   }
 }
-function selRow(el, values, selected, onpick){
+function selRow(el, values, selected, onpick, labelFor){
   el.innerHTML = "";
   for (const v of values) {
     const o = document.createElement("option");
-    o.value = v; o.textContent = v;
+    o.value = v; o.textContent = labelFor ? labelFor(v) : v;
     el.appendChild(o);
   }
   el.value = selected;
@@ -234,8 +234,14 @@ function render(){
   });
   selRow($("caseSel"), cases, pair.caseId, (v) => {
     const vis = visiblePairs();
-    const idx = vis.findIndex(pr => pr.profile === pair.profile && pr.caseId === v);
-    state.pairIdx = idx >= 0 ? idx : 0; state.run = 1; render();
+    // Prefer the same voice in the picked case; else the first voice that has it.
+    let idx = vis.findIndex(pr => pr.profile === pair.profile && pr.caseId === v);
+    if (idx < 0) idx = vis.findIndex(pr => pr.caseId === v);
+    if (idx >= 0) { state.pairIdx = idx; state.run = 1; }
+    render();
+  }, (v) => {
+    const n = pairs.filter(pr => pr.caseId === v).length;
+    return v + " (" + n + (n === 1 ? " voice)" : " voices)");
   });
   if (BASELINE_NAME) {
     $("deltaGroup").hidden = false;

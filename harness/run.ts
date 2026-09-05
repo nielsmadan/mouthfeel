@@ -5,6 +5,7 @@ import { promisify } from "node:util";
 
 import {
   artifactRoot,
+  controlGrounding,
   converseTimeoutsSeconds,
   csdConsentPath,
   hostCasesDir,
@@ -181,7 +182,8 @@ async function runJob(
     }
 
     const caseStart = Date.now();
-    const reply = await converse(worker, hostCase.body, converseTimeoutsSeconds.caseTurn);
+    const casePrompt = job.profile === "control" ? `${controlGrounding}\n\n${hostCase.body}` : hostCase.body;
+    const reply = await converse(worker, casePrompt, converseTimeoutsSeconds.caseTurn);
     timingsMs["case"] = Date.now() - caseStart;
     await writeFile(join(jobDir, "reply.md"), reply + "\n");
     await writeFile(join(jobDir, "turn.md"), await readTurn(worker));

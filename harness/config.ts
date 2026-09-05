@@ -36,6 +36,11 @@ export const converseTimeoutsSeconds = {
 
 export const workerNamePrefix = "mf-smoke";
 
+// Control workers run inside this repo (workspace trust), so capable models
+// infer and mention the surrounding checkout unless grounded explicitly.
+export const controlGrounding =
+  "Answer from the description in this prompt alone. Do not inspect, reference, or comment on the current workspace, repository, or checkout.";
+
 export const csdCacheGlobRoot = join(
   process.env["HOME"] ?? "",
   ".claude",
