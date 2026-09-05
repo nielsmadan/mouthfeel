@@ -29,6 +29,7 @@
     "eval:baseline": "tsx harness/baseline.ts",
     "eval:hosts": "tsx harness/run.ts",
     "eval:review": "tsx harness/review-page.ts",
+    "eval:serve": "tsx harness/serve.ts",
     "eval:prepare": "tsx scripts/prepare-evals.ts",
     "pretest": "npm run build",
     "test": "tsx --test \"tests/**/*.test.ts\"",

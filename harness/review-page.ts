@@ -21,7 +21,12 @@ function applyVerdicts(entries: Entry[], verdictsTable: string): void {
   }
 }
 
-const pageTemplate = (dataJson: string) => `<title>Mouthfeel Voice Lab</title>
+const pageTemplate = (dataJson: string) => `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mouthfeel Voice Lab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
@@ -33,21 +38,16 @@ const pageTemplate = (dataJson: string) => `<title>Mouthfeel Voice Lab</title>
   --chip:#E8E3DC;--chip-on:#211E1A;--chip-on-ink:#FAF9F7;
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :root{
     --ground:#171512;--panel:#1F1C18;--ink:#EAE5DE;--muted:#9A9288;--line:#37322B;
     --accent:#D97757;--accent-ink:#1B140F;
     --pass:#6FB383;--marginal:#D2A24C;--fail:#D97764;
     --chip:#2A2721;--chip-on:#EAE5DE;--chip-on-ink:#171512;
   }
 }
-:root[data-theme="dark"]{
-  --ground:#171512;--panel:#1F1C18;--ink:#EAE5DE;--muted:#9A9288;--line:#37322B;
-  --accent:#D97757;--accent-ink:#1B140F;
-  --pass:#6FB383;--marginal:#D2A24C;--fail:#D97764;
-  --chip:#2A2721;--chip-on:#EAE5DE;--chip-on-ink:#171512;
-}
-body{background:var(--ground);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5;}
-.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5;}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
 @media (max-width:900px){.app{grid-template-columns:1fr;}}
 .rail{border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:18px;background:var(--panel);}
 .rail h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-0.01em;}
@@ -60,60 +60,61 @@ body{background:var(--ground);color:var(--ink);font-family:"Instrument Sans",sys
 .chip.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on);}
 select{background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-family:inherit;font-size:13px;}
 .count{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);}
-.main{padding:20px 26px 60px;max-width:1500px;}
+.main{padding:20px 24px 60px;}
 .pager{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
 .pager button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;padding:6px 13px;font-family:inherit;font-size:13px;cursor:pointer;}
 .pager button:disabled{opacity:0.4;cursor:default;}
 .pager .pos{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);}
 .pager .title{font-size:16px;font-weight:600;}
-.controls{display:flex;gap:18px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;margin-bottom:12px;}
+.controls{display:flex;gap:18px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;margin-bottom:14px;}
 .controls .fgroup{flex-direction:row;align-items:center;gap:8px;}
-.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:3px 9px;border-radius:5px;background:var(--chip);color:var(--ink);}
-.tag.acc{background:var(--accent);color:var(--accent-ink);}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;padding:2px 8px;border-radius:5px;background:var(--chip);color:var(--ink);}
 .tag.P{background:var(--pass);color:#fff;}
 .tag.M{background:var(--marginal);color:#fff;}
 .tag.F,.tag.X{background:var(--fail);color:#fff;}
-.panels{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;}
-.panels.three{grid-template-columns:repeat(3,minmax(0,1fr));}
-@media (max-width:1150px){.panels,.panels.three{grid-template-columns:1fr;}}
-.panelbox{border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;}
-.panelbox>header{font-family:"IBM Plex Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:8px;align-items:center;}
-.panelbox>header .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+.panels{display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;}
+@media (max-width:1500px){.panels{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:820px){.panels{grid-template-columns:1fr;}}
+.panelbox{border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column;}
+.panelbox>header{font-family:"IBM Plex Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);border-bottom:1px solid var(--line);padding:8px 14px;display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.panelbox>header .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none;}
 .panelbox.styled>header .dot{background:var(--accent);}
-.panelbox.base>header .dot{background:var(--marginal);}
-.greeting{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--muted);font-size:13px;margin:12px 16px 0;}
-.reply{font-family:"Source Serif 4",Georgia,serif;font-size:15.5px;line-height:1.6;padding:4px 20px 16px;}
-.reply h1,.reply h2,.reply h3{font-family:"Instrument Sans",sans-serif;font-size:14px;letter-spacing:0.01em;margin:18px 0 6px;color:var(--accent);text-transform:uppercase;font-weight:600;}
-.reply pre{overflow-x:auto;background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:10px 12px;font-size:13px;}
+.blbtn{border:1px solid var(--line);background:var(--ground);color:var(--ink);border-radius:5px;padding:1px 7px;font-size:10.5px;cursor:pointer;font-family:inherit;margin-left:auto;}
+.blbtn.on{background:var(--marginal);color:#fff;border-color:var(--marginal);}
+details.greet{margin:10px 14px 0;font-size:12.5px;color:var(--muted);}
+details.greet summary{cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;}
+details.greet p{border-left:3px solid var(--accent);padding-left:10px;margin:6px 0 0;}
+.reply{font-family:"Source Serif 4",Georgia,serif;font-size:14.5px;line-height:1.58;padding:2px 16px 12px;}
+.reply h1,.reply h2,.reply h3{font-family:"Instrument Sans",sans-serif;font-size:12.5px;letter-spacing:0.01em;margin:16px 0 5px;color:var(--accent);text-transform:uppercase;font-weight:600;}
+.reply pre{overflow-x:auto;background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:12px;}
 .reply code{font-family:"IBM Plex Mono",monospace;font-size:0.88em;}
-.reply .empty{color:var(--muted);font-family:"Instrument Sans",sans-serif;font-size:13.5px;padding-top:12px;}
-.fb{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;max-width:860px;}
-.fb .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.fb .head b{font-size:14px;}
-.rate{display:flex;gap:5px;}
-.rate button{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:4px 12px;font-size:13px;cursor:pointer;color:var(--ink);font-family:inherit;}
+.reply .empty{color:var(--muted);font-family:"Instrument Sans",sans-serif;font-size:13px;padding-top:10px;}
+.fb{border-top:1px solid var(--line);padding:10px 14px 12px;display:flex;flex-direction:column;gap:7px;margin-top:auto;}
+.rate{display:flex;gap:4px;align-items:center;}
+.rate button{border:1px solid var(--line);background:var(--ground);border-radius:6px;padding:2px 9px;font-size:12px;cursor:pointer;color:var(--ink);font-family:inherit;}
 .rate button.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on);}
-textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:inherit;font-size:14px;resize:vertical;}
-.fbrow{display:flex;align-items:center;gap:12px;}
-.fbrow button{background:var(--accent);color:var(--accent-ink);border:none;border-radius:7px;padding:7px 18px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;}
-.fbstate{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);}
+.fb textarea{width:100%;min-height:44px;background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-family:inherit;font-size:13px;resize:vertical;}
+.fbrow{display:flex;align-items:center;gap:9px;}
+.fbrow button{background:var(--accent);color:var(--accent-ink);border:none;border-radius:6px;padding:4px 13px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+.fbstate{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);}
 .offline{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--muted);}
-.donechip{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);}
 :focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
 [hidden]{display:none!important;}
 </style>
+</head>
+<body>
 <div class="app">
   <aside class="rail">
     <div>
       <h1>Mouthfeel <span>Voice Lab</span></h1>
-      <div class="sub">Original vs styled, side by side. ←/→ pages voices, 1–3 sets intensity.</div>
+      <div class="sub">Original next to every intensity. ←/→ pages voices.</div>
     </div>
     <div class="fgroup"><label>Profile</label><select id="profileSel"></select></div>
     <div class="fgroup"><label>Case</label><select id="caseSel"></select></div>
     <div class="fgroup" id="deltaGroup" hidden><label>Vs baseline</label><div class="chips" id="deltaChips"></div></div>
     <div class="count" id="count"></div>
-    <div class="offline" id="dbNote" hidden>Feedback storage isn't reachable in this view — notes won't save. Open the artifact signed in on claude.ai.</div>
+    <div class="count" id="fbCount"></div>
+    <div class="offline" id="apiNote" hidden>Feedback needs the local server — run <code>npm run eval:serve</code> and open the printed URL.</div>
   </aside>
   <main class="main">
     <div class="pager">
@@ -121,38 +122,12 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
       <button id="next">Next →</button>
       <span class="title" id="pairTitle"></span>
       <span class="pos" id="pos"></span>
-      <span class="donechip" id="fbCount"></span>
     </div>
     <div class="controls">
       <div class="fgroup"><label>Arm</label><div class="chips" id="armChips"></div></div>
-      <div class="fgroup"><label>Intensity</label><div class="chips" id="intChips"></div></div>
       <div class="fgroup" id="runGroup" hidden><label>Run</label><div class="chips" id="runChips"></div></div>
     </div>
-    <div class="meta" id="meta"></div>
-    <div class="panels" id="panels">
-      <div class="panelbox">
-        <header><span class="dot"></span><span>Original · Mouthfeel off</span></header>
-        <article class="reply" id="origReply"></article>
-      </div>
-      <div class="panelbox styled">
-        <header><span class="dot"></span><span id="styledLabel">Styled</span></header>
-        <div class="greeting" id="greeting" hidden></div>
-        <article class="reply" id="styledReply"></article>
-      </div>
-      <div class="panelbox base" id="basePanel" hidden>
-        <header><span class="dot"></span><span id="baseLabel">Baseline</span></header>
-        <article class="reply" id="baseReply"></article>
-      </div>
-    </div>
-    <section class="fb" id="fbSection">
-      <div class="head"><b>Your feedback on the styled output</b>
-        <div class="rate" id="rate">
-          <button data-r="good">👍 good</button><button data-r="meh">😐 meh</button><button data-r="bad">👎 off</button>
-        </div>
-      </div>
-      <textarea id="fbText" placeholder="What works, what's off — tone, density, accuracy, anything."></textarea>
-      <div class="fbrow"><button id="save">Save feedback</button><span class="fbstate" id="fbState"></span></div>
-    </section>
+    <div class="panels" id="panels"></div>
   </main>
 </div>
 <script id="data" type="application/json">${dataJson}</script>
@@ -172,11 +147,12 @@ const pairs = [];
 for (const p of profiles) for (const c of cases) {
   if (ITEMS.some(e => e.profile === p && e.caseId === c)) pairs.push({ profile: p, caseId: c });
 }
-const state = { pairIdx: 0, arm: arms.find(a => a.includes("sonnet")) || arms[0], intensity: 2, run: 1, delta: "all" };
-let db = null, fbCache = {}, current = null;
+const state = { pairIdx: 0, arm: arms.find(a => a.includes("sonnet")) || arms[0], run: 1, delta: "all" };
+const showBaselineFor = new Set();
+let feedback = {}, apiOk = false;
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 function cellsFor(pair){
   return ITEMS.filter(e => e.profile === pair.profile && e.caseId === pair.caseId);
 }
@@ -186,19 +162,19 @@ function pairChanged(pair){
 function visiblePairs(){
   return state.delta === "all" ? pairs : pairs.filter(pairChanged);
 }
-function cellOf(pair){
-  const runs = cellsFor(pair).filter(e => armLabel(e) === state.arm && e.intensity === state.intensity);
+function cellAt(pair, intensity){
+  const runs = cellsFor(pair).filter(e => armLabel(e) === state.arm && e.intensity === intensity);
   return runs.find(e => e.run === state.run) || runs[0];
 }
-function chipRow(el, values, key, labels){
+function chipRow(el, values, key){
   el.innerHTML = "";
-  values.forEach((v, i) => {
+  for (const v of values) {
     const b = document.createElement("button");
     b.className = "chip" + (String(state[key]) === String(v) ? " on" : "");
-    b.textContent = labels ? labels[i] : v;
+    b.textContent = v;
     b.onclick = () => { state[key] = v; if (key !== "run") state.run = 1; render(); };
     el.appendChild(b);
-  });
+  }
 }
 function selRow(el, values, selected, onpick){
   el.innerHTML = "";
@@ -210,10 +186,38 @@ function selRow(el, values, selected, onpick){
   el.value = selected;
   el.onchange = () => onpick(el.value);
 }
-function renderReply(el, markdown){
-  el.innerHTML = markdown === undefined
+function replyHtml(markdown){
+  return markdown === undefined
     ? '<p class="empty">No output for this combination.</p>'
     : DOMPurify.sanitize(marked.parse(markdown));
+}
+function panelHtml(e, intensity, pair){
+  const showBase = e && changed(e) && showBaselineFor.has(e.key);
+  const verdictTag = e && e.verdict ? '<span class="tag ' + esc(e.verdict) + '">' + esc(e.verdict) + "</span>" : "";
+  const changeTag = e && BASELINE_NAME
+    ? (e.baseline === undefined ? "" : changed(e) ? '<span class="tag M">changed</span>' : '<span class="tag P">same</span>')
+    : "";
+  const blButton = e && changed(e)
+    ? '<button class="blbtn' + (showBase ? " on" : "") + '" data-bl="' + esc(e.key) + '">' + (showBase ? "baseline ✓" : "⇄ baseline") + "</button>"
+    : "";
+  const greet = e && e.greeting && e.host !== "pi"
+    ? '<details class="greet"><summary>greeting</summary><p>' + esc(e.greeting.trim()) + "</p></details>"
+    : "";
+  const fb = e ? feedbackHtml(e) : "";
+  return '<div class="panelbox styled"><header><span class="dot"></span><span>' +
+    esc(pair.profile) + " " + intensity + (showBase ? " · baseline" : "") + "</span>" +
+    verdictTag + changeTag + blButton + "</header>" + greet +
+    '<article class="reply">' + replyHtml(e ? (showBase ? e.baseline : e.reply) : undefined) + "</article>" + fb + "</div>";
+}
+function feedbackHtml(e){
+  const saved = feedback[e.key] || {};
+  const rateBtn = (r, label) =>
+    '<button data-rate="' + r + '" data-key="' + esc(e.key) + '"' + (saved.rating === r ? ' class="on"' : "") + ">" + label + "</button>";
+  return '<div class="fb"><div class="rate">' +
+    rateBtn("good", "👍") + rateBtn("meh", "😐") + rateBtn("bad", "👎") +
+    '</div><textarea data-text="' + esc(e.key) + '" placeholder="Notes on this output…">' + esc(saved.text || "") + "</textarea>" +
+    '<div class="fbrow"><button data-save="' + esc(e.key) + '">Save</button><span class="fbstate" data-state="' + esc(e.key) + '">' +
+    (saved.updatedAt ? "saved earlier" : "") + "</span></div></div>";
 }
 function render(){
   const list = visiblePairs();
@@ -223,122 +227,102 @@ function render(){
   $("prev").disabled = state.pairIdx <= 0;
   $("next").disabled = state.pairIdx >= list.length - 1;
   $("pos").textContent = list.length ? (state.pairIdx + 1) + " / " + list.length : "0 / 0";
-  if (!pair) {
-    $("pairTitle").textContent = "";
-    current = null;
-    renderReply($("origReply"), undefined);
-    renderReply($("styledReply"), undefined);
-    $("basePanel").hidden = true;
-    return;
-  }
+  if (!pair) { $("pairTitle").textContent = ""; $("panels").innerHTML = ""; return; }
   selRow($("profileSel"), profiles, pair.profile, (v) => {
     const idx = visiblePairs().findIndex(pr => pr.profile === v);
     if (idx >= 0) { state.pairIdx = idx; state.run = 1; render(); }
   });
   selRow($("caseSel"), cases, pair.caseId, (v) => {
-    const idx = visiblePairs().findIndex(pr => pr.profile === pair.profile && pr.caseId === v)
-      ?? -1;
+    const vis = visiblePairs();
+    const idx = vis.findIndex(pr => pr.profile === pair.profile && pr.caseId === v);
     state.pairIdx = idx >= 0 ? idx : 0; state.run = 1; render();
   });
   if (BASELINE_NAME) {
     $("deltaGroup").hidden = false;
     chipRow($("deltaChips"), ["all", "changed"], "delta");
   }
-  $("pairTitle").textContent = pair.profile;
+  $("pairTitle").textContent = pair.profile + " · " + pair.caseId;
   chipRow($("armChips"), arms, "arm");
-  chipRow($("intChips"), [1, 2, 3], "intensity");
-  const e = cellOf(pair);
-  current = e || null;
-  const runs = e ? cellsFor(pair).filter(x => armLabel(x) === state.arm && x.intensity === e.intensity).map(x => x.run) : [];
-  $("runGroup").hidden = runs.length <= 1;
-  if (runs.length > 1) chipRow($("runChips"), runs, "run");
-  const baselineTag = !BASELINE_NAME || !e ? "" : e.baseline === undefined
-    ? '<span class="tag">no baseline cell</span>'
-    : changed(e)
-      ? '<span class="tag M">vs ' + esc(BASELINE_NAME) + ": changed</span>"
-      : '<span class="tag P">vs ' + esc(BASELINE_NAME) + ": same</span>";
-  $("meta").innerHTML = !e ? "" :
-    '<span class="tag acc">' + esc(e.profile) + " " + e.intensity + "</span>" +
-    '<span class="tag">' + esc(armLabel(e)) + "</span>" +
-    '<span class="tag">' + esc(e.caseId) + "</span>" +
-    (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + esc(e.verdict) + "</span>" : "") +
-    baselineTag;
-  renderReply($("origReply"), originals.get(state.arm + "|" + pair.caseId));
-  $("styledLabel").textContent = "Styled · " + pair.profile + " " + state.intensity + " · " + state.arm;
-  if (e && e.greeting && e.host !== "pi") { $("greeting").hidden = false; $("greeting").textContent = e.greeting.trim(); }
-  else $("greeting").hidden = true;
-  renderReply($("styledReply"), e ? e.reply : undefined);
-  const showBase = changed(e);
-  $("basePanel").hidden = !showBase;
-  $("panels").classList.toggle("three", showBase);
-  if (showBase) {
-    $("baseLabel").textContent = "Baseline · " + BASELINE_NAME;
-    renderReply($("baseReply"), e.baseline);
+  const cells = [1, 2, 3].map(i => cellAt(pair, i));
+  const runValues = [...new Set(cellsFor(pair).filter(e => armLabel(e) === state.arm).map(e => e.run))].sort();
+  $("runGroup").hidden = runValues.length <= 1;
+  if (runValues.length > 1) chipRow($("runChips"), runValues, "run");
+  $("panels").innerHTML =
+    '<div class="panelbox"><header><span class="dot"></span><span>Original · Mouthfeel off · ' + esc(state.arm) + "</span></header>" +
+    '<article class="reply">' + replyHtml(originals.get(state.arm + "|" + pair.caseId)) + "</article></div>" +
+    cells.map((e, i) => panelHtml(e, i + 1, pair)).join("");
+  wirePanels();
+}
+function wirePanels(){
+  for (const b of $("panels").querySelectorAll("[data-bl]")) {
+    b.onclick = () => {
+      const k = b.dataset.bl;
+      if (showBaselineFor.has(k)) showBaselineFor.delete(k); else showBaselineFor.add(k);
+      render();
+    };
   }
-  $("fbSection").hidden = !e;
-  if (e) loadFeedback(e.key);
+  for (const b of $("panels").querySelectorAll("[data-rate]")) {
+    b.onclick = () => {
+      const group = b.closest(".rate");
+      const on = b.classList.contains("on");
+      for (const x of group.querySelectorAll("button")) x.classList.remove("on");
+      if (!on) b.classList.add("on");
+    };
+  }
+  for (const b of $("panels").querySelectorAll("[data-save]")) {
+    b.onclick = () => saveFeedback(b.dataset.save);
+  }
 }
-function setRate(r){
-  for (const b of $("rate").querySelectorAll("button")) b.classList.toggle("on", b.dataset.r === r);
+function entryByKey(key){
+  return ITEMS.find(e => e.key === key);
 }
-function currentRate(){
-  const on = $("rate").querySelector("button.on");
-  return on ? on.dataset.r : "";
-}
-async function loadFeedback(key){
-  setRate(""); $("fbText").value = ""; $("fbState").textContent = "";
-  const cached = fbCache[key];
-  if (cached) { setRate(cached.rating || ""); $("fbText").value = cached.text || ""; $("fbState").textContent = "saved earlier"; }
-  if (!db || cached) return;
+async function saveFeedback(key){
+  const e = entryByKey(key);
+  const box = $("panels").querySelector('[data-text="' + CSS.escape(key) + '"]');
+  const stateEl = $("panels").querySelector('[data-state="' + CSS.escape(key) + '"]');
+  const rated = $("panels").querySelector('[data-key="' + CSS.escape(key) + '"].on');
+  if (!e || !box || !stateEl) return;
+  if (!apiOk) { stateEl.textContent = "no server — run npm run eval:serve"; return; }
+  const payload = {
+    key,
+    text: box.value,
+    rating: rated ? rated.dataset.rate : "",
+    profile: e.profile, intensity: e.intensity, arm: armLabel(e), caseId: e.caseId, run: e.run,
+    updatedAt: new Date().toISOString(),
+  };
+  stateEl.textContent = "saving…";
   try {
-    const snap = await db.doc("feedback/" + key).get();
-    const body = snap && snap.exists ? snap.data() : null;
-    if (body && current && current.key === key) {
-      fbCache[key] = body;
-      setRate(body.rating || ""); $("fbText").value = body.text || "";
-      $("fbState").textContent = "saved earlier";
-    }
-  } catch {}
-}
-async function save(){
-  if (!current) return;
-  const payload = { text: $("fbText").value, rating: currentRate(), profile: current.profile, intensity: current.intensity, arm: armLabel(current), caseId: current.caseId, run: current.run, updatedAt: new Date().toISOString() };
-  if (!db) { $("fbState").textContent = "storage unavailable — copy your note elsewhere"; return; }
-  $("fbState").textContent = "saving…";
-  try {
-    await db.doc("feedback/" + current.key).set(payload);
-    fbCache[current.key] = payload;
-    $("fbState").textContent = "saved ✓";
+    const res = await fetch("/api/feedback", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+    if (!res.ok) throw new Error(String(res.status));
+    feedback[key] = payload;
+    stateEl.textContent = "saved ✓";
     refreshCount();
-  } catch (err) {
-    $("fbState").textContent = "save failed (" + (err && err.code ? err.code : "error") + ") — try again";
+  } catch {
+    stateEl.textContent = "save failed — is the server still running?";
   }
 }
-async function refreshCount(){
-  if (!db) return;
-  try {
-    const rows = await db.collection("feedback").limit(1000).get();
-    $("fbCount").textContent = rows.docs.length + " notes saved";
-  } catch {}
+function refreshCount(){
+  const n = Object.keys(feedback).length;
+  $("fbCount").textContent = n ? n + " notes saved" : "";
 }
-for (const b of $("rate").querySelectorAll("button")) b.onclick = () => { setRate(b.dataset.r === currentRate() ? "" : b.dataset.r); };
-$("save").onclick = save;
 $("prev").onclick = () => { state.pairIdx--; state.run = 1; render(); };
 $("next").onclick = () => { state.pairIdx++; state.run = 1; render(); };
 document.addEventListener("keydown", (ev) => {
   if (ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT") return;
   if (ev.key === "ArrowLeft" && !$("prev").disabled) { state.pairIdx--; state.run = 1; render(); }
   if (ev.key === "ArrowRight" && !$("next").disabled) { state.pairIdx++; state.run = 1; render(); }
-  if (["1", "2", "3"].includes(ev.key)) { state.intensity = Number(ev.key); state.run = 1; render(); }
 });
 render();
-claude.use("db").then((ns) => {
-  db = ns;
-  if (!db) { $("dbNote").hidden = false; return; }
+fetch("/api/feedback").then(async (res) => {
+  if (!res.ok) throw new Error(String(res.status));
+  feedback = await res.json();
+  apiOk = true;
   refreshCount();
-  if (current) loadFeedback(current.key);
-});
+  render();
+}).catch(() => { $("apiNote").hidden = false; });
 </script>
+</body>
+</html>
 `;
 
 async function main(): Promise<void> {

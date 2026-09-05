@@ -231,3 +231,13 @@ describe("control jobs", () => {
     assert.equal(parseRunArgs([]).control, false);
   });
 });
+
+describe("feedback merge", () => {
+  it("upserts by key and rejects rows without one", async () => {
+    const { mergeFeedback } = await import("../harness/serve.js");
+    const merged = mergeFeedback({ a: { key: "a", text: "old" } }, { key: "a", text: "new", rating: "good" });
+    assert.deepEqual(merged["a"], { key: "a", text: "new", rating: "good" });
+    assert.throws(() => mergeFeedback({}, { text: "no key" }), /needs a key/);
+    assert.throws(() => mergeFeedback({}, "nope"), /must be an object/);
+  });
+});
