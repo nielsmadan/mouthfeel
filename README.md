@@ -110,6 +110,14 @@ The command restores the canonical generated files after installation. Start a n
 pi install ./dist/pi/mouthfeel
 ```
 
+During local development, rebuild and install the global package in one command:
+
+```sh
+npm run dev:pi
+```
+
+The command publishes the completed build to a stable development package at `$PI_CODING_AGENT_DIR/dev-packages/mouthfeel` (or `~/.pi/agent/dev-packages/mouthfeel`) and registers it globally. Running it from any checkout updates that same package. Restart Pi to load the latest build.
+
 Use `/mouthfeel sailor 2`.
 
 ### OpenCode

@@ -22,6 +22,7 @@
     "dev:claude": "tsx scripts/dev-claude.ts",
     "dev:codex": "tsx scripts/dev-codex.ts",
     "dev:oc": "tsx scripts/dev-opencode.ts",
+    "dev:pi": "tsx scripts/dev-pi.ts",
     "eval:hosts": "tsx harness/run.ts",
     "eval:prepare": "tsx scripts/prepare-evals.ts",
     "pretest": "npm run build",
