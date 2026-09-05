@@ -199,3 +199,18 @@ describe("pane status assertion", () => {
     assert.equal(shellQuote("/My Repos/d'ist"), "'/My Repos/d'\\''ist'");
   });
 });
+
+describe("baseline", () => {
+  it("builds stable cell keys independent of run", async () => {
+    const { cellKey } = await import("../harness/collect.js");
+    const cell = { host: "claude", model: "sonnet", caseId: "structured-architecture", profile: "glados", intensity: 1 };
+    assert.equal(cellKey(cell), "claude_sonnet_structured-architecture_glados_1");
+    assert.equal(cellKey({ ...cell, model: "gpt-5.6-sol" }), "claude_gpt-5.6-sol_structured-architecture_glados_1");
+  });
+
+  it("rejects unsafe baseline names", async () => {
+    const { baselinePath } = await import("../harness/baseline.js");
+    assert.throws(() => baselinePath("../escape"), /baseline name/);
+    assert.ok(baselinePath("sweep-2026-09-04").endsWith("sweep-2026-09-04.jsonl"));
+  });
+});

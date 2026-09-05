@@ -7,6 +7,7 @@ export const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 export const hostCasesDir = join(repoRoot, "evals", "host-cases");
 export const artifactRoot = join(repoRoot, "evals", "runs", "host-smoke");
+export const baselinesDir = join(repoRoot, "evals", "baselines");
 
 export const distDirs: Record<HostId, string> = {
   claude: join(repoRoot, "dist", "claude", "mouthfeel"),

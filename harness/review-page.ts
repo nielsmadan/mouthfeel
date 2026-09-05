@@ -1,60 +1,11 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
+import { baselinePath, type BaselineRow } from "./baseline.js";
+import { cellKey, collect, type Entry } from "./collect.js";
 import { artifactRoot } from "./config.js";
 
-interface Entry {
-  key: string;
-  host: string;
-  model: string;
-  profile: string;
-  intensity: number;
-  caseId: string;
-  run: number;
-  verdict: string;
-  reply: string;
-  greeting: string;
-}
-
-async function collect(runDirs: string[]): Promise<Entry[]> {
-  const byKey = new Map<string, Entry>();
-  for (const runDir of runDirs) {
-    const jobs = (await readdir(join(artifactRoot, runDir), { withFileTypes: true }))
-      .filter((e) => e.isDirectory() && e.name !== "shims" && e.name !== "workspace")
-      .map((e) => e.name);
-    for (const job of jobs) {
-      const dir = join(artifactRoot, runDir, job);
-      let meta: Record<string, unknown>;
-      let reply: string;
-      try {
-        meta = JSON.parse(await readFile(join(dir, "meta.json"), "utf8")) as Record<string, unknown>;
-        reply = await readFile(join(dir, "reply.md"), "utf8");
-      } catch {
-        continue;
-      }
-      let greeting = "";
-      try {
-        greeting = await readFile(join(dir, "greeting.md"), "utf8");
-      } catch {
-        // pane-scraped hosts may lack a clean greeting; optional
-      }
-      const host = String(meta["host"]);
-      const model = String(meta["model"]);
-      const profile = String(meta["profile"]);
-      const intensity = Number(meta["intensity"]);
-      const caseId = String(meta["caseId"]);
-      const runMatch = job.match(/-run(\d+)$/);
-      const run = runMatch ? Number(runMatch[1]) : 1;
-      const key = [host, model, caseId, profile, intensity, run].join("_").replace(/[^A-Za-z0-9_.:@+~-]/g, "-");
-      byKey.set(key, { key, host, model, profile, intensity, caseId, run, verdict: "", reply, greeting });
-    }
-  }
-  const entries = [...byKey.values()];
-  entries.sort((a, b) =>
-    a.profile.localeCompare(b.profile) || a.intensity - b.intensity || a.model.localeCompare(b.model) || a.run - b.run,
-  );
-  return entries;
-}
+type PageEntry = Entry & { baseline?: string };
 
 function applyVerdicts(entries: Entry[], verdictsTable: string): void {
   const armFor = (e: Entry) => (e.host === "codex" ? 2 : e.model === "opus" ? 1 : 0);
@@ -148,6 +99,7 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
     </div>
     <div class="fgroup"><label>Arm</label><div class="chips" id="armChips"></div></div>
     <div class="fgroup"><label>Intensity</label><div class="chips" id="intChips"></div></div>
+    <div class="fgroup" id="deltaGroup" hidden><label>Vs baseline</label><div class="chips" id="deltaChips"></div></div>
     <div class="fgroup"><label>Profile</label><select id="profileSel"></select></div>
     <div class="fgroup"><label>Case</label><select id="caseSel"></select></div>
     <div class="count" id="count"></div>
@@ -157,6 +109,7 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
     <div class="pager">
       <button id="prev">← Prev</button>
       <button id="next">Next →</button>
+      <button id="blToggle" hidden>View baseline</button>
       <span class="pos" id="pos"></span>
       <span class="donechip" id="fbCount"></span>
     </div>
@@ -176,12 +129,15 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
 </div>
 <script id="data" type="application/json">${dataJson}</script>
 <script>
-const DATA = JSON.parse(document.getElementById("data").textContent);
+const PAYLOAD = JSON.parse(document.getElementById("data").textContent);
+const DATA = PAYLOAD.entries;
+const BASELINE_NAME = PAYLOAD.baselineName || "";
 const armLabel = (e) => e.host === "codex" ? "codex · " + e.model : "claude · " + e.model;
 const arms = [...new Set(DATA.map(armLabel))];
 const profiles = [...new Set(DATA.map(e => e.profile))];
 const cases = [...new Set(DATA.map(e => e.caseId))];
-const state = { arm: "all", intensity: "all", profile: "all", caseId: "all", idx: 0 };
+const changed = (e) => e.baseline !== undefined && e.baseline !== e.reply;
+const state = { arm: "all", intensity: "all", profile: "all", caseId: "all", delta: "all", idx: 0, showBaseline: false };
 let db = null, fbCache = {}, current = null;
 
 const $ = (id) => document.getElementById(id);
@@ -210,13 +166,25 @@ function filtered(){
     (state.arm === "all" || armLabel(e) === state.arm) &&
     (state.intensity === "all" || String(e.intensity) === String(state.intensity)) &&
     (state.profile === "all" || e.profile === state.profile) &&
-    (state.caseId === "all" || e.caseId === state.caseId));
+    (state.caseId === "all" || e.caseId === state.caseId) &&
+    (state.delta === "all" || changed(e)));
 }
 function render(){
   chipRow($("armChips"), arms, "arm");
   chipRow($("intChips"), [1,2,3], "intensity");
   selRow($("profileSel"), profiles, "profile");
   selRow($("caseSel"), cases, "caseId");
+  if (BASELINE_NAME) {
+    $("deltaGroup").hidden = false;
+    $("deltaChips").innerHTML = "";
+    for (const v of ["all", "changed"]) {
+      const b = document.createElement("button");
+      b.className = "chip" + (state.delta === v ? " on" : "");
+      b.textContent = v;
+      b.onclick = () => { state.delta = v; state.idx = 0; render(); };
+      $("deltaChips").appendChild(b);
+    }
+  }
   const list = filtered();
   $("count").textContent = list.length + " outputs match";
   if (state.idx >= list.length) state.idx = Math.max(0, list.length - 1);
@@ -226,14 +194,24 @@ function render(){
   $("next").disabled = state.idx >= list.length - 1;
   $("pos").textContent = list.length ? (state.idx + 1) + " / " + list.length : "0 / 0";
   if (!e) { $("meta").innerHTML = ""; $("reply").innerHTML = "<p>No outputs match the filters.</p>"; $("greeting").hidden = true; return; }
+  const baselineTag = e.baseline === undefined
+    ? (BASELINE_NAME ? '<span class="tag">no baseline cell</span>' : "")
+    : changed(e)
+      ? '<span class="tag M">vs ' + BASELINE_NAME + ": changed</span>"
+      : '<span class="tag P">vs ' + BASELINE_NAME + ": same</span>";
   $("meta").innerHTML =
     '<span class="tag acc">' + e.profile + " " + e.intensity + "</span>" +
     '<span class="tag">' + armLabel(e) + "</span>" +
     '<span class="tag">' + e.caseId + (e.run > 1 ? " · run " + e.run : "") + "</span>" +
-    (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + e.verdict + "</span>" : "");
+    (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + e.verdict + "</span>" : "") +
+    baselineTag;
   if (e.greeting && e.host !== "pi") { $("greeting").hidden = false; $("greeting").textContent = e.greeting.trim(); }
   else $("greeting").hidden = true;
-  $("reply").innerHTML = DOMPurify.sanitize(marked.parse(e.reply));
+  const showBaseline = state.showBaseline && e.baseline !== undefined;
+  $("blToggle").hidden = e.baseline === undefined;
+  $("blToggle").textContent = showBaseline ? "View current" : "View baseline";
+  $("reply").innerHTML = DOMPurify.sanitize(marked.parse(showBaseline ? e.baseline : e.reply));
+  $("reply").style.opacity = showBaseline ? "0.75" : "";
   loadFeedback(e.key);
 }
 function setRate(r){
@@ -281,12 +259,14 @@ async function refreshCount(){
 }
 for (const b of $("rate").querySelectorAll("button")) b.onclick = () => { setRate(b.dataset.r === currentRate() ? "" : b.dataset.r); };
 $("save").onclick = save;
-$("prev").onclick = () => { state.idx--; render(); };
-$("next").onclick = () => { state.idx++; render(); };
+$("blToggle").onclick = () => { state.showBaseline = !state.showBaseline; render(); };
+$("prev").onclick = () => { state.idx--; state.showBaseline = false; render(); };
+$("next").onclick = () => { state.idx++; state.showBaseline = false; render(); };
 document.addEventListener("keydown", (ev) => {
   if (ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT") return;
-  if (ev.key === "ArrowLeft" && !$("prev").disabled) { state.idx--; render(); }
-  if (ev.key === "ArrowRight" && !$("next").disabled) { state.idx++; render(); }
+  if (ev.key === "ArrowLeft" && !$("prev").disabled) { state.idx--; state.showBaseline = false; render(); }
+  if (ev.key === "ArrowRight" && !$("next").disabled) { state.idx++; state.showBaseline = false; render(); }
+  if (ev.key === "b" && !$("blToggle").hidden) { state.showBaseline = !state.showBaseline; render(); }
 });
 render();
 claude.use("db").then((ns) => {
@@ -301,24 +281,41 @@ claude.use("db").then((ns) => {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const verdictsArg = args.find((a) => a.startsWith("--verdicts="));
+  const baselineArg = args.find((a) => a.startsWith("--baseline="));
   const runDirs = args.filter((a) => !a.startsWith("--"));
   if (runDirs.length === 0) {
     console.error(
-      "usage: tsx harness/review-page.ts [--verdicts=<file>] <run-dir-name...> (names under evals/runs/host-smoke/)",
+      "usage: tsx harness/review-page.ts [--verdicts=<file>] [--baseline=<name>] <run-dir-name...> (names under evals/runs/host-smoke/)",
     );
     process.exitCode = 1;
     return;
   }
-  const entries = await collect(runDirs);
+  const entries: PageEntry[] = await collect(runDirs);
   const verdictsFile = verdictsArg ? verdictsArg.slice("--verdicts=".length) : "SWEEP-2026-09-04-verdicts.md";
   try {
     applyVerdicts(entries, await readFile(join(artifactRoot, verdictsFile), "utf8"));
   } catch {
     console.warn(`verdicts table ${verdictsFile} not found; page renders without claude verdicts`);
   }
+  let baselineName = "";
+  if (baselineArg) {
+    baselineName = baselineArg.slice("--baseline=".length);
+    const rows = (await readFile(baselinePath(baselineName), "utf8"))
+      .split("\n")
+      .filter((line) => line.trim() !== "")
+      .map((line) => JSON.parse(line) as BaselineRow);
+    const byCell = new Map(rows.map((r) => [r.cell, r.reply]));
+    for (const entry of entries) {
+      const reply = byCell.get(cellKey(entry));
+      if (reply !== undefined) entry.baseline = reply;
+    }
+  }
   const out = join(artifactRoot, "review.html");
-  await writeFile(out, pageTemplate(JSON.stringify(entries).replaceAll("<", "\\u003c")));
-  console.log(`wrote ${out} with ${entries.length} entries`);
+  const dataJson = JSON.stringify({ baselineName, entries }).replaceAll("<", "\\u003c");
+  await writeFile(out, pageTemplate(dataJson));
+  console.log(
+    `wrote ${out} with ${entries.length} entries${baselineName ? ` against baseline ${baselineName}` : ""}`,
+  );
 }
 
 await main();
