@@ -161,7 +161,7 @@ Development checks and release tooling require Python 3.9+ in addition to Node/n
 
 `npm run eval:prepare` produces the 108-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all six synthetic cases. The host-smoke prompts exercise rebuilt plugins in real agent sessions, where host instructions can weaken or distort a profile. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
 
-`npm run eval:hosts` drives those host-smoke cases through real Claude Code, Codex, and Pi sessions via [`harness/`](harness/) and files per-job outputs under `evals/runs/host-smoke/`. `npm run eval:baseline -- --name=<name> <run-dirs...>` snapshots a sweep into `evals/baselines/<name>.jsonl`, and `npm run eval:review -- --baseline=<name> <run-dirs...>` builds `review.html` — a filterable page of every output with per-output feedback storage and changed-vs-baseline comparison — for publishing as an artifact.
+`npm run eval:hosts` drives those host-smoke cases through real Claude Code, Codex, and Pi sessions via [`harness/`](harness/) and files per-job outputs under `evals/runs/host-smoke/`; add `--control` to capture the unstyled output for each case. `npm run eval:baseline -- --name=<name> <run-dirs...>` snapshots a sweep into `evals/baselines/<name>.jsonl`, and `npm run eval:review -- --baseline=<name> <run-dirs...>` builds `review.html` — original, styled, and changed-vs-baseline outputs side by side, with arm and intensity controls and per-output feedback storage — for publishing as an artifact.
 
 Mouthfeel was informed by existing output-style and persona tools; [`docs/precedents.md`](docs/precedents.md) records what it reuses and deliberately changes.
 

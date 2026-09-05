@@ -56,6 +56,12 @@ export function expandMatrix(options: RunOptions, cases: HostCase[]): Job[] {
   const runs = Math.max(1, options.runs);
   for (const host of options.hosts) {
     for (const hostCase of selected) {
+      if (options.control) {
+        for (let run = 1; run <= runs; run++) {
+          jobs.push({ host, caseId: hostCase.id, profile: "control", intensity: 0, run });
+        }
+        continue;
+      }
       const profiles = options.profiles ?? hostCase.profiles;
       const intensities = options.intensities ?? hostCase.intensities;
       for (const profile of profiles) {
@@ -138,6 +144,7 @@ export function parseRunArgs(argv: string[]): RunOptions {
     intensities: undefined,
     model: undefined,
     runs: 1,
+    control: false,
     dryRun: false,
     keep: false,
   };
@@ -192,6 +199,9 @@ export function parseRunArgs(argv: string[]): RunOptions {
         options.runs = value;
         break;
       }
+      case "--control":
+        options.control = true;
+        break;
       case "--dry-run":
         options.dryRun = true;
         break;

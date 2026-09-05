@@ -35,6 +35,7 @@ function baseOptions(overrides: Partial<RunOptions> = {}): RunOptions {
     intensities: undefined,
     model: undefined,
     runs: 1,
+    control: false,
     dryRun: false,
     keep: false,
     ...overrides,
@@ -212,5 +213,21 @@ describe("baseline", () => {
     const { baselinePath } = await import("../harness/baseline.js");
     assert.throws(() => baselinePath("../escape"), /baseline name/);
     assert.ok(baselinePath("sweep-2026-09-04").endsWith("sweep-2026-09-04.jsonl"));
+  });
+});
+
+describe("control jobs", () => {
+  it("expands one control job per host and case, ignoring profile lists", () => {
+    const parsed = parseHostCase(caseSource, "sample.md");
+    const jobs = expandMatrix(baseOptions({ hosts: ["claude", "codex"], control: true, profiles: ["glados"] }), [parsed]);
+    assert.deepEqual(jobs, [
+      { host: "claude", caseId: "sample-case", profile: "control", intensity: 0, run: 1 },
+      { host: "codex", caseId: "sample-case", profile: "control", intensity: 0, run: 1 },
+    ]);
+  });
+
+  it("parses the --control flag", () => {
+    assert.equal(parseRunArgs(["--control"]).control, true);
+    assert.equal(parseRunArgs([]).control, false);
   });
 });

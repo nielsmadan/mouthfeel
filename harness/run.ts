@@ -158,24 +158,26 @@ async function runJob(
 
     if (adapter.postLaunchSettleMs > 0) await sleep(adapter.postLaunchSettleMs);
 
-    const activationStart = Date.now();
-    const greeting = await deliverCommand(
-      worker,
-      adapter,
-      adapter.activation(job.profile, job.intensity),
-      converseTimeoutsSeconds.activation,
-    );
-    timingsMs["activation"] = Date.now() - activationStart;
-    await writeFile(join(jobDir, "greeting.md"), greeting + "\n");
+    if (job.profile !== "control") {
+      const activationStart = Date.now();
+      const greeting = await deliverCommand(
+        worker,
+        adapter,
+        adapter.activation(job.profile, job.intensity),
+        converseTimeoutsSeconds.activation,
+      );
+      timingsMs["activation"] = Date.now() - activationStart;
+      await writeFile(join(jobDir, "greeting.md"), greeting + "\n");
 
-    const statusStart = Date.now();
-    const statusReply = await deliverCommand(worker, adapter, adapter.status(), converseTimeoutsSeconds.status);
-    timingsMs["status"] = Date.now() - statusStart;
-    const statusOk = adapter.commandsConfirmAsTurns
-      ? statusReplyMatches(statusReply, job.profile, job.intensity)
-      : statusPaneMatches(statusReply, job.profile, job.intensity);
-    if (!statusOk) {
-      throw new Error(`status assertion failed; reply was: ${statusReply.slice(0, 200)}`);
+      const statusStart = Date.now();
+      const statusReply = await deliverCommand(worker, adapter, adapter.status(), converseTimeoutsSeconds.status);
+      timingsMs["status"] = Date.now() - statusStart;
+      const statusOk = adapter.commandsConfirmAsTurns
+        ? statusReplyMatches(statusReply, job.profile, job.intensity)
+        : statusPaneMatches(statusReply, job.profile, job.intensity);
+      if (!statusOk) {
+        throw new Error(`status assertion failed; reply was: ${statusReply.slice(0, 200)}`);
+      }
     }
 
     const caseStart = Date.now();

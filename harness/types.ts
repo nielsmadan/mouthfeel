@@ -24,6 +24,7 @@ export interface RunOptions {
   intensities: number[] | undefined;
   model: string | undefined;
   runs: number;
+  control: boolean;
   dryRun: boolean;
   keep: boolean;
 }

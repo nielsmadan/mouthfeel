@@ -32,7 +32,6 @@ const pageTemplate = (dataJson: string) => `<title>Mouthfeel Voice Lab</title>
   --pass:#3D7A4E;--marginal:#A8781E;--fail:#A8402F;
   --chip:#E8E3DC;--chip-on:#211E1A;--chip-on-ink:#FAF9F7;
 }
-:root:not([data-theme="light"]){}
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --ground:#171512;--panel:#1F1C18;--ink:#EAE5DE;--muted:#9A9288;--line:#37322B;
@@ -48,8 +47,8 @@ const pageTemplate = (dataJson: string) => `<title>Mouthfeel Voice Lab</title>
   --chip:#2A2721;--chip-on:#EAE5DE;--chip-on-ink:#171512;
 }
 body{background:var(--ground);color:var(--ink);font-family:"Instrument Sans",system-ui,sans-serif;font-size:15px;line-height:1.5;}
-.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh;}
-@media (max-width:820px){.app{grid-template-columns:1fr;}}
+.app{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+@media (max-width:900px){.app{grid-template-columns:1fr;}}
 .rail{border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:18px;background:var(--panel);}
 .rail h1{font-size:17px;font-weight:600;margin:0;letter-spacing:-0.01em;}
 .rail h1 span{color:var(--accent);}
@@ -61,23 +60,35 @@ body{background:var(--ground);color:var(--ink);font-family:"Instrument Sans",sys
 .chip.on{background:var(--chip-on);color:var(--chip-on-ink);border-color:var(--chip-on);}
 select{background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-family:inherit;font-size:13px;}
 .count{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);}
-.main{padding:22px 30px 60px;max-width:860px;}
-.pager{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.main{padding:20px 26px 60px;max-width:1500px;}
+.pager{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
 .pager button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;padding:6px 13px;font-family:inherit;font-size:13px;cursor:pointer;}
 .pager button:disabled{opacity:0.4;cursor:default;}
 .pager .pos{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);}
-.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.pager .title{font-size:16px;font-weight:600;}
+.controls{display:flex;gap:18px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:9px 13px;margin-bottom:12px;}
+.controls .fgroup{flex-direction:row;align-items:center;gap:8px;}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
 .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:3px 9px;border-radius:5px;background:var(--chip);color:var(--ink);}
 .tag.acc{background:var(--accent);color:var(--accent-ink);}
 .tag.P{background:var(--pass);color:#fff;}
 .tag.M{background:var(--marginal);color:#fff;}
 .tag.F,.tag.X{background:var(--fail);color:#fff;}
-.greeting{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--muted);font-size:13px;margin:12px 0;}
-.reply{font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.62;border:1px solid var(--line);border-radius:10px;padding:8px 26px 18px;background:var(--panel);}
-.reply h1,.reply h2,.reply h3{font-family:"Instrument Sans",sans-serif;font-size:15px;letter-spacing:0.01em;margin:20px 0 6px;color:var(--accent);text-transform:uppercase;font-weight:600;}
+.panels{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;}
+.panels.three{grid-template-columns:repeat(3,minmax(0,1fr));}
+@media (max-width:1150px){.panels,.panels.three{grid-template-columns:1fr;}}
+.panelbox{border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden;}
+.panelbox>header{font-family:"IBM Plex Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;gap:8px;align-items:center;}
+.panelbox>header .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);}
+.panelbox.styled>header .dot{background:var(--accent);}
+.panelbox.base>header .dot{background:var(--marginal);}
+.greeting{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--muted);font-size:13px;margin:12px 16px 0;}
+.reply{font-family:"Source Serif 4",Georgia,serif;font-size:15.5px;line-height:1.6;padding:4px 20px 16px;}
+.reply h1,.reply h2,.reply h3{font-family:"Instrument Sans",sans-serif;font-size:14px;letter-spacing:0.01em;margin:18px 0 6px;color:var(--accent);text-transform:uppercase;font-weight:600;}
 .reply pre{overflow-x:auto;background:var(--ground);border:1px solid var(--line);border-radius:7px;padding:10px 12px;font-size:13px;}
 .reply code{font-family:"IBM Plex Mono",monospace;font-size:0.88em;}
-.fb{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;}
+.reply .empty{color:var(--muted);font-family:"Instrument Sans",sans-serif;font-size:13.5px;padding-top:12px;}
+.fb{margin-top:20px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px;max-width:860px;}
 .fb .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .fb .head b{font-size:14px;}
 .rate{display:flex;gap:5px;}
@@ -90,18 +101,17 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
 .offline{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--muted);}
 .donechip{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--muted);}
 :focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+[hidden]{display:none!important;}
 </style>
 <div class="app">
   <aside class="rail">
     <div>
       <h1>Mouthfeel <span>Voice Lab</span></h1>
-      <div class="sub">Sweep outputs, 2026-09-04. Arrow keys page. Feedback saves for Claude to read back.</div>
+      <div class="sub">Original vs styled, side by side. ←/→ pages voices, 1–3 sets intensity.</div>
     </div>
-    <div class="fgroup"><label>Arm</label><div class="chips" id="armChips"></div></div>
-    <div class="fgroup"><label>Intensity</label><div class="chips" id="intChips"></div></div>
-    <div class="fgroup" id="deltaGroup" hidden><label>Vs baseline</label><div class="chips" id="deltaChips"></div></div>
     <div class="fgroup"><label>Profile</label><select id="profileSel"></select></div>
     <div class="fgroup"><label>Case</label><select id="caseSel"></select></div>
+    <div class="fgroup" id="deltaGroup" hidden><label>Vs baseline</label><div class="chips" id="deltaChips"></div></div>
     <div class="count" id="count"></div>
     <div class="offline" id="dbNote" hidden>Feedback storage isn't reachable in this view — notes won't save. Open the artifact signed in on claude.ai.</div>
   </aside>
@@ -109,15 +119,33 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
     <div class="pager">
       <button id="prev">← Prev</button>
       <button id="next">Next →</button>
-      <button id="blToggle" hidden>View baseline</button>
+      <span class="title" id="pairTitle"></span>
       <span class="pos" id="pos"></span>
       <span class="donechip" id="fbCount"></span>
     </div>
+    <div class="controls">
+      <div class="fgroup"><label>Arm</label><div class="chips" id="armChips"></div></div>
+      <div class="fgroup"><label>Intensity</label><div class="chips" id="intChips"></div></div>
+      <div class="fgroup" id="runGroup" hidden><label>Run</label><div class="chips" id="runChips"></div></div>
+    </div>
     <div class="meta" id="meta"></div>
-    <div class="greeting" id="greeting" hidden></div>
-    <article class="reply" id="reply"></article>
-    <section class="fb">
-      <div class="head"><b>Your feedback</b>
+    <div class="panels" id="panels">
+      <div class="panelbox">
+        <header><span class="dot"></span><span>Original · Mouthfeel off</span></header>
+        <article class="reply" id="origReply"></article>
+      </div>
+      <div class="panelbox styled">
+        <header><span class="dot"></span><span id="styledLabel">Styled</span></header>
+        <div class="greeting" id="greeting" hidden></div>
+        <article class="reply" id="styledReply"></article>
+      </div>
+      <div class="panelbox base" id="basePanel" hidden>
+        <header><span class="dot"></span><span id="baseLabel">Baseline</span></header>
+        <article class="reply" id="baseReply"></article>
+      </div>
+    </div>
+    <section class="fb" id="fbSection">
+      <div class="head"><b>Your feedback on the styled output</b>
         <div class="rate" id="rate">
           <button data-r="good">👍 good</button><button data-r="meh">😐 meh</button><button data-r="bad">👎 off</button>
         </div>
@@ -130,89 +158,125 @@ textarea{width:100%;box-sizing:border-box;min-height:84px;background:var(--groun
 <script id="data" type="application/json">${dataJson}</script>
 <script>
 const PAYLOAD = JSON.parse(document.getElementById("data").textContent);
-const DATA = PAYLOAD.entries;
 const BASELINE_NAME = PAYLOAD.baselineName || "";
 const armLabel = (e) => e.host === "codex" ? "codex · " + e.model : "claude · " + e.model;
-const arms = [...new Set(DATA.map(armLabel))];
-const profiles = [...new Set(DATA.map(e => e.profile))];
-const cases = [...new Set(DATA.map(e => e.caseId))];
-const changed = (e) => e.baseline !== undefined && e.baseline !== e.reply;
-const state = { arm: "all", intensity: "all", profile: "all", caseId: "all", delta: "all", idx: 0, showBaseline: false };
+const ALL = PAYLOAD.entries;
+const originals = new Map();
+for (const e of ALL.filter(x => x.profile === "control")) originals.set(armLabel(e) + "|" + e.caseId, e.reply);
+const ITEMS = ALL.filter(x => x.profile !== "control");
+const arms = [...new Set(ITEMS.map(armLabel))].sort();
+const profiles = [...new Set(ITEMS.map(e => e.profile))].sort();
+const cases = [...new Set(ITEMS.map(e => e.caseId))];
+const changed = (e) => e && e.baseline !== undefined && e.baseline !== e.reply;
+const pairs = [];
+for (const p of profiles) for (const c of cases) {
+  if (ITEMS.some(e => e.profile === p && e.caseId === c)) pairs.push({ profile: p, caseId: c });
+}
+const state = { pairIdx: 0, arm: arms.find(a => a.includes("sonnet")) || arms[0], intensity: 2, run: 1, delta: "all" };
 let db = null, fbCache = {}, current = null;
 
 const $ = (id) => document.getElementById(id);
-function chipRow(el, values, key){
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+function cellsFor(pair){
+  return ITEMS.filter(e => e.profile === pair.profile && e.caseId === pair.caseId);
+}
+function pairChanged(pair){
+  return cellsFor(pair).some(changed);
+}
+function visiblePairs(){
+  return state.delta === "all" ? pairs : pairs.filter(pairChanged);
+}
+function cellOf(pair){
+  const runs = cellsFor(pair).filter(e => armLabel(e) === state.arm && e.intensity === state.intensity);
+  return runs.find(e => e.run === state.run) || runs[0];
+}
+function chipRow(el, values, key, labels){
   el.innerHTML = "";
-  for (const v of ["all", ...values]) {
+  values.forEach((v, i) => {
     const b = document.createElement("button");
     b.className = "chip" + (String(state[key]) === String(v) ? " on" : "");
-    b.textContent = v === "all" ? "all" : v;
-    b.onclick = () => { state[key] = v; state.idx = 0; render(); };
+    b.textContent = labels ? labels[i] : v;
+    b.onclick = () => { state[key] = v; if (key !== "run") state.run = 1; render(); };
     el.appendChild(b);
-  }
+  });
 }
-function selRow(el, values, key){
+function selRow(el, values, selected, onpick){
   el.innerHTML = "";
-  for (const v of ["all", ...values]) {
+  for (const v of values) {
     const o = document.createElement("option");
     o.value = v; o.textContent = v;
     el.appendChild(o);
   }
-  el.value = String(state[key]);
-  el.onchange = () => { state[key] = el.value; state.idx = 0; render(); };
+  el.value = selected;
+  el.onchange = () => onpick(el.value);
 }
-function filtered(){
-  return DATA.filter(e =>
-    (state.arm === "all" || armLabel(e) === state.arm) &&
-    (state.intensity === "all" || String(e.intensity) === String(state.intensity)) &&
-    (state.profile === "all" || e.profile === state.profile) &&
-    (state.caseId === "all" || e.caseId === state.caseId) &&
-    (state.delta === "all" || changed(e)));
+function renderReply(el, markdown){
+  el.innerHTML = markdown === undefined
+    ? '<p class="empty">No output for this combination.</p>'
+    : DOMPurify.sanitize(marked.parse(markdown));
 }
 function render(){
-  chipRow($("armChips"), arms, "arm");
-  chipRow($("intChips"), [1,2,3], "intensity");
-  selRow($("profileSel"), profiles, "profile");
-  selRow($("caseSel"), cases, "caseId");
+  const list = visiblePairs();
+  if (state.pairIdx >= list.length) state.pairIdx = Math.max(0, list.length - 1);
+  const pair = list[state.pairIdx];
+  $("count").textContent = list.length + " of " + pairs.length + " voices shown";
+  $("prev").disabled = state.pairIdx <= 0;
+  $("next").disabled = state.pairIdx >= list.length - 1;
+  $("pos").textContent = list.length ? (state.pairIdx + 1) + " / " + list.length : "0 / 0";
+  if (!pair) {
+    $("pairTitle").textContent = "";
+    current = null;
+    renderReply($("origReply"), undefined);
+    renderReply($("styledReply"), undefined);
+    $("basePanel").hidden = true;
+    return;
+  }
+  selRow($("profileSel"), profiles, pair.profile, (v) => {
+    const idx = visiblePairs().findIndex(pr => pr.profile === v);
+    if (idx >= 0) { state.pairIdx = idx; state.run = 1; render(); }
+  });
+  selRow($("caseSel"), cases, pair.caseId, (v) => {
+    const idx = visiblePairs().findIndex(pr => pr.profile === pair.profile && pr.caseId === v)
+      ?? -1;
+    state.pairIdx = idx >= 0 ? idx : 0; state.run = 1; render();
+  });
   if (BASELINE_NAME) {
     $("deltaGroup").hidden = false;
-    $("deltaChips").innerHTML = "";
-    for (const v of ["all", "changed"]) {
-      const b = document.createElement("button");
-      b.className = "chip" + (state.delta === v ? " on" : "");
-      b.textContent = v;
-      b.onclick = () => { state.delta = v; state.idx = 0; render(); };
-      $("deltaChips").appendChild(b);
-    }
+    chipRow($("deltaChips"), ["all", "changed"], "delta");
   }
-  const list = filtered();
-  $("count").textContent = list.length + " outputs match";
-  if (state.idx >= list.length) state.idx = Math.max(0, list.length - 1);
-  const e = list[state.idx];
+  $("pairTitle").textContent = pair.profile;
+  chipRow($("armChips"), arms, "arm");
+  chipRow($("intChips"), [1, 2, 3], "intensity");
+  const e = cellOf(pair);
   current = e || null;
-  $("prev").disabled = state.idx <= 0;
-  $("next").disabled = state.idx >= list.length - 1;
-  $("pos").textContent = list.length ? (state.idx + 1) + " / " + list.length : "0 / 0";
-  if (!e) { $("meta").innerHTML = ""; $("reply").innerHTML = "<p>No outputs match the filters.</p>"; $("greeting").hidden = true; return; }
-  const baselineTag = e.baseline === undefined
-    ? (BASELINE_NAME ? '<span class="tag">no baseline cell</span>' : "")
+  const runs = e ? cellsFor(pair).filter(x => armLabel(x) === state.arm && x.intensity === e.intensity).map(x => x.run) : [];
+  $("runGroup").hidden = runs.length <= 1;
+  if (runs.length > 1) chipRow($("runChips"), runs, "run");
+  const baselineTag = !BASELINE_NAME || !e ? "" : e.baseline === undefined
+    ? '<span class="tag">no baseline cell</span>'
     : changed(e)
-      ? '<span class="tag M">vs ' + BASELINE_NAME + ": changed</span>"
-      : '<span class="tag P">vs ' + BASELINE_NAME + ": same</span>";
-  $("meta").innerHTML =
-    '<span class="tag acc">' + e.profile + " " + e.intensity + "</span>" +
-    '<span class="tag">' + armLabel(e) + "</span>" +
-    '<span class="tag">' + e.caseId + (e.run > 1 ? " · run " + e.run : "") + "</span>" +
-    (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + e.verdict + "</span>" : "") +
+      ? '<span class="tag M">vs ' + esc(BASELINE_NAME) + ": changed</span>"
+      : '<span class="tag P">vs ' + esc(BASELINE_NAME) + ": same</span>";
+  $("meta").innerHTML = !e ? "" :
+    '<span class="tag acc">' + esc(e.profile) + " " + e.intensity + "</span>" +
+    '<span class="tag">' + esc(armLabel(e)) + "</span>" +
+    '<span class="tag">' + esc(e.caseId) + "</span>" +
+    (e.verdict ? '<span class="tag ' + e.verdict + '">claude: ' + esc(e.verdict) + "</span>" : "") +
     baselineTag;
-  if (e.greeting && e.host !== "pi") { $("greeting").hidden = false; $("greeting").textContent = e.greeting.trim(); }
+  renderReply($("origReply"), originals.get(state.arm + "|" + pair.caseId));
+  $("styledLabel").textContent = "Styled · " + pair.profile + " " + state.intensity + " · " + state.arm;
+  if (e && e.greeting && e.host !== "pi") { $("greeting").hidden = false; $("greeting").textContent = e.greeting.trim(); }
   else $("greeting").hidden = true;
-  const showBaseline = state.showBaseline && e.baseline !== undefined;
-  $("blToggle").hidden = e.baseline === undefined;
-  $("blToggle").textContent = showBaseline ? "View current" : "View baseline";
-  $("reply").innerHTML = DOMPurify.sanitize(marked.parse(showBaseline ? e.baseline : e.reply));
-  $("reply").style.opacity = showBaseline ? "0.75" : "";
-  loadFeedback(e.key);
+  renderReply($("styledReply"), e ? e.reply : undefined);
+  const showBase = changed(e);
+  $("basePanel").hidden = !showBase;
+  $("panels").classList.toggle("three", showBase);
+  if (showBase) {
+    $("baseLabel").textContent = "Baseline · " + BASELINE_NAME;
+    renderReply($("baseReply"), e.baseline);
+  }
+  $("fbSection").hidden = !e;
+  if (e) loadFeedback(e.key);
 }
 function setRate(r){
   for (const b of $("rate").querySelectorAll("button")) b.classList.toggle("on", b.dataset.r === r);
@@ -259,14 +323,13 @@ async function refreshCount(){
 }
 for (const b of $("rate").querySelectorAll("button")) b.onclick = () => { setRate(b.dataset.r === currentRate() ? "" : b.dataset.r); };
 $("save").onclick = save;
-$("blToggle").onclick = () => { state.showBaseline = !state.showBaseline; render(); };
-$("prev").onclick = () => { state.idx--; state.showBaseline = false; render(); };
-$("next").onclick = () => { state.idx++; state.showBaseline = false; render(); };
+$("prev").onclick = () => { state.pairIdx--; state.run = 1; render(); };
+$("next").onclick = () => { state.pairIdx++; state.run = 1; render(); };
 document.addEventListener("keydown", (ev) => {
   if (ev.target.tagName === "TEXTAREA" || ev.target.tagName === "SELECT") return;
-  if (ev.key === "ArrowLeft" && !$("prev").disabled) { state.idx--; state.showBaseline = false; render(); }
-  if (ev.key === "ArrowRight" && !$("next").disabled) { state.idx++; state.showBaseline = false; render(); }
-  if (ev.key === "b" && !$("blToggle").hidden) { state.showBaseline = !state.showBaseline; render(); }
+  if (ev.key === "ArrowLeft" && !$("prev").disabled) { state.pairIdx--; state.run = 1; render(); }
+  if (ev.key === "ArrowRight" && !$("next").disabled) { state.pairIdx++; state.run = 1; render(); }
+  if (["1", "2", "3"].includes(ev.key)) { state.intensity = Number(ev.key); state.run = 1; render(); }
 });
 render();
 claude.use("db").then((ns) => {
