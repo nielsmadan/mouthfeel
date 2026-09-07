@@ -10,13 +10,13 @@ export async function tempDirectory(context: TestContext, prefix: string): Promi
   return path;
 }
 
-export async function runNode(script: string, input: string): Promise<{
+export async function runNode(script: string, input: string, env?: NodeJS.ProcessEnv): Promise<{
   code: number | null;
   stdout: string;
   stderr: string;
 }> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [script], { stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(process.execPath, [script], { stdio: ["pipe", "pipe", "pipe"], ...(env ? { env } : {}) });
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
     child.stdout.on("data", (chunk) => stdout.push(Buffer.from(chunk)));

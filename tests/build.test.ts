@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, symlink } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import test from "node:test";
 
-import { runNode } from "./helpers.js";
+import { runNode, tempDirectory } from "./helpers.js";
 
 const dist = resolve("dist");
 
@@ -90,6 +90,39 @@ test("generated lifecycle configuration covers every session transition", async 
   }
 });
 
+test("packaged hook exports can be imported from a stdin program", async () => {
+  for (const host of ["claude", "codex", "antigravity"] as const) {
+    const hook = pathToFileURL(join(dist, host, "mouthfeel/runtime/hook.mjs")).href;
+    const exportName = host === "antigravity" ? "latestUserText" : "handleHook";
+    const result = await runNode("-", `import(${JSON.stringify(hook)}).then(module => process.stdout.write(typeof module.${exportName}));`);
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout, "function", host);
+  }
+});
+
+test("packaged hooks start when installed through a symlinked directory", async (context) => {
+  const temporary = await tempDirectory(context, "mouthfeel-linked-package-");
+  const linked = join(temporary, "linked packages");
+  await symlink(dist, linked, "junction");
+  for (const host of ["claude", "codex", "antigravity"] as const) {
+    const packageRoot = join(linked, host, "mouthfeel");
+    const input = host === "antigravity" ? {} : {
+      session_id: "linked-package-smoke",
+      hook_event_name: "UserPromptSubmit",
+      prompt: host === "claude" ? "/mouthfeel:use sailor 2" : "$mouthfeel:use sailor 2",
+    };
+    const result = await runNode(join(packageRoot, "runtime/hook.mjs"), JSON.stringify(input), {
+      ...process.env,
+      PLUGIN_ROOT: packageRoot,
+      PLUGIN_DATA: join(temporary, "state", host),
+    });
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stderr, "", host);
+    if (host === "antigravity") assert.deepEqual(JSON.parse(result.stdout), {});
+    else assert.match(JSON.parse(result.stdout).hookSpecificOutput.additionalContext, /Sailor \(intensity 2\)/);
+  }
+});
+
 test("generated controller skills do not echo an internal command marker", async () => {
   for (const host of ["claude", "codex"] as const) {
     const skill = await readFile(join(dist, host, "mouthfeel/skills/use/SKILL.md"), "utf8");
@@ -109,6 +142,7 @@ test("package versions and README roster stay aligned", async () => {
     "codex/mouthfeel/.codex-plugin/plugin.json",
     "pi/mouthfeel/package.json",
     "opencode/mouthfeel/package.json",
+    "antigravity/mouthfeel/plugin.json",
   ];
   for (const path of manifestPaths) {
     const manifest = JSON.parse(await readFile(join(dist, path), "utf8")) as { version: string };

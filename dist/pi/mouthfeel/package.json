@@ -1,6 +1,6 @@
 {
   "name": "@nielsmadan/mouthfeel-pi",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "Mouthfeel output profiles for Pi",
   "type": "module",
   "license": "MIT",
@@ -13,5 +13,16 @@
   "files": [
     "index.js",
     "README.md"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "pi-package",
+    "mouthfeel",
+    "output-style"
   ]
 }

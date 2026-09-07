@@ -6,6 +6,8 @@ Mouthfeel lets you switch one conversation into a practical communication mode s
 
 It ships native packages for Claude Code, Codex, Pi, OpenCode, and Antigravity. There is no Mouthfeel installer CLI.
 
+The `0.9.x` series is for refining prompts and intensity. The [installation guide](docs/install.md) covers release archives, updates, removal, and host limitations. Until the first release is published, use the local installs below.
+
 ## Commands
 
 Every host accepts the same arguments. Claude uses `/mouthfeel:use`, Codex uses `$mouthfeel:use`, and Pi, OpenCode, and Antigravity use `/mouthfeel`; `:use` is the plugin skill namespace on Claude and Codex, not an extra action.
@@ -59,6 +61,8 @@ With `sailor 1`:
 The full approved examples live in [`evals/references/approved-intensity-2.md`](evals/references/approved-intensity-2.md); they were approved on the old three-level scale, where intensity 2 corresponds to today's intensity 1. The evaluation corpus keeps examples and research out of runtime context.
 
 ## Build and install locally
+
+Requires Node.js 22.19 or newer and npm.
 
 ```sh
 npm ci
@@ -169,35 +173,49 @@ Mouthfeel was informed by existing output-style and persona tools; [`docs/preced
 
 ## Releases
 
+### Prepare locally
+
+```sh
+npm run release:prepare -- --tag v0.9.0
+```
+
+This runs the checks and produces validated npm packages, host archives, a combined Claude/Codex marketplace, and checksums under `release/v0.9.0/`. It exercises the extracted packages outside the checkout without invoking real agents or models. It does not create a tag or publish anything.
+
+### Create a draft release
+
 Run `npm run release` from a clean, current `main` checkout with complete Git history and tags,
-and Git push access to the repository. It proposes a version from commits since the latest published
-tag, runs `npm run check`, then prompts. Enter `y` to publish, enter a version or
-`patch`/`minor`/`major` and then confirm, or press Enter to cancel.
+and Git push access to the repository. It proposes a version from
+commits since the latest release tag, runs `npm run check`, then prompts. Enter `y` to create the draft,
+enter a version or `patch`/`minor`/`major` and then confirm, or press Enter to cancel.
 
 ```sh
 npm run release
 npm run release -- minor
-npm run release -- 0.2.0
+npm run release -- 0.9.0
 npm run release -- --dry-run
 npm run release -- patch --yes
 ```
 
-The first release defaults to `0.1.0`. Later, `feat` proposes a minor bump, `fix`/`perf` a patch,
+The first release defaults to `0.9.0`. Later, `feat` proposes a minor bump, `fix`/`perf` a patch,
 and breaking changes a major bump (minor during `0.x`). Maintenance-only changes require an
-explicit bump. `--dry-run` reads local/origin state and previews without checks or publication;
+explicit bump. Use `patch` for prompt refinements in the `0.9.x` series.
+`--dry-run` reads local/origin state and previews without checks or publication;
 `--yes` explicitly confirms unattended use. Nonterminal invocations otherwise fail.
 
 After confirmation, the command updates `package.json` and `package-lock.json`, rebuilds and tests
 all five generated packages, and commits those files with `dist/`. It atomically pushes `main`
 and the annotated tag, including existing local commits counted in the preview. It then prints
 workflow and release links and finishes. Publication runs asynchronously, so local success confirms
-the Git push. The workflow uses `softprops/action-gh-release` to create the GitHub release record
-and attach the five archives, which Git cannot do. Check the linked workflow for publication success
-or failure. npm registry publication is a separate future distribution step.
+the Git push. The workflow uses `softprops/action-gh-release` to create a GitHub draft release
+with six archives, checksums, and the release inventory. Check the linked workflow for publication
+success or failure. Inspect and publish the draft separately; npm registry publication is a
+future distribution step.
 
 The checks and preparation steps live in `scripts/release.json`. Failed preparation or push leaves
 local changes/commits/tags for inspection. Failed publication leaves the remote tag in place;
 address the failure in the linked workflow without replacing the tag.
+
+See [the release guide](docs/releasing.md) for the draft-release workflow, version policy, and remaining registry/marketplace setup. Generated `dist` remains tracked until those distribution paths are available.
 
 ## Names and affiliation
 

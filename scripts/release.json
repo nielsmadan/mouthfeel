@@ -1,7 +1,7 @@
 {
   "branch": "main",
   "components": 3,
-  "initial_version": "0.1.0",
+  "initial_version": "0.9.0",
   "checks": [
     [
       "npm",
@@ -42,5 +42,6 @@
   "name": "Mouthfeel",
   "repository": "nielsmadan/mouthfeel",
   "workflow": "release.yml",
-  "publication": "GitHub release with the five generated agent plugin archives"
+  "draft": true,
+  "publication": "Draft GitHub release with six archives, checksums, and the release inventory"
 }

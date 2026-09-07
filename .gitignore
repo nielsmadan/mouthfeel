@@ -3,3 +3,4 @@ evals/candidates/
 evals/runs/
 .DS_Store
 coverage/
+release/

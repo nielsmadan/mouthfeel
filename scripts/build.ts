@@ -10,7 +10,10 @@ import { INTENSITIES } from "../src/core/types.js";
 const INTENSITY_ARGS = INTENSITIES.join("|");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-const version = (JSON.parse(await readFile(join(root, "package.json"), "utf8")) as { version: string }).version;
+const { version, engines } = JSON.parse(await readFile(join(root, "package.json"), "utf8")) as {
+  version: string;
+  engines: { node: string };
+};
 const repository = "https://github.com/nielsmadan/mouthfeel";
 
 async function write(path: string, content: string): Promise<void> {
@@ -200,6 +203,9 @@ async function main(): Promise<void> {
     repository,
     pi: { extensions: ["./index.js"] },
     files: ["index.js", "README.md"],
+    engines,
+    publishConfig: { access: "public" },
+    keywords: ["pi-package", "mouthfeel", "output-style"],
   });
   await bundleWrapper(
     `import { createPiExtension } from "./src/adapters/pi.ts";\nconst profiles = ${registry};\nexport default createPiExtension(profiles);\n`,
@@ -217,6 +223,8 @@ async function main(): Promise<void> {
     main: "./index.js",
     exports: "./index.js",
     files: ["index.js", "README.md"],
+    engines,
+    publishConfig: { access: "public" },
     peerDependencies: { "@opencode-ai/plugin": ">=1.0.0" },
   });
   await bundleWrapper(
@@ -228,6 +236,7 @@ async function main(): Promise<void> {
   await json(join(antigravity, "plugin.json"), {
     $schema: "https://antigravity.google/schemas/v1/plugin.json",
     name: "mouthfeel",
+    version,
     description: "Temporary output styles for coding agents",
   });
   await json(join(antigravity, "hooks.json"), {
@@ -260,9 +269,35 @@ Use \`/mouthfeel list\` to see exact profile ids. If a plugin update is not refl
 `);
   await bundle("src/adapters/antigravity-hook.ts", join(antigravity, "runtime", "hook.mjs"));
 
-  const packageReadme = "# Mouthfeel adapter\n\nThis directory is generated. See https://github.com/nielsmadan/mouthfeel for installation and usage.\n";
-  for (const host of [claude, codex, pi, opencode, antigravity]) {
-    await write(join(host, "README.md"), packageReadme);
+  const packages = [
+    { directory: claude, host: "Claude Code", command: "/mouthfeel:use" },
+    { directory: codex, host: "Codex", command: "$mouthfeel:use" },
+    { directory: pi, host: "Pi", command: "/mouthfeel" },
+    { directory: opencode, host: "OpenCode", command: "/mouthfeel" },
+    { directory: antigravity, host: "Antigravity", command: "/mouthfeel" },
+  ];
+  for (const adapter of packages) {
+    await write(join(adapter.directory, "README.md"), `# Mouthfeel for ${adapter.host}
+
+Version ${version}. Temporary output styles for coding agents. Requires Node.js ${engines.node}.
+
+Use \`${adapter.command} sailor 2\` to activate a profile for future replies.
+Use \`${adapter.command} list\` to browse profiles, \`${adapter.command} untranslate\`
+to rewrite just the previous styled reply, or \`${adapter.command} off\` to disable it.
+
+One profile is active at a time, with intensity 1, 2, or 3. Code, commands, and
+generated files keep their original form. State survives resume and compaction;
+Mouthfeel does not store your conversation text. The 0.9.x series is for prompt refinement.
+
+This package contains its runtime and profile data. No source checkout, build step,
+or Mouthfeel installer is needed to use it.
+
+See the [installation guide](${repository}/blob/v${version}/docs/install.md)
+for installation, updates, removal, and host-specific limitations.
+
+MIT licensed. Mouthfeel is an independent project, unaffiliated with the hosts or
+the people and characters referenced by its profiles.
+`);
   }
 }
 

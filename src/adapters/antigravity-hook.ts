@@ -1,3 +1,4 @@
+import { existsSync, realpathSync } from "node:fs";
 import { open, stat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -137,6 +138,6 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
+if (process.argv[1] && existsSync(process.argv[1]) && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) {
   void main();
 }
