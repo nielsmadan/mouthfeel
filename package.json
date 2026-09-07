@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "tsx scripts/build.ts",
-    "check": "tsc --noEmit && npm test",
+    "check": "python3 -B -m unittest discover -s scripts -p 'test_release*.py' && tsc --noEmit && npm test",
     "dev:claude": "tsx scripts/dev-claude.ts",
     "dev:codex": "tsx scripts/dev-codex.ts",
     "dev:oc": "tsx scripts/dev-opencode.ts",
@@ -26,7 +26,8 @@
     "eval:hosts": "tsx harness/run.ts",
     "eval:prepare": "tsx scripts/prepare-evals.ts",
     "pretest": "npm run build",
-    "test": "tsx --test \"tests/**/*.test.ts\""
+    "test": "tsx --test \"tests/**/*.test.ts\"",
+    "release": "python3 scripts/release.py"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2",

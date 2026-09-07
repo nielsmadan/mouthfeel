@@ -150,6 +150,8 @@ Claude Code and Codex inject the complete profile card when a profile is selecte
 
 ## Development
 
+Development checks and release tooling require Python 3.9+ in addition to Node/npm.
+
 - Canonical profile sources: `profiles/<id>/`
 - Shared controller and storage: `src/core/`
 - Host adapters: `src/adapters/` and `src/runtime/`
@@ -160,6 +162,36 @@ Claude Code and Codex inject the complete profile card when a profile is selecte
 `npm run eval:prepare` produces the 108-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all six synthetic cases. The host-smoke prompts exercise rebuilt plugins in real agent sessions, where host instructions can weaken or distort a profile. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
 
 Mouthfeel was informed by existing output-style and persona tools; [`docs/precedents.md`](docs/precedents.md) records what it reuses and deliberately changes.
+
+## Releases
+
+Run `npm run release` from a clean, current `main` checkout with complete Git history and tags,
+and authenticated `gh` with repository, Actions, and release access. It proposes a version from
+commits since the latest published tag, runs `npm run check`, then prompts. Enter `y` to publish,
+enter a version or `patch`/`minor`/`major` and then confirm, or press Enter to cancel.
+
+```sh
+npm run release
+npm run release -- minor
+npm run release -- 0.2.0
+npm run release -- --dry-run
+npm run release -- patch --yes
+```
+
+The first release defaults to `0.1.0`. Later, `feat` proposes a minor bump, `fix`/`perf` a patch,
+and breaking changes a major bump (minor during `0.x`). Maintenance-only changes require an
+explicit bump. `--dry-run` reads local/origin state and previews without checks or publication;
+`--yes` explicitly confirms unattended use. Nonterminal invocations otherwise fail.
+
+After confirmation, the command updates `package.json` and `package-lock.json`, rebuilds and tests
+all five generated packages, and commits those files with `dist/`. It atomically pushes `main`
+and the annotated tag, including existing local commits counted in the preview. It waits for the
+tag's GitHub workflow to publish the five archives and prints the release URL. npm registry
+publication is a separate future distribution step.
+
+The checks and preparation steps live in `scripts/release.json`. Failed preparation or push leaves
+local changes/commits/tags for inspection. Failed publication leaves the remote tag in place and
+reports the workflow URL; address the failure there without replacing the tag.
 
 ## Names and affiliation
 
