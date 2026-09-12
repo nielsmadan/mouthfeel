@@ -12,8 +12,7 @@
   "tools": [
     "git",
     "python3",
-    "npm",
-    "gh"
+    "npm"
   ],
   "stages": [
     {

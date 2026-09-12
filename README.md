@@ -166,9 +166,9 @@ Mouthfeel was informed by existing output-style and persona tools; [`docs/preced
 ## Releases
 
 Run `npm run release` from a clean, current `main` checkout with complete Git history and tags,
-and authenticated `gh` with repository, Actions, and release access. It proposes a version from
-commits since the latest published tag, runs `npm run check`, then prompts. Enter `y` to publish,
-enter a version or `patch`/`minor`/`major` and then confirm, or press Enter to cancel.
+and Git push access to the repository. It proposes a version from commits since the latest published
+tag, runs `npm run check`, then prompts. Enter `y` to publish, enter a version or
+`patch`/`minor`/`major` and then confirm, or press Enter to cancel.
 
 ```sh
 npm run release
@@ -185,13 +185,15 @@ explicit bump. `--dry-run` reads local/origin state and previews without checks 
 
 After confirmation, the command updates `package.json` and `package-lock.json`, rebuilds and tests
 all five generated packages, and commits those files with `dist/`. It atomically pushes `main`
-and the annotated tag, including existing local commits counted in the preview. It waits for the
-tag's GitHub workflow to publish the five archives and prints the release URL. npm registry
-publication is a separate future distribution step.
+and the annotated tag, including existing local commits counted in the preview. It then prints
+workflow and release links and finishes. Publication runs asynchronously, so local success confirms
+the Git push. The workflow uses `softprops/action-gh-release` to create the GitHub release record
+and attach the five archives, which Git cannot do. Check the linked workflow for publication success
+or failure. npm registry publication is a separate future distribution step.
 
 The checks and preparation steps live in `scripts/release.json`. Failed preparation or push leaves
-local changes/commits/tags for inspection. Failed publication leaves the remote tag in place and
-reports the workflow URL; address the failure there without replacing the tag.
+local changes/commits/tags for inspection. Failed publication leaves the remote tag in place;
+address the failure in the linked workflow without replacing the tag.
 
 ## Names and affiliation
 
