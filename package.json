@@ -19,6 +19,8 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "check": "python3 -B -m unittest discover -s scripts -p 'test_release*.py' && tsc --noEmit && npm test",
+    "type-check": "tsc --noEmit",
+    "check-all": "npm run type-check",
     "dev:claude": "tsx scripts/dev-claude.ts",
     "dev:codex": "tsx scripts/dev-codex.ts",
     "dev:oc": "tsx scripts/dev-opencode.ts",
