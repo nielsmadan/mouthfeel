@@ -17,6 +17,7 @@
     "node": ">=22.19.0"
   },
   "scripts": {
+    "prepare": "lefthook install || true",
     "build": "tsx scripts/build.ts",
     "check": "python3 -B -m unittest discover -s scripts -p 'test_release*.py' && tsc --noEmit && npm test",
     "type-check": "tsc --noEmit",

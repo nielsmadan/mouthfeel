@@ -1,0 +1,10 @@
+pre-commit:
+  commands:
+    type-check:
+      glob: "*.ts"
+      run: npm run type-check
+
+pre-push:
+  commands:
+    check:
+      run: npm run check
