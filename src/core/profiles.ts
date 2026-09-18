@@ -1,3 +1,4 @@
+import { INTENSITIES, isIntensity } from "./types.js";
 import type {
   CompiledProfile,
   Intensity,
@@ -48,8 +49,8 @@ export function validatePhraseEntries(value: unknown, profileId: string): assert
     string(phrase.text, `${profileId}: phrase ${index + 1} text`);
     strings(phrase.useWhen, `${profileId}: phrase ${index + 1} useWhen`);
     if (phrase.avoidWhen !== undefined) strings(phrase.avoidWhen, `${profileId}: phrase ${index + 1} avoidWhen`);
-    if (phrase.minIntensity !== 1 && phrase.minIntensity !== 2 && phrase.minIntensity !== 3) {
-      throw new Error(`${profileId}: phrase ${index + 1} minIntensity must be 1, 2, or 3`);
+    if (!isIntensity(phrase.minIntensity)) {
+      throw new Error(`${profileId}: phrase ${index + 1} minIntensity must be one of ${INTENSITIES.join(", ")}`);
     }
     optionalString(phrase.meaning, `${profileId}: phrase ${index + 1} meaning`);
     optionalString(phrase.source, `${profileId}: phrase ${index + 1} source`);
@@ -72,7 +73,7 @@ export function validateProfileSource(value: unknown): asserts value is ProfileS
   strings(source.controlledImperfections, `${id}: controlledImperfections`);
   strings(source.avoid, `${id}: avoid`);
   const intensity = record(source.intensity, `${id}: intensity`);
-  for (const level of [1, 2, 3] as const) {
+  for (const level of INTENSITIES) {
     const instructions = strings(intensity[level], `${id}: intensity ${level}`);
     if (instructions.length === 0) {
       throw new Error(`${id}: intensity ${level} must contain instructions`);
@@ -88,8 +89,8 @@ export function compileProfile(
   validateProfileSource(source);
   if (!prompt.trim()) throw new Error(`${source.id}: prompt.md is empty`);
   const cards = {} as Record<Intensity, string>;
-  for (const level of [1, 2, 3] as const) {
-    const overlays = ([1, 2, 3] as const)
+  for (const level of INTENSITIES) {
+    const overlays = INTENSITIES
       .filter((candidate) => candidate <= level)
       .flatMap((candidate) => source.intensity[candidate]);
     cards[level] = [
@@ -128,7 +129,7 @@ export function validateRoster(value: unknown): asserts value is CompiledProfile
     if (profile.category !== "practical" && profile.category !== "fun") throw new Error(`${id}: invalid category`);
     if (typeof profile.surpriseEligible !== "boolean") throw new Error(`${id}: surpriseEligible must be boolean`);
     const cards = record(profile.cards, `${id}: cards`);
-    for (const level of [1, 2, 3] as const) {
+    for (const level of INTENSITIES) {
       if (typeof cards[level] !== "string" || !cards[level].trim()) {
         throw new Error(`${id}: missing intensity ${level} card`);
       }
@@ -175,15 +176,26 @@ function renderPhraseCandidate(entry: PhraseEntry): string {
   return `- Candidate: “${entry.text}” Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
 }
 
-function distributionLine(intensity: Intensity): string {
-  return intensity === 1
-    ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline."
-    : "Apply it to each entire natural-language reply — long, structured, and technical explanations included — not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
+const DISTRIBUTION_LINE =
+  "Apply it to each entire natural-language reply — long, structured, and technical explanations included — not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
+
+// Hosts without per-turn reminders drift back to their baseline on long
+// structured replies; opting in makes the card carry its own priority statement.
+export const CARD_REINFORCEMENT = "Priority note for this host: the profile above is part of the reply specification, equal in weight to technical accuracy — a structured, factually correct reply written in your default voice is an incorrect reply. Long, structured, technical replies are exactly where the voice must survive. Before sending one, re-read it section by section and rewrite every section that reads like your baseline.";
+
+export interface CardRenderOptions {
+  reinforce?: boolean;
 }
 
-export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity, prompt: string): string {
+export function renderRuntimeCard(
+  profile: CompiledProfile,
+  intensity: Intensity,
+  prompt: string,
+  options: CardRenderOptions = {},
+): string {
   const selected = selectPhrases(profile, intensity, prompt);
-  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. ${distributionLine(intensity)}\n\n${profile.cards[intensity]}`;
+  let card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.\n\nThe profile stays active for every future reply until it is changed or turned off. ${DISTRIBUTION_LINE}\n\n${profile.cards[intensity]}`;
+  if (options.reinforce) card = `${card}\n\n${CARD_REINFORCEMENT}`;
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
   return `${card}\n\n## Optional phrase candidates\n${phraseLines.join("\n")}\nUse at most one candidate. Never force a quotation.`;
@@ -192,10 +204,11 @@ export function renderRuntimeCard(profile: CompiledProfile, intensity: Intensity
 export function renderActivationGreeting(
   profile: CompiledProfile,
   result: ProfileGreetingCommandResult,
+  options: CardRenderOptions = {},
 ): string {
   return [
     "This is a Mouthfeel activation greeting.",
-    renderRuntimeCard(profile, result.state.intensity, ""),
+    renderRuntimeCard(profile, result.state.intensity, "", options),
     "Apply the selected profile to this greeting.",
     "Reply immediately, without calling tools or inspecting files.",
     `In one to three short sentences, greet the user in this voice and clearly convey: ${result.notification}`,
@@ -212,7 +225,7 @@ export function renderRuntimeReminder(
 ): string | null {
   const selected = selectPhrases(profile, intensity, prompt);
   if (selected.length === 0 && !options.always) return null;
-  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. ${distributionLine(intensity)} Keep the profile's hard boundaries.`;
+  const reminder = `Mouthfeel is active for this reply: ${profile.displayName}, intensity ${intensity}. Apply the complete profile contract already provided earlier in this conversation. ${DISTRIBUTION_LINE} Keep the profile's hard boundaries.`;
   if (selected.length === 0) return reminder;
   const candidates = selected.map(renderPhraseCandidate);
   return `${reminder}\nOptional phrase candidates for this turn:\n${candidates.join("\n")}\nUse at most one. Never force a quotation.`;

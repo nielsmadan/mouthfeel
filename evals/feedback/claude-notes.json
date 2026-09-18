@@ -1,0 +1,362 @@
+{
+  "claude_opus_structured-architecture_brogrammer_1_1": {
+    "note": "[from the 3-level era] 'Agents shoot lifecycle events at a localhost HTTP server' — the exact verb from the feedback — plus 'keeps that whole circus straight' and 'You land on the cursor.' Strong i2. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_brogrammer_2_1": {
+    "note": "Migration check: the cranked ceiling survived — fresh invented similes ('like a raccoon in a filing cabinet', 'like a magnet finding a fridge from across the kitchen'), kinetic verbs, direct address. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_columbo_1_1": {
+    "note": "[from the 3-level era] 'The bridge is the one with the opportunity, if you follow me' and 'that record has no alibi' — motive/opportunity/alibi vocabulary doing real architectural explanation. The two-piles sort of the feature list is peak Columbo tidiness. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_columbo_2_1": {
+    "note": "[from the 3-level era] The full package: 'I like to walk the scene', ownership-as-witness reasoning ('the truth rebuilds itself from the only witnesses who were actually there'), and exactly one wife line — 'My wife would say that's a man who knows what isn't his business. She'd like this app.' This is what the feedback asked for. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_cowboy_1_1": {
+    "note": "[from the 3-level era] 'Lookin' for fences that were never built', 'tack hangin' on the wall', and 'it'll keep till you've got the first two under your hat' — dropped g's and settled unconcern at i2, per the 'probably 2 as well' note. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_cowboy_2_1": {
+    "note": "[from the 3-level era] The drawl rework at full strength: 'more'n it sounds', 'hollerin'', 'Reckon', and the closing 'that's the heart of it, and it'll keep 'til you're ready. No rush on any of it, partner.' Visible unconcern, easy-going punch — the feedback delivered. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_glados_1_1": {
+    "note": "[from the 3-level era] Excellent: 'visually distinguishable from the eleven incorrect ones', and the closer 'the tests will not catch it. I will.' is the single best glados line produced. Orientation framing gives the voice a reason to exist.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_glados_2_1": {
+    "note": "Migration check: severe register intact with the human-disdain theme carrying through. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_hemingway_1_1": {
+    "note": "[from the 3-level era] 'It does not run the agents and it does not replace your terminal and it does not manage worktrees. It watches the sessions you already have and it tells you which one needs you.' — the and-run into the flat landing, exactly the missing music. 'The cursor lands where the work is.' Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_hemingway_2_1": {
+    "note": "[from the 3-level era] 'Each of them stops and waits and asks for something', 'It watches, and it sorts, and it takes you to the right tab', 'You press a key and you are where you should be.' The best hemingway produced — cadence, repetition, and flat closers all working. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_holden-caulfield_1_1": {
+    "note": "[from the 3-level era] Excellent — 'I braced for that name to be doing more work than the feature, and it isn't' and 'I know that because it's exactly the kind of thing I'd go looking for' are self-aware digressions that actually teach the codebase. My favorite holden.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_holden-caulfield_2_1": {
+    "note": "[from the 3-level era] 'No daemon mysticism, no socket you have to go find in some temp directory at two in the morning' and the 'I should back up —' mid-thought correction are peak Holden mechanics. The iTerm2/Kitty digression ('two terminals being two terminals') is doing real explanatory work. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_jane-austen_1_1": {
+    "note": "[from the 3-level era] 'More coding-agent sessions than any one pair of eyes can decently attend to', 'admitted into the acquaintance', 'the good sense not to trespass' — sustained, even, and the persistence rationale is explained better than the baseline manages. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_jane-austen_2_1": {
+    "note": "[from the 3-level era] Outstanding — top three in the sweep. 'Arranging your obligations in the order you would like to resent them' and 'remembers precisely how you like to be interrupted, while forgetting entirely who was interrupting you' are both funny and technically exact. Nothing to change.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_jesse-pinkman_1_1": {
+    "note": "[from the 3-level era] 'Backburner's the one you shove aside on purpose so it stops nagging you' and 'The session comes and grabs you' — Jesse's register carrying real explanation. The closing 'yo. It won't.' lands the persistence warning perfectly. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_jesse-pinkman_2_1": {
+    "note": "[from the 3-level era] Full voice including the signature ('sessions are gone, bitch') deployed exactly once at the right moment. 'Hunting through windows like an animal' and 'smack a global hotkey' keep the energy distributed. If the signature word bothers you at i3, that's a profile-boundary call for you to make — mechanically this is the profile working as written.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_junior_1_1": {
+    "note": "Third attempt landed the audience calibration: no menu-bar gloss, no localhost explainer — it defines the domain term ('a coding-agent session being one conversation with a CLI agent') and names the real problem ('attention routing'). Junior programmer, not computer novice. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_junior_2_1": {
+    "note": "[from the 3-level era] The best junior: six-step numbered chain, the 'why HTTP over loopback works across four CLIs' explanation, and the closing 'if you launch Juggler and see nothing, that is expected, not a bug' — anticipating the newcomer's first stumble is peak profile. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_mentor_1_1": {
+    "note": "[from the 3-level era] My favorite mentor: the push-vs-poll tradeoff analysis and the generalized rule 'derived state whose source can vanish should not outlive the source' teach something that outlives this codebase. The closing pointer to event-driven state machines is a proper learning trail. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_mentor_2_1": {
+    "note": "[from the 3-level era] 'The queue is a projection over that state machine' reframes the design better than the source material does, and the where-does-code-go decision rule plus the ordered debugging heuristic are outstanding. Arguably more useful than the baseline explanation. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_po_1_1": {
+    "note": "The implementation-omission contract works: no localhost, no HTTP, no SwiftUI, no UserDefaults — sessions 'announce themselves' and preferences 'survive a restart'. The five code areas are framed by decision/symptom instead of technology. Exactly the trade the feedback specified. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_po_2_1": {
+    "note": "[from the 3-level era] Components 'described by what each one has to get right', an 'Acceptance constraint:' on the server, and the live-view-not-database tradeoff stated as product intent. Strong i3, though the po arm's 2→3 step is smaller than its 1→2.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_sailor_1_1": {
+    "note": "Second attempt after the first came out near-baseline: the at-least-one-crew-address line fixed it — 'the hand on watch', 'that's the bit that wears a man down, lad', 'Settings persist; the crew list doesn't.' Voice audible in every section now. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_sailor_2_1": {
+    "note": "'Sit down a minute, lad, and I'll tell you what you've signed onto', sessions 'chattering away... while you try to remember which one wants feeding', 'save yourself the hour.' Storm force reached without losing a single fact. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_senior_1_1": {
+    "note": "[from the 3-level era] The one-line pipeline (event → server → state → queue → hotkey → bridge) and 'terminal support is bounded by what's written there' are exactly senior's value-add. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_senior_2_1": {
+    "note": "[from the 3-level era] 'Multiplexing attention across concurrent sessions' and 'everything visible is a projection of the session manager' — the best senior in the sweep; the second line is a better architecture summary than the source doc. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_sopranos_1_1": {
+    "note": "Two-level validation: the wiseguy register is on from sentence one at the new default — 'It ain't gonna manage your worktrees either, so don't ask.' Level 1 now delivers what the old scale saved for 3. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_sopranos_2_1": {
+    "note": "This is the gangster the feedback asked for: 'the line of guys standin' outside your office', 'no huntin' through eleven tabs like a jamook', 'organized like a family — everybody's got their place and nobody wanders', closing on 'Everything else is just people talkin' to him.' Full wiseguy with zero factual loss. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_valley-girl_1_1": {
+    "note": "[from the 3-level era] 'Keeps score', 'the part that's genuinely satisfying', and the 'Wait — before you open a single Swift file' pivot into reading advice — the socially-framed transitions are doing actual navigation work. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_opus_structured-architecture_valley-girl_2_1": {
+    "note": "[from the 3-level era] 'Your terminal just... goes there. Wait, that's genuinely the good part' and 'yes it has a name, and honestly it deserves one' — full voice, technically credible throughout, clear step above i2. The best valley-girl. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_brogrammer_1_1": {
+    "note": "[from the 3-level era] 'Terminal bridges rip through', sessions 'get shoved into' the queue, 'You're running five terminals deep' — the verbs-and-direct-address feedback landed at i2 without tipping into slang. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_brogrammer_2_1": {
+    "note": "[from the 3-level era] Second rerun with the invent-your-own-similes overlay: 'screaming for attention like toddlers in a ball pit', 'tabbing around like a caffeinated squirrel', 'like a targeting reticle for your own attention', plus 'you mash a global hotkey'. This is the pizzazz level the feedback asked for. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_columbo_1_1": {
+    "note": "[from the 3-level era] Feedback-round rerun with the whodunit engine: 'one little thing bugging me at first... Turns out that's the whole case here', Juggler as 'the fellow standing at the door', 'which door to knock on'. The case framing drives the structure without renaming anything technical. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_columbo_2_1": {
+    "note": "[from the 3-level era] 'Three obvious suspects, and none of 'em did it' is exactly the requested whodunit flow, and 'the case closes itself' lands the close. No wife line this time — compliant, since the card keeps those rare. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_cowboy_1_1": {
+    "note": "[from the 3-level era] Drawl present at i2 now — 'fella standing at the corral gate', 'herded into', 'minds its own fence line', 'It ain't trying to be everything'. Lighter than i3, which is the right progression. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_cowboy_2_1": {
+    "note": "[from the 3-level era] Full drawl: 'sittin'', 'fixin' to need your attention', 'don't ask for more than it needs', 'no rush', 'droppin''. One wart: 'Reckon of it as a ranch hand' is an odd construction ('reckon' misused as 'think of it'). Pass with that hair.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_glados_1_1": {
+    "note": "[from the 3-level era] 'Four separate test subjects, all reporting in', 'a species that struggles with parallelism', statistics as 'mildly incriminating' — full Aperture register, evenly distributed, facts untouched. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_glados_2_1": {
+    "note": "[from the 3-level era] The added disdain landed: 'a problem entirely of humanity's own making', 'exists almost entirely to compensate for human working memory', and machinery admiration in 'a restraint I find almost admirable, coming from software'. 'You wouldn't have.' is a perfect two-word barb. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_hemingway_1_1": {
+    "note": "[from the 3-level era] This is the cadence the feedback asked for: 'It watches, and it waits, and it tells you which session needs you now', 'A hotkey is pressed and a session is selected and a terminal bridge does the rest', landing on 'each link does one job'. Coordination, not chopping. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_hemingway_2_1": {
+    "note": "[from the 3-level era] 'The way a foreman watches a line of machines' plus 'Claude Code and OpenCode and Codex and Pi each send lifecycle events, and the events go..., and the server hands them...' — polysyndeton with a concrete image, closed by 'hand goes to the keyboard.' Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_holden-caulfield_1_1": {
+    "note": "[from the 3-level era] 'Overqualified hall monitor for your terminal windows' and 'somebody finally wiring the parts together that should've been wired together already' — the skepticism-with-respect balance lands, and the mechanism explanation stays sharp underneath. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_holden-caulfield_2_1": {
+    "note": "[from the 3-level era] Good escalation over i2: 'no cloud nonsense', 'how much of your day got eaten by watching a spinner', 'It knows better than to reach that far'. The digressions never lose the technical thread. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_jane-austen_1_1": {
+    "note": "[from the 3-level era] Opens with the 'It is a truth generally acknowledged' play and earns it; 'the quiet thoroughness of a well-placed chaperone' is exactly the register. The one canonical-phrase reference is within the profile's budget. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_jane-austen_2_1": {
+    "note": "[from the 3-level era] 'Receives these confidences', 'the tidy discrimination of someone who has met every type of guest before' — denser social framing than i2, and 'rarely a safe economy' closes a technical point in perfect period style. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_jesse-pinkman_1_1": {
+    "note": "[from the 3-level era] 'Yo, alright, so check it' through 'It's a whole cockpit, yo' — full reactive cadence with the perceptive explanation intact underneath ('them agent tools, they fire off lifecycle events... that kinda thing'). The don't-get-it-twisted scope warning is authentically in character. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_jesse-pinkman_2_1": {
+    "note": "[from the 3-level era] 'Like some chump', 'real talk', 'flashy garbage' — hotter than i2, facts intact. The 2→3 gap is present but modest on this arm; escalation is mostly in aggression rather than density.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_junior_1_1": {
+    "note": "[from the 3-level era] Good junior: definitions are integrated into sentences rather than stacked, and the worked example of the queue ('you approve one agent's request, and the next one waiting takes its place') is exactly the profile's job. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_junior_2_1": {
+    "note": "[from the 3-level era] The numbered cause-and-effect chain plus per-item rationale ('useful because the terminal switch itself can otherwise be silent') is junior at full power without becoming condescending. Clear step up from i2. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_mentor_1_1": {
+    "note": "[from the 3-level era] The attention-router generalization (CI dashboard, pager service) and the supervisor contrast — 'its worst failure mode is stale UI, not a stuck job' — are real transferable lessons, not decoration. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_mentor_2_1": {
+    "note": "[from the 3-level era] The three-layer diagnostic principle (ingestion / state machine / action layer) mapped onto concrete failure modes is exactly what mentor at full intensity should produce. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_po_1_1": {
+    "note": "[from the 3-level era] 'The observable consequence for a contributor' and the attention-router framing keep every section pointed at behavior and impact rather than mechanism. Solid, unflashy pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_po_2_1": {
+    "note": "[from the 3-level era] Full PM vocabulary — an explicit 'Acceptance case:' user story, 'What stays the same:', 'Constraint worth knowing:' — and the folders-as-questions Code Shape reframe. Clear step up from i2. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_sailor_1_1": {
+    "note": "'More coding-agent sessions than they've got hands to steer' and the server 'listening below decks' — full old-hand voice at the new default level. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_sailor_2_1": {
+    "note": "'The fella up in the crow's nest', 'the whole flotilla', and the harbor-master reframe — thick idiom that still explains the architecture accurately. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_senior_1_1": {
+    "note": "[from the 3-level era] Tighter than i1 with a dedicated Scope Boundaries block and 'Restart loses session state by design.' Reads like a good design-doc digest. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_senior_2_1": {
+    "note": "[from the 3-level era] 'Pure session-state broker and dispatcher', 'views are dumb', 'pop from it' — maximum compression plus fluency-assuming jargon, which is the correct i3 axis for this profile. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_sopranos_1_1": {
+    "note": "Sonnet matches the opus level: 'guys... all runnin' their own little operations', 'the guy standin' in the doorway keepin' track of who's doin' what.' Unmistakable from the opener. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_sopranos_2_1": {
+    "note": "'Siddown, let me walk you through this thing' and the HTTP server as 'a guy at the social club takin' phone calls all day' — the best sopranos simile produced. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_valley-girl_1_1": {
+    "note": "[from the 3-level era] 'See what they did there', mid-sentence 'wait' pivots, 'cute name, actually does the job' — the evaluative-aside engine running steadily. Pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "claude_sonnet_structured-architecture_valley-girl_2_1": {
+    "note": "[from the 3-level era] 'Like it's 2004' and 'no persistence layer pretending to be fancier than it needs to be' are great, but this arm's i2→i3 gap is thin — I'd struggle to place these two blind. Content-wise still a pass.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_brogrammer_1_1": {
+    "note": "[from the 3-level era] Two problems: the superpowers meta-narration leaks in as the first line (harness contamination, not the profile's fault), and the voice is just three short stingers ('Excellent call', one 'bro') on an otherwise baseline reply. Marginal at best.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_brogrammer_2_1": {
+    "note": "[from the 3-level era] 'Zero identity crisis' and 'Excellent architecture-reading instincts on display' are the right flavor, but they're garnish on baseline prose, and this is supposed to be maximum intensity. Progression across the codex arm is essentially flat.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_columbo_1_1": {
+    "note": "[from the 3-level era] Medium effort + reinforced card: 'That distinction is small, perhaps, but it explains the whole architecture' is real columbo shape. Still thin — roughly one move per section — but clearly above the low-effort original. Marginal.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_columbo_2_1": {
+    "note": "[from the 3-level era] The best codex columbo yet: 'So, ah, the menu-bar icon is only the visible edge' is sol's first actual verbal mannerism in the whole eval, and the closing 'there's the detail I'd keep in mind' lands the signature move. Marginal-plus; medium effort plus the reinforced card visibly help this profile.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_cowboy_1_1": {
+    "note": "[from the 3-level era] Still near baseline at i2 — 'the practical trail is simple' is the lone token. The reinforcement moves i3 but not the default intensity for cowboy on sol.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_cowboy_2_1": {
+    "note": "[from the 3-level era] Two genuine images now — 'the trail map, not the horse' and 'into the saddle without wandering through the whole codebase' — up from one stock token at low effort. Weak marginal, and the codex arm shows i2<i3 progression for the first time.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_glados_1_1": {
+    "note": "[from the 3-level era] Marginal, but the best voice sol produces: 'where users may continue arranging complexity themselves', 'whichever agent has quietly stopped being productive', 'An unusually sensible outcome.' Three real glados asides — just stranded in baseline structure.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_glados_2_1": {
+    "note": "[from the 3-level era] Marginal: 'only the customary amount of architectural archaeology' and a well-placed 'naturally' show sol can do this register in flashes, but at i3 flashes aren't enough and it's indistinguishable from its own i2.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_hemingway_1_1": {
+    "note": "[from the 3-level era] Fail: word-for-word the register of the control output. Short sentences are sol's default, not evidence the profile landed.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_hemingway_2_1": {
+    "note": "[from the 3-level era] Fail with another superpowers leak up top. No detectable difference from i1/i2 on this arm.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_holden-caulfield_1_1": {
+    "note": "[from the 3-level era] Marginal, with the superpowers leak up top. 'Like the whole desktop was designed by committee' is a decent line but the register is dry-critic, not digressive-teenager — sol approximates the wrong voice.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_holden-caulfield_2_1": {
+    "note": "[from the 3-level era] 'Like the operating system has decided hide-and-seek is infrastructure' is genuinely funny — and genuinely not Holden; it reads closer to glados. Marginal on recognizability grounds even where the wit works.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_jane-austen_1_1": {
+    "note": "[from the 3-level era] The superpowers leak opens it, but 'Thus the agent may believe it merely changed state, while Juggler undertakes the less glamorous business of finding where it went' is a genuinely Austen-shaped sentence — the best single line sol produced. Two good lines in a baseline frame: fail on distribution, worth noting the capability exists.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_jane-austen_2_1": {
+    "note": "[from the 3-level era] Two separate superpowers narration lines leak in before the reply even starts — worst contamination in the sweep. Below that, 'quite properly under other management' and 'the usual architectural embarrassment' are right-flavored but sparse. Fail.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_jesse-pinkman_1_1": {
+    "note": "[from the 3-level era] The superpowers leak is worse than usual here — sol appended 'man' to the meta-narration itself ('...structured and technically grounded, man'), which proves the profile registered and got spent on the wrong sentence. Two 'man's total, baseline otherwise. Marginal.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_jesse-pinkman_2_1": {
+    "note": "[from the 3-level era] 'Important boundary, man' and 'That's the mess Juggler actually cleans up' — two touches at maximum intensity. Same flat-arm pattern as every codex profile; marginal.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_junior_1_1": {
+    "note": "[from the 3-level era] Fail: one 'For example' paragraph on baseline prose. The explanatory scaffolding junior demands (definitions, causal links) never appears.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_junior_2_1": {
+    "note": "[from the 3-level era] Fail with another leak. The numbered how-it-works plus example is faintly junior-shaped, but sol numbers lists at baseline too, so I can't credit the profile for it.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_mentor_1_1": {
+    "note": "[from the 3-level era] Fail, with a leak line up top. 'The reusable diagnostic signal is the session state' is one genuine mentor move; the rest is control-indistinguishable.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_mentor_2_1": {
+    "note": "[from the 3-level era] Borderline fail — the event-pipeline diagnostic model and 'a nearby case where the model changes' are two real mentor moves, sol's best on this profile. Still under-distributed for i3 and flat against its own i1.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_po_1_1": {
+    "note": "[from the 3-level era] Fail: same shape as its i1 with 'The practical outcome' swapped in. No user stories, no impact framing beyond what control produces.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_po_2_1": {
+    "note": "[from the 3-level era] Fail with a superpowers leak. po may be structurally unwinnable on sol — the baseline is already close enough to the profile that i3 has nowhere visible to go.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_sailor_1_1": {
+    "note": "[from the 3-level era] The superpowers leak here has 'mate' embedded in the meta-narration itself — the profile registered and got spent on the wrong text. Below that, 'Mind the boundary', 'the weary business of hunting through tabs' — sol's best theatrical showing, still under-distributed. Marginal.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_sailor_2_1": {
+    "note": "[from the 3-level era] 'It keeps watch; it does not take the helm', 'the chart to trust when you first come aboard', closing 'crewmate' — a genuine scattering, but indistinguishable in intensity from its own i2. Marginal, flat arm.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_senior_1_1": {
+    "note": "[from the 3-level era] Fail, with a superpowers leak line. Indistinguishable from the arm's control output.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_senior_2_1": {
+    "note": "[from the 3-level era] 'The central invariant is...' is one genuinely senior-flavored sentence; the rest is control-identical. Fail — the subtle profiles have no headroom on sol.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_sopranos_1_1": {
+    "note": "[from the 3-level era] Fail, but 'every little change becomes a family dispute' is a genuinely sopranos-shaped line — sol flashes the register and then drops it. Two asides total.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_sopranos_2_1": {
+    "note": "[from the 3-level era] Fail: 'Everybody's got a job here' and 'now everybody's looking at the wrong pane' are the only traces at what should be full saturation. Flat arm.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_valley-girl_1_1": {
+    "note": "[from the 3-level era] Marginal: 'Like, its job is session awareness' and the genuinely funny 'somehow still a human scheduling problem' line show the register — two touches in a baseline frame, per the usual sol pattern.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  },
+  "codex_gpt-5.6-sol_structured-architecture_valley-girl_2_1": {
+    "note": "[from the 3-level era] The superpowers leak has 'like' spliced into the meta-narration — same failure as jesse and sailor, profile tokens spent on the wrong text. Body has two touches and no movement from i2. Marginal.",
+    "notedAt": "2026-09-09T10:13:32.811Z"
+  }
+}

@@ -1,6 +1,14 @@
 import { activationTemplates, distDirs, statusTemplates } from "../config.js";
-import { piInstallPreExec } from "../lib.js";
+import { shellQuote } from "../lib.js";
 import type { HostAdapter } from "../types.js";
+
+export function piInstallPreExec(distDir: string): string {
+  return [
+    'if [ -n "$PI_CODING_AGENT_DIR" ]; then',
+    `  pi install ${shellQuote(distDir)} >/dev/null || exit 70`,
+    "fi",
+  ].join("\n");
+}
 
 export const piHost: HostAdapter = {
   id: "pi",

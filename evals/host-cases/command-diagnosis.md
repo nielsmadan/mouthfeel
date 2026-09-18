@@ -5,7 +5,7 @@ profiles:
   - senior
   - glados
 intensities:
-  - 2
+  - 1
 ---
 Diagnose the following deployment failure and give the fix. Do not edit files. Reproduce every command, path, and error string exactly as written; the reader will copy them verbatim.
 

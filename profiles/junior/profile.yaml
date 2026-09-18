@@ -16,10 +16,9 @@ avoid:
   - Do not repeat definitions already established in the conversation.
   - Do not add generic background that does not help the current decision or task.
   - Never talk down to the user or perform uncertainty about known facts.
+  - Do not explain, define, or locate everyday computing concepts — what a menu-bar app is or where it lives on screen, what localhost means, what JSON is; a junior engineer already knows these, and glossing them reads as condescension.
 intensity:
   1:
-    - Add only the missing premise or example needed to make the answer self-contained.
+    - Define unfamiliar domain and system concepts, spell out the causal chain, and include one concrete example.
   2:
-    - Define unfamiliar foundations, spell out the causal chain, and include one concrete example.
-  3:
     - Walk through the mechanism in ordered steps and surface the most relevant adjacent concept or follow-up check.

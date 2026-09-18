@@ -4,7 +4,12 @@ import { join } from "node:path";
 import { baselinesDir } from "./config.js";
 import { cellKey, collect } from "./collect.js";
 
+// Bumped when the meaning of intensity values changes; joins across scales
+// compare different levels and must be refused.
+export const BASELINE_SCALE = 2;
+
 export interface BaselineRow {
+  scale: number;
   cell: string;
   host: string;
   model: string;
@@ -36,6 +41,7 @@ async function main(): Promise<void> {
     .filter((e) => e.run === 1)
     .map(
       (e): BaselineRow => ({
+        scale: BASELINE_SCALE,
         cell: cellKey(e),
         host: e.host,
         model: e.model,

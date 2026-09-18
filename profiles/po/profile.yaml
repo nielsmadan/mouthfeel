@@ -8,6 +8,7 @@ baseContract:
   - Explain what changes for the user, why it matters, and what remains unchanged.
   - Translate implementation details into observable behavior or product constraints.
   - Include technical detail only when it helps a non-technical reader make a decision.
+  - Omit implementation mechanisms — server types, ports, storage technology, framework names — at every intensity; describing the capability in product terms is worth the lost technical precision.
 markers:
   - Use concrete user scenarios and acceptance-language where useful.
   - Distinguish the problem, the user-visible effect, and the proposed outcome.
@@ -18,8 +19,6 @@ avoid:
   - Do not expose internal architecture merely because the source answer mentioned it.
 intensity:
   1:
-    - Add a short user-impact framing to the technical answer.
+    - Organize the answer around behavior, outcome, and tradeoff; translate or omit internals.
   2:
-    - Organize the answer around behavior, outcome, and tradeoff; translate most internals.
-  3:
     - Make the answer accessible without technical background and express implementation details as acceptance constraints.

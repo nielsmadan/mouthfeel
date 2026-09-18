@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { access, chmod, copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { access, chmod, copyFile, cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
@@ -8,6 +8,7 @@ import {
   controlGrounding,
   converseTimeoutsSeconds,
   csdConsentPath,
+  fixturesDir,
   hostCasesDir,
   repoRoot,
   workerNamePrefix,
@@ -34,7 +35,7 @@ import {
   statusReplyMatches,
   workerName,
 } from "./lib.js";
-import type { HostAdapter, HostCase, Job, WorkerHandle } from "./types.js";
+import type { Effort, HostAdapter, HostCase, Job, WorkerHandle } from "./types.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -73,7 +74,11 @@ async function loadCases(): Promise<HostCase[]> {
   return cases;
 }
 
-async function preflight(jobs: Job[], runDir: string): Promise<{ csdBinary: string; shims: Map<string, string> }> {
+async function preflight(
+  jobs: Job[],
+  runDir: string,
+  codexEffort: Effort | undefined,
+): Promise<{ csdBinary: string; shims: Map<string, string> }> {
   if (!(await tmuxServerReachable())) {
     throw new Error(
       "no tmux server reachable. Start one from a regular (unsandboxed) shell first: tmux new-session -d -s keepalive",
@@ -102,13 +107,24 @@ async function preflight(jobs: Job[], runDir: string): Promise<{ csdBinary: stri
   for (const host of hosts) {
     const adapter = hostAdapters[host];
     const shimPath = join(shimDir, `${host}-wrapped.sh`);
-    await writeFile(shimPath, shimScript(adapter.wrappedCommand, adapter.shimPreExec()));
+    await writeFile(shimPath, shimScript(adapter.wrappedCommand, adapter.shimPreExec({ effort: codexEffort })));
     await chmod(shimPath, 0o755);
     shims.set(host, shimPath);
     console.log(`preflight: staging plugin for ${host}`);
     await adapter.stage();
   }
   return { csdBinary, shims };
+}
+
+async function initWorkspaceRepo(workspace: string): Promise<void> {
+  const git = (...args: string[]) =>
+    execFileAsync("git", ["-c", "user.name=mouthfeel-harness", "-c", "user.email=harness@mouthfeel.local", ...args], {
+      cwd: workspace,
+      timeout: 30_000,
+    });
+  await git("init", "-q");
+  await git("add", "-A");
+  await git("commit", "-q", "--allow-empty", "-m", "fixture baseline");
 }
 
 async function writeDiagnostics(jobDir: string, worker: WorkerHandle | undefined, error: unknown): Promise<void> {
@@ -133,13 +149,21 @@ async function runJob(
   csdBinary: string,
   shims: Map<string, string>,
   model: string | undefined,
+  effort: Effort | undefined,
   keep: boolean,
 ): Promise<JobResult> {
   const adapter = hostAdapters[job.host];
+  const codexEffort = job.host === "codex" ? effort : undefined;
   const jobDir = join(runDir, jobDirName(job));
   await mkdir(jobDir, { recursive: true });
   const workspace = join(jobDir, "workspace");
   await mkdir(workspace, { recursive: true });
+  if (hostCase.setup) {
+    await cp(join(fixturesDir, hostCase.setup), workspace, { recursive: true });
+  }
+  // Workspaces live inside this repo; without their own .git, a worker's git
+  // commands would operate on the enclosing checkout.
+  await initWorkspaceRepo(workspace);
 
   const timingsMs: Record<string, number> = {};
   let worker: WorkerHandle | undefined;
@@ -182,8 +206,20 @@ async function runJob(
     }
 
     const caseStart = Date.now();
-    const casePrompt = job.profile === "control" ? `${controlGrounding}\n\n${hostCase.body}` : hostCase.body;
-    const reply = await converse(worker, casePrompt, converseTimeoutsSeconds.caseTurn);
+    let reply = "";
+    for (const [turnIndex, turnText] of hostCase.turns.entries()) {
+      // Fixture-backed controls are meant to inspect the workspace; grounding is
+      // only for description-only cases, where capable models narrate the repo.
+      const casePrompt = job.profile === "control" && !hostCase.setup && turnIndex === 0
+        ? `${controlGrounding}\n\n${turnText}`
+        : turnText;
+      const turnStart = Date.now();
+      reply = await converse(worker, casePrompt, converseTimeoutsSeconds.caseTurn);
+      timingsMs[`case-turn${turnIndex + 1}`] = Date.now() - turnStart;
+      if (hostCase.turns.length > 1) {
+        await writeFile(join(jobDir, `reply-turn${turnIndex + 1}.md`), reply + "\n");
+      }
+    }
     timingsMs["case"] = Date.now() - caseStart;
     await writeFile(join(jobDir, "reply.md"), reply + "\n");
     await writeFile(join(jobDir, "turn.md"), await readTurn(worker));
@@ -202,6 +238,9 @@ async function runJob(
           profile: job.profile,
           intensity: job.intensity,
           model: model ?? "host-default",
+          ...(codexEffort ? { effort: codexEffort } : {}),
+          ...(hostCase.setup ? { setup: hostCase.setup } : {}),
+          ...(hostCase.turns.length > 1 ? { turnCount: hostCase.turns.length } : {}),
           timingsMs,
           ranAt: new Date().toISOString(),
         },
@@ -253,16 +292,19 @@ async function main(): Promise<void> {
   if (options.dryRun) return;
 
   const caseById = new Map(cases.map((c) => [c.id, c]));
+  // Medium matches the real codex default; codexInstallPreExec applies it in the shim.
+  const codexEffort = jobs.some((j) => j.host === "codex") ? (options.effort ?? "medium") : undefined;
+  if (codexEffort) console.log(`codex reasoning effort: ${codexEffort}`);
   const runDir = join(artifactRoot, new Date().toISOString().replace(/[:.]/g, "-"));
   await mkdir(runDir, { recursive: true });
-  const { csdBinary, shims } = await preflight(jobs, runDir);
+  const { csdBinary, shims } = await preflight(jobs, runDir, codexEffort);
 
   const results: JobResult[] = [];
   for (const [index, job] of jobs.entries()) {
     console.log(`job ${index + 1}/${jobs.length}: ${jobDirName(job)}`);
     const hostCase = caseById.get(job.caseId);
     if (!hostCase) throw new Error(`case ${job.caseId} disappeared mid-run`);
-    const result = await runJob(job, index, hostCase, runDir, csdBinary, shims, options.model, options.keep);
+    const result = await runJob(job, index, hostCase, runDir, csdBinary, shims, options.model, codexEffort, options.keep);
     console.log(`  ${result.status}${result.error ? `: ${result.error}` : ""}`);
     results.push(result);
   }

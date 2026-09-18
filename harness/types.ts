@@ -1,18 +1,31 @@
+import type { Intensity } from "../src/core/types.js";
+
 export type HostId = "claude" | "codex" | "pi";
+
+export const EFFORTS = ["minimal", "low", "medium", "high"] as const;
+export type Effort = (typeof EFFORTS)[number];
+
+export function isEffort(value: unknown): value is Effort {
+  return (EFFORTS as readonly unknown[]).includes(value);
+}
 
 export interface HostCase {
   id: string;
   path: string;
   type: string;
   profiles: string[];
-  intensities: number[];
-  body: string;
+  intensities: Intensity[];
+  // Fixture directory under evals/fixtures copied into the job workspace.
+  setup: string | undefined;
+  // Conversation turns; the final turn's reply is the judged output.
+  turns: string[];
 }
 
 export interface Job {
   host: HostId;
   caseId: string;
   profile: string;
+  // Styled jobs use Intensity values; the control arm is 0.
   intensity: number;
   run: number;
 }
@@ -21,8 +34,9 @@ export interface RunOptions {
   hosts: HostId[];
   casePattern: string | undefined;
   profiles: string[] | undefined;
-  intensities: number[] | undefined;
+  intensities: Intensity[] | undefined;
   model: string | undefined;
+  effort: Effort | undefined;
   runs: number;
   control: boolean;
   dryRun: boolean;
@@ -32,6 +46,10 @@ export interface RunOptions {
 export interface WorkerHandle {
   name: string;
   shimPath: string;
+}
+
+export interface ShimContext {
+  effort: Effort | undefined;
 }
 
 export interface HostAdapter {
@@ -47,7 +65,7 @@ export interface HostAdapter {
   postLaunchSettleMs: number;
   // Settle after a fire-and-forget send before scraping the pane for the reply.
   sendSettleMs: number;
-  shimPreExec(): string | undefined;
+  shimPreExec(context: ShimContext): string | undefined;
   stage(): Promise<void>;
   harnessArgs(model: string | undefined): string[];
   launchEnv(model: string | undefined): Record<string, string>;

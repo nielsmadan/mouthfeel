@@ -44,7 +44,7 @@ test("each package contains the same compiled roster", async () => {
   const hosts = ["claude", "codex", "antigravity"];
   for (const host of hosts) {
     const registry = JSON.parse(await readFile(join(dist, host, "mouthfeel", "registry.json"), "utf8")) as unknown[];
-    assert.equal(registry.length, 18, host);
+    assert.equal(registry.length, 15, host);
   }
 });
 
@@ -73,11 +73,16 @@ test("generated lifecycle configuration covers every session transition", async 
       };
     };
     assert.equal(config.hooks.SessionStart[0]?.matcher, "startup|resume|clear|compact", host);
-    assert.equal(config.hooks.SessionStart[0]?.hooks[0]?.additionalContextLimit, 2500, host);
-    assert.equal(config.hooks.UserPromptSubmit[0]?.hooks[0]?.additionalContextLimit, 2500, host);
+    assert.equal(config.hooks.SessionStart[0]?.hooks[0]?.additionalContextLimit, 10000, host);
+    assert.equal(config.hooks.UserPromptSubmit[0]?.hooks[0]?.additionalContextLimit, 10000, host);
     const command = config.hooks.UserPromptSubmit[0]?.hooks[0]?.command ?? "";
-    if (host === "claude") assert.match(command, /--remind-every-active-turn/);
-    else assert.doesNotMatch(command, /--remind-every-active-turn/);
+    if (host === "claude") {
+      assert.match(command, /--remind-every-active-turn/);
+      assert.doesNotMatch(command, /--reinforce-card/);
+    } else {
+      assert.doesNotMatch(command, /--remind-every-active-turn/);
+      assert.match(command, /--reinforce-card/);
+    }
   }
   for (const host of ["pi", "opencode"] as const) {
     const manifest = JSON.parse(await readFile(join(dist, host, "mouthfeel/package.json"), "utf8")) as { files: string[] };

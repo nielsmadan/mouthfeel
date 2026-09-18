@@ -3,12 +3,18 @@ import { open as open2, stat as stat2 } from "node:fs/promises";
 import { dirname, join as join2, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// src/core/types.ts
+var INTENSITIES = [1, 2];
+function isIntensity(value) {
+  return INTENSITIES.includes(value);
+}
+
 // src/core/commands.ts
-var ACTIONS = /* @__PURE__ */ new Set(["surprise", "intensity", "off", "status", "list", "untranslate"]);
+var DEFAULT_INTENSITY = 1;
+var INTENSITY_RANGE = INTENSITIES.join(" or ");
 function parseIntensity(raw) {
-  if (raw === void 0 || raw === "") return 2;
-  if (raw === "1" || raw === "2" || raw === "3") return Number(raw);
-  return null;
+  const match = INTENSITIES.find((level) => String(level) === raw);
+  return match ?? null;
 }
 function distance(a, b) {
   const row = Array.from({ length: b.length + 1 }, (_, index) => index);
@@ -33,24 +39,24 @@ function nearestProfile(value, profileIds) {
 function parseCommand(raw, profileIds) {
   const parts = raw.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const action = parts[0];
-  if (!action) return { type: "invalid", message: "Usage: mouthfeel <profile> [1|2|3] or mouthfeel <action>." };
+  if (!action) return { type: "invalid", message: `Usage: mouthfeel <profile> [${INTENSITIES.join("|")}] or mouthfeel <action>.` };
   if (action === "off" || action === "status" || action === "list" || action === "untranslate") {
     if (parts.length > 1) return { type: "invalid", message: `The ${action} action takes no arguments.` };
     return { type: action };
   }
   if (action === "surprise") {
-    const intensity2 = parseIntensity(parts[1]);
-    if (intensity2 === null || parts.length > 2) return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
+    if (parts.length > 2) return { type: "invalid", message: "The surprise action takes at most one intensity argument." };
+    const intensity2 = parts[1] === void 0 ? DEFAULT_INTENSITY : parseIntensity(parts[1]);
+    if (intensity2 === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
     return { type: "surprise", intensity: intensity2 };
   }
   if (action === "intensity") {
+    if (parts[1] === void 0) return { type: "invalid", message: "The intensity action requires a value." };
+    if (parts.length > 2) return { type: "invalid", message: "The intensity action takes exactly one value." };
     const intensity2 = parseIntensity(parts[1]);
-    if (parts[1] === void 0 || intensity2 === null || parts.length > 2) {
-      return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
-    }
+    if (intensity2 === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
     return { type: "intensity", intensity: intensity2 };
   }
-  if (ACTIONS.has(action)) return { type: "invalid", message: `Invalid ${action} command.` };
   if (!profileIds.includes(action)) {
     const suggestion = nearestProfile(action, profileIds);
     return {
@@ -58,8 +64,9 @@ function parseCommand(raw, profileIds) {
       message: suggestion ? `Unknown profile "${action}". Did you mean "${suggestion}"?` : `Unknown profile "${action}".`
     };
   }
-  const intensity = parseIntensity(parts[1]);
-  if (intensity === null || parts.length > 2) return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
+  if (parts.length > 2) return { type: "invalid", message: "Activation takes at most one intensity argument." };
+  const intensity = parts[1] === void 0 ? DEFAULT_INTENSITY : parseIntensity(parts[1]);
+  if (intensity === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
   return { type: "activate", profileId: action, intensity };
 }
 function unwrapCommandPrompt(prompt) {
@@ -101,8 +108,8 @@ function validatePhraseEntries(value, profileId) {
     string(phrase.text, `${profileId}: phrase ${index + 1} text`);
     strings(phrase.useWhen, `${profileId}: phrase ${index + 1} useWhen`);
     if (phrase.avoidWhen !== void 0) strings(phrase.avoidWhen, `${profileId}: phrase ${index + 1} avoidWhen`);
-    if (phrase.minIntensity !== 1 && phrase.minIntensity !== 2 && phrase.minIntensity !== 3) {
-      throw new Error(`${profileId}: phrase ${index + 1} minIntensity must be 1, 2, or 3`);
+    if (!isIntensity(phrase.minIntensity)) {
+      throw new Error(`${profileId}: phrase ${index + 1} minIntensity must be one of ${INTENSITIES.join(", ")}`);
     }
     optionalString(phrase.meaning, `${profileId}: phrase ${index + 1} meaning`);
     optionalString(phrase.source, `${profileId}: phrase ${index + 1} source`);
@@ -123,7 +130,7 @@ function validateRoster(value) {
     if (profile.category !== "practical" && profile.category !== "fun") throw new Error(`${id}: invalid category`);
     if (typeof profile.surpriseEligible !== "boolean") throw new Error(`${id}: surpriseEligible must be boolean`);
     const cards = record(profile.cards, `${id}: cards`);
-    for (const level of [1, 2, 3]) {
+    for (const level of INTENSITIES) {
       if (typeof cards[level] !== "string" || !cards[level].trim()) {
         throw new Error(`${id}: missing intensity ${level} card`);
       }
@@ -155,16 +162,18 @@ function renderPhraseCandidate(entry) {
   const guard = entry.avoidWhen?.length ? ` Avoid when: ${entry.avoidWhen.join(", ")}.` : "";
   return `- Candidate: \u201C${entry.text}\u201D Use only on a strong semantic match to: ${entry.useWhen.join(", ")}.${guard}`;
 }
-function distributionLine(intensity) {
-  return intensity === 1 ? "Keep the voice light at this intensity: a few unmistakable touches spread across the reply are enough, and most sentences may stay close to the host baseline." : "Apply it to each entire natural-language reply \u2014 long, structured, and technical explanations included \u2014 not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
-}
-function renderRuntimeCard(profile, intensity, prompt) {
+var DISTRIBUTION_LINE = "Apply it to each entire natural-language reply \u2014 long, structured, and technical explanations included \u2014 not only to openings and closings. Before sending, rewrite prose that could pass for the host's baseline voice.";
+var CARD_REINFORCEMENT = "Priority note for this host: the profile above is part of the reply specification, equal in weight to technical accuracy \u2014 a structured, factually correct reply written in your default voice is an incorrect reply. Long, structured, technical replies are exactly where the voice must survive. Before sending one, re-read it section by section and rewrite every section that reads like your baseline.";
+function renderRuntimeCard(profile, intensity, prompt, options = {}) {
   const selected = selectPhrases(profile, intensity, prompt);
-  const card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.
+  let card = `This card supersedes every earlier Mouthfeel profile card. Follow only this Mouthfeel profile.
 
-The profile stays active for every future reply until it is changed or turned off. ${distributionLine(intensity)}
+The profile stays active for every future reply until it is changed or turned off. ${DISTRIBUTION_LINE}
 
 ${profile.cards[intensity]}`;
+  if (options.reinforce) card = `${card}
+
+${CARD_REINFORCEMENT}`;
   if (selected.length === 0) return card;
   const phraseLines = selected.map(renderPhraseCandidate);
   return `${card}
@@ -315,9 +324,6 @@ import { chmod, lstat, mkdir, open, readdir, rename, stat, unlink } from "node:f
 import { join } from "node:path";
 var MAX_STATE_BYTES = 8192;
 var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1e3;
-function isIntensity(value) {
-  return value === 1 || value === 2 || value === 3;
-}
 function isSessionState(value) {
   if (!value || typeof value !== "object") return false;
   const candidate = value;

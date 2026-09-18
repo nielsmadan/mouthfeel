@@ -9,9 +9,9 @@ Only acknowledge success when the Mouthfeel lifecycle hook supplied a Mouthfeel 
 
 ## Commands
 
-- `<profile> [1|2|3]`: activate one profile; intensity defaults to 2
-- `surprise [1|2|3]`: choose one eligible fun profile
-- `intensity <1|2|3>`: change the active intensity
+- `<profile> [1|2]`: activate one profile; intensity defaults to 1
+- `surprise [1|2]`: choose one eligible fun profile
+- `intensity <1|2>`: change the active intensity
 - `off`: return to the host baseline
 - `status`: show the active profile
 - `list`: list profiles

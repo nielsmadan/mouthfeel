@@ -6,9 +6,11 @@ import type { HostId } from "./types.js";
 export const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
 export const hostCasesDir = join(repoRoot, "evals", "host-cases");
+export const fixturesDir = join(repoRoot, "evals", "fixtures");
 export const artifactRoot = join(repoRoot, "evals", "runs", "host-smoke");
 export const baselinesDir = join(repoRoot, "evals", "baselines");
 export const feedbackFile = join(repoRoot, "evals", "feedback", "feedback.json");
+export const claudeNotesFile = join(repoRoot, "evals", "feedback", "claude-notes.json");
 
 export const distDirs: Record<HostId, string> = {
   claude: join(repoRoot, "dist", "claude", "mouthfeel"),

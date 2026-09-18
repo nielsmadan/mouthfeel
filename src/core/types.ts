@@ -1,4 +1,9 @@
-export type Intensity = 1 | 2 | 3;
+export const INTENSITIES = [1, 2] as const;
+export type Intensity = (typeof INTENSITIES)[number];
+
+export function isIntensity(value: unknown): value is Intensity {
+  return (INTENSITIES as readonly unknown[]).includes(value);
+}
 export type ProfileCategory = "practical" | "fun";
 
 export interface PhraseEntry {

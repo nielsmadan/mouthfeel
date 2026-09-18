@@ -11,9 +11,9 @@ It ships native packages for Claude Code, Codex, Pi, OpenCode, and Antigravity. 
 Every host accepts the same arguments. Claude uses `/mouthfeel:use`, Codex uses `$mouthfeel:use`, and Pi, OpenCode, and Antigravity use `/mouthfeel`; `:use` is the plugin skill namespace on Claude and Codex, not an extra action.
 
 ```text
-<profile> [1|2|3]    activate for future replies; default intensity is 2
-surprise [1|2|3]     select one random fun profile and keep it active
-intensity <1|2|3>    change the active intensity
+<profile> [1|2]      activate for future replies; default intensity is 1
+surprise [1|2]       select one random fun profile and keep it active
+intensity <1|2>      change the active intensity
 status               show the active profile
 list                 list profiles
 untranslate          rewrite only the previous styled reply in the host baseline
@@ -31,12 +31,9 @@ Only one profile can be active. V1 does not support stacking or per-turn shuffle
 | `po` | Explains user-visible behavior, impact, and tradeoffs without requiring implementation knowledge. |
 | `mentor` | Builds one useful mental model and extracts a reusable lesson or learning trail. |
 | `valley-girl` | Animated conversational rhythm, evaluative asides, and socially framed transitions. |
-| `caveman` | Primitive grammar and compressed declarative reasoning without losing technical facts. |
 | `sailor` | A wizened sailor instructing a green crewmate with affectionate exasperation. |
 | `brogrammer` | Capable, frat-adjacent swagger that treats good engineering as competitive status. |
 | `cowboy` | Measured Western cadence, short statements, and practical frontier judgment. |
-| `finnish-dev` | Fluent Finnish-influenced developer English, calques, understatement, and rare article omission. |
-| `russian-dev` | Capable Russian-influenced developer English, direct conclusions, and literal constructions. |
 | `hemingway` | Concrete verbs, plain words, restrained confidence, and short declarative prose. |
 | `jane-austen` | Balanced clauses, social observation, and dry judgments about software behavior. |
 | `holden-caulfield` | Digressive skepticism, plainspoken judgment, and resistance to phony ceremony. |
@@ -47,19 +44,19 @@ Only one profile can be active. V1 does not support stacking or per-turn shuffle
 
 ## Examples
 
-With `senior 2`:
+With `senior 1`:
 
 > `ls` serially reconciles every project against its Markdown or SQLite source before querying the shared index. Because the index is derived state, unchanged `--all-projects` runs still scale with project count and source size.
 >
 > Add per-project freshness fingerprints to skip reconciliation. Reusing one index connection is a secondary optimization.
 
-With `sailor 2`:
+With `sailor 1`:
 
 > Right, deckhand, pay attention. `cadet ls --all-projects` is in. It gathers active tasks from every project and groups them properly, because apparently checking projects one at a time was becoming an expedition.
 >
 > Need completed and terminal tasks too? Add the second `--all`. Yes, the two flags mean different things. Try to contain your surprise.
 
-The full approved examples live in [`evals/references/approved-intensity-2.md`](evals/references/approved-intensity-2.md). The evaluation corpus keeps examples and research out of runtime context.
+The full approved examples live in [`evals/references/approved-intensity-2.md`](evals/references/approved-intensity-2.md); they were approved on the old three-level scale, where intensity 2 corresponds to today's intensity 1. The evaluation corpus keeps examples and research out of runtime context.
 
 ## Build and install locally
 
@@ -77,7 +74,7 @@ claude plugin marketplace add ./dist/claude
 claude plugin install mouthfeel@mouthfeel
 ```
 
-Use `/mouthfeel:use sailor 2` in a new session.
+Use `/mouthfeel:use sailor 1` in a new session.
 
 During local development, rebuild and update the installed plugin with a unique cache-busted version in one command:
 
@@ -94,7 +91,7 @@ codex plugin marketplace add ./dist/codex
 codex plugin add mouthfeel@mouthfeel
 ```
 
-Use `$mouthfeel:use sailor 2` in a new thread.
+Use `$mouthfeel:use sailor 1` in a new thread.
 
 During local development, rebuild and reinstall with a unique cache-busted version in one command:
 
@@ -118,7 +115,7 @@ npm run dev:pi
 
 The command publishes the completed build to a stable development package at `$PI_CODING_AGENT_DIR/dev-packages/mouthfeel` (or `~/.pi/agent/dev-packages/mouthfeel`) and registers it globally. Running it from any checkout updates that same package. Restart Pi to load the latest build.
 
-Use `/mouthfeel sailor 2`.
+Use `/mouthfeel sailor 1`.
 
 ### OpenCode
 
@@ -130,7 +127,7 @@ npm run dev:oc
 
 The command respects `OPENCODE_CONFIG_DIR` and `XDG_CONFIG_HOME`, then installs `mouthfeel.js` in the resolved OpenCode plugin directory. Restart OpenCode to load the update. Once published, add `@nielsmadan/opencode-mouthfeel` to the `plugin` array in `opencode.json`.
 
-Use `/mouthfeel sailor 2`. This adapter uses OpenCode’s experimental system-prompt and compaction hooks, so compatibility is version-sensitive.
+Use `/mouthfeel sailor 1`. This adapter uses OpenCode’s experimental system-prompt and compaction hooks, so compatibility is version-sensitive.
 
 ### Antigravity
 
@@ -138,7 +135,7 @@ Use `/mouthfeel sailor 2`. This adapter uses OpenCode’s experimental system-pr
 agy plugin install ./dist/antigravity/mouthfeel
 ```
 
-Use `/mouthfeel sailor 2`. The adapter restores state through a conversation sidecar and a `PreInvocation` hook. Command recognition reads Antigravity’s JSONL transcript and is therefore best-effort across transcript format changes.
+Use `/mouthfeel sailor 1`. The adapter restores state through a conversation sidecar and a `PreInvocation` hook. Command recognition reads Antigravity’s JSONL transcript and is therefore best-effort across transcript format changes.
 
 ## State and privacy
 
@@ -146,7 +143,7 @@ Mouthfeel stores only activation state—either an active profile id and intensi
 
 New conversations start with Mouthfeel off. On Claude Code, Codex, and OpenCode, selecting a profile or using `surprise` produces a brief greeting in the chosen voice; substantive replies are still affected prospectively. Changing intensity affects future replies only. `untranslate` is one-shot and leaves the active profile in place.
 
-Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Claude Code adds a compact reminder on every active ordinary turn so long tool-heavy replies retain the profile throughout their core explanation. Codex ordinary turns stay quiet. On either host, a profile with a phrase bank adds matching candidates to the reminder only when the prompt strongly matches them.
+Claude Code and Codex inject the complete profile card when a profile is selected or restored after resume or compaction. Each card supersedes earlier Mouthfeel cards, and `off` persists a baseline-voice revocation through those transitions. Claude Code adds a compact reminder on every active ordinary turn so long tool-heavy replies retain the profile throughout their core explanation. Codex ordinary turns stay quiet; its cards instead carry a priority note stating that the voice is part of the reply specification, which keeps long structured replies from drifting back to the baseline. On either host, a profile with a phrase bank adds matching candidates to the reminder only when the prompt strongly matches them.
 
 ## Development
 
@@ -158,10 +155,13 @@ Development checks and release tooling require Python 3.9+ in addition to Node/n
 - Generated packages: `dist/`
 - Sanitized evaluation cases: `evals/cases/`
 - Direct host-smoke prompts: `evals/host-cases/`
+- Seeded workspaces for tool-using cases: `evals/fixtures/`
+- Live-session eval harness: `harness/`
+- Package generation and dev-install scripts: `scripts/`
 
-`npm run eval:prepare` produces the 108-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all six synthetic cases. The host-smoke prompts exercise rebuilt plugins in real agent sessions, where host instructions can weaken or distort a profile. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
+`npm run eval:prepare` produces the 60-job two-anchor matrix under the ignored `evals/runs/` directory. `npm run eval:prepare -- --all` includes all six synthetic cases. The host-smoke prompts exercise rebuilt plugins in real agent sessions, where host instructions can weaken or distort a profile. See [`evals/RUBRIC.md`](evals/RUBRIC.md).
 
-`npm run eval:hosts` drives those host-smoke cases through real Claude Code, Codex, and Pi sessions via [`harness/`](harness/) and files per-job outputs under `evals/runs/host-smoke/`; add `--control` to capture the unstyled output for each case. `npm run eval:baseline -- --name=<name> <run-dirs...>` snapshots a sweep into `evals/baselines/<name>.jsonl`. `npm run eval:review -- --baseline=<name> <run-dirs...>` builds the local Voice Lab page — the original output beside all three intensities per arm, with changed-vs-baseline chips and per-output feedback — and `npm run eval:serve` hosts it at `http://127.0.0.1:4173`, writing feedback to `evals/feedback/feedback.json`.
+`npm run eval:hosts` drives those host-smoke cases through real Claude Code, Codex, and Pi sessions via [`harness/`](harness/) and files per-job outputs under `evals/runs/host-smoke/`; add `--control` to capture the unstyled output for each case. `npm run eval:baseline -- --name=<name> <run-dirs...>` snapshots a sweep into `evals/baselines/<name>.jsonl`. `npm run eval:review -- --baseline=<name> <run-dirs...>` builds the local Voice Lab page — the original output beside both intensities per arm, with changed-vs-baseline chips and per-output feedback — and `npm run eval:serve` hosts it at `http://127.0.0.1:4173`, writing feedback to `evals/feedback/feedback.json`. Claude's per-output evaluations live in `evals/feedback/claude-notes.json` (override with `--notes=<file>`) and render under each translation with a one-click Agree button that saves `rating: "agree"` as feedback. Feedback saved before a cell's current reply was generated appears as a read-only "earlier feedback" comment; saving new feedback archives it into the row's `history` instead of overwriting it.
 
 Mouthfeel was informed by existing output-style and persona tools; [`docs/precedents.md`](docs/precedents.md) records what it reuses and deliberately changes.
 

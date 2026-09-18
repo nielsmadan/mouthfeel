@@ -7,14 +7,14 @@ import { loadProfiles } from "../src/core/load.js";
 import { buildEvalJobs, loadEvalCases } from "../src/evals.js";
 import { tempDirectory } from "./helpers.js";
 
-test("builds the 108-job two-anchor intensity matrix", async () => {
+test("builds the 60-job two-anchor intensity matrix", async () => {
   const profiles = await loadProfiles(resolve("profiles"));
   const cases = await loadEvalCases(resolve("evals", "cases"));
   assert.equal(cases.length, 6);
   assert.equal(cases.filter((candidate) => candidate.anchor).length, 2);
   const jobs = buildEvalJobs(profiles, cases);
-  assert.equal(jobs.length, 108);
-  assert.equal(new Set(jobs.map((job) => job.id)).size, 108);
+  assert.equal(jobs.length, 60);
+  assert.equal(new Set(jobs.map((job) => job.id)).size, 60);
   assert.ok(jobs.every((job) => job.mustPreserve.length > 0));
 });
 

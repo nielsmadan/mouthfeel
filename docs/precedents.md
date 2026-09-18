@@ -9,4 +9,4 @@ Mouthfeel reuses patterns proven by adjacent projects without copying their prod
 - [OpenCode Persona Plugin](https://github.com/megastruktur/opencode-persona-plugin) demonstrated live persona switching through OpenCode’s system-prompt transform. Mouthfeel keeps state per conversation and performs no startup network access.
 - Pi’s [pirate extension example](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/examples/extensions/pirate.ts) established the native registered-command plus `before_agent_start` pattern.
 
-Mouthfeel’s distinct combination is temporary per-conversation state, one active profile, three intensities, a one-time `surprise` selection, one-shot `untranslate`, and native packages generated for five hosts from the same profile sources.
+Mouthfeel’s distinct combination is temporary per-conversation state, one active profile, two intensities, a one-time `surprise` selection, one-shot `untranslate`, and native packages generated for five hosts from the same profile sources.

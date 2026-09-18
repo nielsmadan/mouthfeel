@@ -24,6 +24,14 @@ test("round-trips per-session state without exposing the session id as a path", 
   assert.doesNotMatch(store.pathFor("../session/one"), /session\/one/);
 });
 
+test("rejects a persisted sidecar from the retired three-level scale", async (context) => {
+  const root = await tempDirectory(context, "mouthfeel-store-");
+  const store = new SidecarStore(root);
+  await store.ensureRoot();
+  await writeFile(store.pathFor("legacy"), JSON.stringify({ ...state, intensity: 3 }), { mode: 0o600 });
+  assert.equal(await store.read("legacy"), null);
+});
+
 test("rejects malformed, oversized, and symlink state", async (context) => {
   const root = await tempDirectory(context, "mouthfeel-store-");
   const store = new SidecarStore(root);

@@ -1,11 +1,12 @@
+import { INTENSITIES } from "./types.js";
 import type { Intensity, MouthfeelCommand } from "./types.js";
 
-const ACTIONS = new Set(["surprise", "intensity", "off", "status", "list", "untranslate"]);
+const DEFAULT_INTENSITY: Intensity = 1;
+const INTENSITY_RANGE = INTENSITIES.join(" or ");
 
-function parseIntensity(raw: string | undefined): Intensity | null {
-  if (raw === undefined || raw === "") return 2;
-  if (raw === "1" || raw === "2" || raw === "3") return Number(raw) as Intensity;
-  return null;
+function parseIntensity(raw: string): Intensity | null {
+  const match = INTENSITIES.find((level) => String(level) === raw);
+  return match ?? null;
 }
 
 function distance(a: string, b: string): number {
@@ -35,7 +36,7 @@ function nearestProfile(value: string, profileIds: readonly string[]): string | 
 export function parseCommand(raw: string, profileIds: readonly string[]): MouthfeelCommand {
   const parts = raw.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const action = parts[0];
-  if (!action) return { type: "invalid", message: "Usage: mouthfeel <profile> [1|2|3] or mouthfeel <action>." };
+  if (!action) return { type: "invalid", message: `Usage: mouthfeel <profile> [${INTENSITIES.join("|")}] or mouthfeel <action>.` };
 
   if (action === "off" || action === "status" || action === "list" || action === "untranslate") {
     if (parts.length > 1) return { type: "invalid", message: `The ${action} action takes no arguments.` };
@@ -43,20 +44,19 @@ export function parseCommand(raw: string, profileIds: readonly string[]): Mouthf
   }
 
   if (action === "surprise") {
-    const intensity = parseIntensity(parts[1]);
-    if (intensity === null || parts.length > 2) return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
+    if (parts.length > 2) return { type: "invalid", message: "The surprise action takes at most one intensity argument." };
+    const intensity = parts[1] === undefined ? DEFAULT_INTENSITY : parseIntensity(parts[1]);
+    if (intensity === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
     return { type: "surprise", intensity };
   }
 
   if (action === "intensity") {
+    if (parts[1] === undefined) return { type: "invalid", message: "The intensity action requires a value." };
+    if (parts.length > 2) return { type: "invalid", message: "The intensity action takes exactly one value." };
     const intensity = parseIntensity(parts[1]);
-    if (parts[1] === undefined || intensity === null || parts.length > 2) {
-      return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
-    }
+    if (intensity === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
     return { type: "intensity", intensity };
   }
-
-  if (ACTIONS.has(action)) return { type: "invalid", message: `Invalid ${action} command.` };
 
   if (!profileIds.includes(action)) {
     const suggestion = nearestProfile(action, profileIds);
@@ -68,8 +68,9 @@ export function parseCommand(raw: string, profileIds: readonly string[]): Mouthf
     };
   }
 
-  const intensity = parseIntensity(parts[1]);
-  if (intensity === null || parts.length > 2) return { type: "invalid", message: "Intensity must be 1, 2, or 3." };
+  if (parts.length > 2) return { type: "invalid", message: "Activation takes at most one intensity argument." };
+  const intensity = parts[1] === undefined ? DEFAULT_INTENSITY : parseIntensity(parts[1]);
+  if (intensity === null) return { type: "invalid", message: `Intensity must be ${INTENSITY_RANGE}.` };
   return { type: "activate", profileId: action, intensity };
 }
 

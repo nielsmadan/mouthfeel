@@ -17,7 +17,7 @@ const profiles: CompiledProfile[] = [
     category: "practical",
     summary: "Terse",
     surpriseEligible: false,
-    cards: { 1: "senior one", 2: "senior two", 3: "senior three" },
+    cards: { 1: "senior one", 2: "senior two" },
   },
   {
     id: "sailor",
@@ -25,7 +25,7 @@ const profiles: CompiledProfile[] = [
     category: "fun",
     summary: "Sea dog",
     surpriseEligible: true,
-    cards: { 1: "sailor one", 2: "sailor two", 3: "sailor three" },
+    cards: { 1: "sailor one", 2: "sailor two" },
   },
 ];
 
@@ -99,10 +99,10 @@ test("OpenCode keeps intensity acknowledgements neutral", async (context) => {
   await command(hooks, "s", "senior 1");
   await transform(hooks, "s");
 
-  await command(hooks, "s", "intensity 3");
+  await command(hooks, "s", "intensity 2");
   const control = (await transform(hooks, "s")).join("\n");
   assert.match(control, /neutral baseline voice/i);
-  assert.match(control, /Mouthfeel intensity 3/i);
+  assert.match(control, /Mouthfeel intensity 2/i);
   assert.doesNotMatch(control, /activation greeting/i);
 });
 
@@ -198,12 +198,12 @@ test("OpenCode marks historical untranslate commands as one-shot", async (contex
 test("OpenCode restores persisted state after plugin recreation", async (context) => {
   const root = await tempDirectory(context, "mouthfeel-opencode-");
   const first = await plugin(root);
-  await command(first, "s", "senior 3");
+  await command(first, "s", "senior 2");
   await transform(first, "s");
 
   const restored = await plugin(root);
   await message(restored, "s", "Continue");
-  assert.match((await transform(restored, "s")).join("\n"), /senior three/);
+  assert.match((await transform(restored, "s")).join("\n"), /senior two/);
 });
 
 test("OpenCode restores an off tombstone without styling later replies", async (context) => {

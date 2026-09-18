@@ -14,7 +14,7 @@ const profiles: CompiledProfile[] = [
     category: "practical",
     summary: "Terse",
     surpriseEligible: false,
-    cards: { 1: "senior one", 2: "senior two", 3: "senior three" },
+    cards: { 1: "senior one", 2: "senior two" },
   },
   {
     id: "sailor",
@@ -22,7 +22,7 @@ const profiles: CompiledProfile[] = [
     category: "fun",
     summary: "Sea dog",
     surpriseEligible: true,
-    cards: { 1: "sailor one", 2: "sailor two", 3: "sailor three" },
+    cards: { 1: "sailor one", 2: "sailor two" },
     phrases: [{
       text: "The tide has turned.",
       useWhen: ["ordering bug", "incorrect sequence"],
@@ -65,6 +65,33 @@ test("activation requests a brief greeting in the selected profile and ordinary 
     prompt: "Continue",
   }, options);
   assert.equal(next, null);
+});
+
+test("a reinforcing host appends the card priority note on activation and restore", async (context) => {
+  const options = { ...(await fixture(context)), reinforceCard: true };
+  const activation = await handleHook({
+    session_id: "s",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel sailor 2",
+  }, options);
+  assert.match(JSON.stringify(activation), /part of the reply specification/);
+  const resume = await handleHook({ session_id: "s", hook_event_name: "SessionStart", source: "resume" }, options);
+  assert.match(JSON.stringify(resume), /part of the reply specification/);
+  const intensityChange = await handleHook({
+    session_id: "s",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel intensity 1",
+  }, options);
+  assert.match(JSON.stringify(intensityChange), /part of the reply specification/);
+
+  const plain = await fixture(context);
+  const plainActivation = await handleHook({
+    session_id: "p",
+    hook_event_name: "UserPromptSubmit",
+    prompt: "/mouthfeel sailor 2",
+  }, plain);
+  // hosts that did not opt in must not carry the codex priority note
+  assert.ok(!JSON.stringify(plainActivation).includes("part of the reply specification"));
 });
 
 test("an opted-in host reinforces the active profile on every ordinary turn", async (context) => {
@@ -150,9 +177,9 @@ test("untranslate can rewrite the immediately preceding activation greeting", as
 
 test("compaction restores active context", async (context) => {
   const options = await fixture(context);
-  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 3" }, options);
+  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 2" }, options);
   const compact = await handleHook({ session_id: "s", hook_event_name: "SessionStart", source: "compact" }, options);
-  assert.match(JSON.stringify(compact), /senior three/);
+  assert.match(JSON.stringify(compact), /senior two/);
   assert.equal((await options.store.read("s"))?.lastReplyStyled, false);
 });
 
@@ -180,9 +207,9 @@ test("intensity stays neutral while surprise requests a styled greeting", async 
   const intensity = await handleHook({
     session_id: "intensity",
     hook_event_name: "UserPromptSubmit",
-    prompt: "/mouthfeel intensity 3",
+    prompt: "/mouthfeel intensity 2",
   }, options);
-  assert.match(JSON.stringify(intensity), /senior three/);
+  assert.match(JSON.stringify(intensity), /senior two/);
   assert.match(JSON.stringify(intensity), /supersedes every earlier Mouthfeel profile card/i);
   assert.match(JSON.stringify(intensity), /do not apply.*control response/i);
   assert.doesNotMatch(JSON.stringify(intensity), /activation greeting/i);
@@ -225,18 +252,18 @@ test("resume restores persisted active context without changing styled state", a
   await options.store.write("s", {
     version: 1,
     profileId: "senior",
-    intensity: 3,
+    intensity: 2,
     lastReplyStyled: true,
     updatedAt: "2026-02-01T00:00:00.000Z",
   });
   const resumed = await handleHook({ session_id: "s", hook_event_name: "SessionStart", source: "resume" }, options);
-  assert.match(JSON.stringify(resumed), /senior three/);
+  assert.match(JSON.stringify(resumed), /senior two/);
   assert.equal((await options.store.read("s"))?.lastReplyStyled, true);
 });
 
 test("scheduled tasks clear untranslate eligibility", async (context) => {
   const options = await fixture(context);
-  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 3" }, options);
+  await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 2" }, options);
   await handleHook({ session_id: "s", hook_event_name: "UserPromptSubmit", prompt: "Explain it" }, options);
   assert.equal((await options.store.read("s"))?.lastReplyStyled, true);
   assert.equal(await handleHook({
@@ -257,7 +284,7 @@ test("clear starts a fresh baseline conversation even if the host reuses an id",
 test("concurrent sessions keep independent profiles", async (context) => {
   const options = await fixture(context);
   await handleHook({ session_id: "one", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel sailor 1" }, options);
-  await handleHook({ session_id: "two", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 3" }, options);
+  await handleHook({ session_id: "two", hook_event_name: "UserPromptSubmit", prompt: "/mouthfeel senior 2" }, options);
   assert.equal((await options.store.read("one"))?.profileId, "sailor");
   assert.equal((await options.store.read("two"))?.profileId, "senior");
 });

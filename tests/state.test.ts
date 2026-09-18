@@ -11,7 +11,7 @@ const profiles: CompiledProfile[] = [
     category: "practical",
     summary: "Terse technical communication",
     surpriseEligible: false,
-    cards: { 1: "one", 2: "two", 3: "three" },
+    cards: { 1: "one", 2: "two" },
   },
   {
     id: "sailor",
@@ -19,7 +19,7 @@ const profiles: CompiledProfile[] = [
     category: "fun",
     summary: "Wizened sailor",
     surpriseEligible: true,
-    cards: { 1: "one", 2: "two", 3: "three" },
+    cards: { 1: "one", 2: "two" },
   },
 ];
 
@@ -32,7 +32,7 @@ const active: MouthfeelSessionState = {
 };
 
 test("activates prospectively and persists an off tombstone", () => {
-  const activated = applyCommand(null, { type: "activate", profileId: "sailor", intensity: 3 }, profiles, {
+  const activated = applyCommand(null, { type: "activate", profileId: "sailor", intensity: 2 }, profiles, {
     now: () => new Date("2026-02-01T00:00:00.000Z"),
     random: () => 0,
   });
@@ -68,13 +68,13 @@ test("untranslate keeps the profile active and is one-shot", () => {
 });
 
 test("intensity requires an active profile", () => {
-  const result = applyCommand(null, { type: "intensity", intensity: 3 }, profiles);
+  const result = applyCommand(null, { type: "intensity", intensity: 2 }, profiles);
   assert.equal(result.state, null);
   assert.match(result.instruction, /activate a profile/i);
 });
 
 test("intensity changes select a replacement profile card without requesting a greeting", () => {
-  const result = applyCommand(active, { type: "intensity", intensity: 3 }, profiles);
+  const result = applyCommand(active, { type: "intensity", intensity: 2 }, profiles);
   assert.equal(result.effect, "profile-selected");
 });
 
@@ -99,6 +99,6 @@ test("disabled state behaves as off until another profile is selected", () => {
   const status = applyCommand(disabled, { type: "status" }, profiles);
   assert.equal(status.notification, "Mouthfeel is off.");
 
-  const intensity = applyCommand(disabled, { type: "intensity", intensity: 3 }, profiles);
+  const intensity = applyCommand(disabled, { type: "intensity", intensity: 2 }, profiles);
   assert.match(intensity.notification, /activate a profile/i);
 });

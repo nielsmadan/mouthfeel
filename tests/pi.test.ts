@@ -16,7 +16,7 @@ const profiles: CompiledProfile[] = [{
   category: "fun",
   summary: "Sea dog",
   surpriseEligible: true,
-  cards: { 1: "one", 2: "two", 3: "three" },
+  cards: { 1: "one", 2: "two" },
 }];
 
 type Handler = (event: unknown, context: ExtensionContext) => unknown;
@@ -80,13 +80,13 @@ test("Pi registers /mouthfeel and keeps activation prospective", async () => {
 
 test("Pi restores active state after extension recreation", async () => {
   const first = harness();
-  await first.commands.get("mouthfeel")?.("sailor 3", first.context);
+  await first.commands.get("mouthfeel")?.("sailor 2", first.context);
 
   const restored = harness(first.entries);
   await restored.handlers.get("session_start")?.({}, restored.context);
   const result = (await inject(restored, "Continue"))?.systemPrompt ?? "";
   assert.match(result, /^base\n\n/);
-  assert.match(result, /three$/);
+  assert.match(result, /two$/);
 });
 
 test("Pi restores an off tombstone without styling later replies", async () => {

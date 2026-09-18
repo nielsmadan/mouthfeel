@@ -3,14 +3,11 @@ import { constants } from "node:fs";
 import { chmod, lstat, mkdir, open, readdir, rename, stat, unlink } from "node:fs/promises";
 import { join } from "node:path";
 
-import type { Intensity, MouthfeelSessionState } from "./types.js";
+import { isIntensity } from "./types.js";
+import type { MouthfeelSessionState } from "./types.js";
 
 const MAX_STATE_BYTES = 8192;
 const MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
-
-function isIntensity(value: unknown): value is Intensity {
-  return value === 1 || value === 2 || value === 3;
-}
 
 export function isSessionState(value: unknown): value is MouthfeelSessionState {
   if (!value || typeof value !== "object") return false;

@@ -11,9 +11,9 @@ export interface Entry {
   intensity: number;
   caseId: string;
   run: number;
-  verdict: string;
   reply: string;
   greeting: string;
+  ranAt: string;
 }
 
 export function cellKey(entry: Pick<Entry, "host" | "model" | "caseId" | "profile" | "intensity">): string {
@@ -22,14 +22,21 @@ export function cellKey(entry: Pick<Entry, "host" | "model" | "caseId" | "profil
     .replace(/[^A-Za-z0-9_.:@+~-]/g, "-");
 }
 
-export async function collect(runDirs: string[]): Promise<Entry[]> {
+// Reasoning effort is a real run variable for codex arms; folding it into the
+// model label keeps cross-effort runs from colliding on one cell key.
+export function modelLabel(meta: Record<string, unknown>): string {
+  const model = String(meta["model"]);
+  return typeof meta["effort"] === "string" ? `${model}@${meta["effort"]}` : model;
+}
+
+export async function collect(runDirs: string[], baseDir = artifactRoot): Promise<Entry[]> {
   const byKey = new Map<string, Entry>();
   for (const runDir of runDirs) {
-    const jobs = (await readdir(join(artifactRoot, runDir), { withFileTypes: true }))
+    const jobs = (await readdir(join(baseDir, runDir), { withFileTypes: true }))
       .filter((e) => e.isDirectory() && e.name !== "shims" && e.name !== "workspace")
       .map((e) => e.name);
     for (const job of jobs) {
-      const dir = join(artifactRoot, runDir, job);
+      const dir = join(baseDir, runDir, job);
       let meta: Record<string, unknown>;
       let reply: string;
       try {
@@ -47,17 +54,18 @@ export async function collect(runDirs: string[]): Promise<Entry[]> {
       const entry: Entry = {
         key: "",
         host: String(meta["host"]),
-        model: String(meta["model"]),
+        model: modelLabel(meta),
         profile: String(meta["profile"]),
         intensity: Number(meta["intensity"]),
         caseId: String(meta["caseId"]),
         run: Number(job.match(/-run(\d+)$/)?.[1] ?? 1),
-        verdict: "",
         reply,
         greeting,
+        ranAt: typeof meta["ranAt"] === "string" ? meta["ranAt"] : "",
       };
       entry.key = `${cellKey(entry)}_${entry.run}`;
-      byKey.set(entry.key, entry);
+      const existing = byKey.get(entry.key);
+      if (!existing || existing.ranAt <= entry.ranAt) byKey.set(entry.key, entry);
     }
   }
   const entries = [...byKey.values()];

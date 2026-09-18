@@ -89,24 +89,6 @@ It works with both Markdown and SQLite projects, and all the existing filters st
 
 All the workspace tests and Clippy pass. We love a clean build.
 
-## caveman — implementation-success
-
-Cadet now know `--all-projects`. Cadet gather tasks from every project. Keep tasks in project piles. Good. No giant task heap.
-
-```sh
-# Active tasks across every project
-cadet ls --all-projects
-
-# Including completed/terminal tasks
-cadet ls --all-projects --all
-```
-
-Markdown project work. SQLite project work. Old filters still work.
-
-But user choose: all projects with `--all-projects`, or one project with `--project`. Cannot choose both. That make no sense.
-
-All workspace tests pass. Clippy pass. Code strong.
-
 ## sailor — implementation-success
 
 Right, deckhand, pay attention. `cadet ls --all-projects` is in. It gathers active tasks from every project and groups them properly, because apparently checking projects one at a time was becoming an expedition.
@@ -160,39 +142,6 @@ Need the completed and terminal jobs? Throw in `--all`.
 It works with both Markdown and SQLite. Existing filters ain’t changed. Don’t hitch `--all-projects` to `--project`, though. One asks for every project, the other picks one. Can’t point the horse both ways.
 
 Workspace tests pass. Clippy’s clean. Matter’s settled.
-
-## finnish-dev — implementation-success
-
-No niin. `--all-projects` can now be taken into use with `cadet ls`. It lists active tasks from every configured project. Results are grouped by project.
-
-```sh
-# Active tasks across every project
-cadet ls --all-projects
-
-# Including completed/terminal tasks
-cadet ls --all-projects --all
-```
-
-Second `--all` includes completed and terminal tasks also.
-
-It works with Markdown and SQLite projects. Existing filters work as before. Do not use `--all-projects` together with `--project`. The first selects every project. The second selects one. There is no sensible meaning for both.
-
-Workspace tests pass. Clippy passes. I think this is ready.
-
-## russian-dev — implementation-success
-
-Implemented `cadet ls --all-projects`. It collects active tasks from every configured project and groups output by project. There is no need now to run same command separately for each checkout.
-
-```text
-cadet ls --all-projects
-cadet ls --all-projects --all
-```
-
-Second `--all` includes completed and terminal tasks also.
-
-Functionality works with Markdown and SQLite projects. Existing filters behave as before. There is one nuance: `--all-projects` cannot be combined with `--project`. First selects every project; second selects one. Supporting both has no sense, so command rejects this combination.
-
-Workspace tests pass. Clippy passes. From my side, it is ready for merge.
 
 ## hemingway — implementation-success
 

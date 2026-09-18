@@ -1,8 +1,11 @@
 import { parse } from "yaml";
 
+import { INTENSITIES, isIntensity } from "../src/core/types.js";
+import { EFFORTS, isEffort } from "./types.js";
 import type { HostCase, HostId, Job, RunOptions } from "./types.js";
 
-const hostIds: HostId[] = ["claude", "codex", "pi"];
+const hostRecord: Record<HostId, null> = { claude: null, codex: null, pi: null };
+const hostIds = Object.keys(hostRecord) as HostId[];
 
 export function isHostId(value: string): value is HostId {
   return (hostIds as string[]).includes(value);
@@ -31,13 +34,19 @@ export function parseHostCase(source: string, path: string): HostCase {
   if (
     !Array.isArray(intensities) ||
     intensities.length === 0 ||
-    !intensities.every((i): i is number => typeof i === "number" && [1, 2, 3].includes(i))
+    !intensities.every(isIntensity)
   ) {
-    throw new Error(`host case ${path} needs intensities from 1-3`);
+    throw new Error(`host case ${path} needs intensities of ${INTENSITIES.join(" or ")}`);
   }
-  const body = (match[2] ?? "").trim();
-  if (body === "") {
-    throw new Error(`host case ${path} has an empty body`);
+  const setup = frontmatter["setup"];
+  if (setup !== undefined && (typeof setup !== "string" || !/^[a-z0-9-]+$/.test(setup))) {
+    throw new Error(`host case ${path} setup must be a kebab-case fixture name`);
+  }
+  const turns = (match[2] ?? "")
+    .split(/^---turn---$/m)
+    .map((turn) => turn.trim());
+  if (turns.some((turn) => turn === "")) {
+    throw new Error(`host case ${path} has an empty body or empty turn`);
   }
   return {
     id,
@@ -45,7 +54,8 @@ export function parseHostCase(source: string, path: string): HostCase {
     type: typeof type === "string" ? type : "unspecified",
     profiles,
     intensities,
-    body,
+    setup: typeof setup === "string" ? setup : undefined,
+    turns,
   };
 }
 
@@ -108,23 +118,6 @@ export function shellQuote(value: string): string {
   return `'${value.replaceAll("'", "'\\''")}'`;
 }
 
-export function codexInstallPreExec(distDir: string): string {
-  return [
-    'if [ -n "$CODEX_HOME" ]; then',
-    `  codex plugin marketplace add ${shellQuote(distDir)} >/dev/null 2>&1 || true`,
-    "  codex plugin add mouthfeel@mouthfeel >/dev/null || exit 70",
-    "fi",
-  ].join("\n");
-}
-
-export function piInstallPreExec(distDir: string): string {
-  return [
-    'if [ -n "$PI_CODING_AGENT_DIR" ]; then',
-    `  pi install ${shellQuote(distDir)} >/dev/null || exit 70`,
-    "fi",
-  ].join("\n");
-}
-
 // Pane text still contains the activation line, so profile/intensity alone
 // always match; a second "Mouthfeel:" line is the status reply itself.
 export function statusPaneMatches(paneText: string, profile: string, intensity: number): boolean {
@@ -143,6 +136,7 @@ export function parseRunArgs(argv: string[]): RunOptions {
     profiles: undefined,
     intensities: undefined,
     model: undefined,
+    effort: undefined,
     runs: 1,
     control: false,
     dryRun: false,
@@ -184,8 +178,8 @@ export function parseRunArgs(argv: string[]): RunOptions {
         const intensities = next()
           .split(",")
           .map((raw) => Number.parseInt(raw.trim(), 10));
-        if (intensities.length === 0 || !intensities.every((v) => [1, 2, 3].includes(v))) {
-          throw new Error("--intensity must be a comma list of 1, 2, or 3");
+        if (intensities.length === 0 || !intensities.every(isIntensity)) {
+          throw new Error(`--intensity must be a comma list of ${INTENSITIES.join(" or ")}`);
         }
         options.intensities = intensities;
         break;
@@ -193,6 +187,14 @@ export function parseRunArgs(argv: string[]): RunOptions {
       case "--model":
         options.model = next();
         break;
+      case "--effort": {
+        const value = next();
+        if (!isEffort(value)) {
+          throw new Error(`--effort must be one of ${EFFORTS.join(", ")}`);
+        }
+        options.effort = value;
+        break;
+      }
       case "--runs": {
         const value = Number.parseInt(next(), 10);
         if (!Number.isInteger(value) || value < 1) throw new Error("--runs must be a positive integer");

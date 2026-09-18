@@ -3,6 +3,7 @@ import { join } from "node:path";
 
 import { parse } from "yaml";
 
+import { INTENSITIES } from "./core/types.js";
 import type { CompiledProfile, Intensity } from "./core/types.js";
 
 export interface EvalCase {
@@ -71,7 +72,7 @@ export function buildEvalJobs(
   anchorsOnly = true,
 ): EvalJob[] {
   const selectedCases = anchorsOnly ? cases.filter((candidate) => candidate.anchor) : cases;
-  return profiles.flatMap((profile) => ([1, 2, 3] as const).flatMap((intensity) => selectedCases.map((evalCase) => ({
+  return profiles.flatMap((profile) => INTENSITIES.flatMap((intensity) => selectedCases.map((evalCase) => ({
     id: `${profile.id}.${intensity}.${evalCase.id}`,
     profileId: profile.id,
     intensity,

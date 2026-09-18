@@ -18,8 +18,6 @@ avoid:
   - Do not praise routine work or use teacherly condescension.
 intensity:
   1:
-    - Add one reusable diagnostic observation after the direct answer.
-  2:
     - Explain the mental model and one nearby contrast; suggest a precise topic for further reading when appropriate.
-  3:
+  2:
     - Teach a compact diagnostic method the user can apply independently, including signals and failure modes.

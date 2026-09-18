@@ -5,7 +5,9 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
 import { loadProfiles } from "../src/core/load.js";
+import { INTENSITIES } from "../src/core/types.js";
 
+const INTENSITY_ARGS = INTENSITIES.join("|");
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const version = (JSON.parse(await readFile(join(root, "package.json"), "utf8")) as { version: string }).version;
@@ -33,9 +35,9 @@ Only acknowledge success when the Mouthfeel lifecycle hook supplied a Mouthfeel 
 
 ## Commands
 
-- \`<profile> [1|2|3]\`: activate one profile; intensity defaults to 2
-- \`surprise [1|2|3]\`: choose one eligible fun profile
-- \`intensity <1|2|3>\`: change the active intensity
+- \`<profile> [${INTENSITY_ARGS}]\`: activate one profile; intensity defaults to 1
+- \`surprise [${INTENSITY_ARGS}]\`: choose one eligible fun profile
+- \`intensity <${INTENSITY_ARGS}>\`: change the active intensity
 - \`off\`: return to the host baseline
 - \`status\`: show the active profile
 - \`list\`: list profiles
@@ -55,9 +57,12 @@ If the hook reports an unknown profile, use \`${invocation} list\`. If state app
 
 function hookConfig(
   variable: "PLUGIN_ROOT" | "CLAUDE_PLUGIN_ROOT",
-  options: { remindOnEveryActiveTurn?: boolean } = {},
+  options: { remindOnEveryActiveTurn?: boolean; reinforceCard?: boolean } = {},
 ): object {
-  const arguments_ = options.remindOnEveryActiveTurn ? " --remind-every-active-turn" : "";
+  const arguments_ = [
+    options.remindOnEveryActiveTurn ? " --remind-every-active-turn" : "",
+    options.reinforceCard ? " --reinforce-card" : "",
+  ].join("");
   return {
     hooks: {
       SessionStart: [{
@@ -66,7 +71,7 @@ function hookConfig(
           type: "command",
           command: `node \"\${${variable}}/runtime/hook.mjs\"${arguments_}`,
           timeout: 5,
-          additionalContextLimit: 2500,
+          additionalContextLimit: 10000,
         }],
       }],
       UserPromptSubmit: [{
@@ -74,7 +79,7 @@ function hookConfig(
           type: "command",
           command: `node \"\${${variable}}/runtime/hook.mjs\"${arguments_}`,
           timeout: 5,
-          additionalContextLimit: 2500,
+          additionalContextLimit: 10000,
         }],
       }],
     },
@@ -181,7 +186,7 @@ async function main(): Promise<void> {
       brandColor: "#D97757",
     },
   });
-  await json(join(codex, "hooks", "hooks.json"), hookConfig("PLUGIN_ROOT"));
+  await json(join(codex, "hooks", "hooks.json"), hookConfig("PLUGIN_ROOT", { reinforceCard: true }));
   await write(join(codex, "skills", "use", "SKILL.md"), controllerSkill("Codex"));
   await bundle("src/runtime/hook.ts", join(codex, "runtime", "hook.mjs"));
 
@@ -241,7 +246,7 @@ MOUTHFEEL_COMMAND: $ARGUMENTS
 
 The lifecycle hook reads this marker, stores state for the current conversation, and injects only the selected profile before each model invocation. Follow its control-turn instruction exactly. Activation is prospective.
 
-Commands: \`<profile> [1|2|3]\`, \`surprise [1|2|3]\`, \`intensity <1|2|3>\`, \`off\`, \`status\`, \`list\`, and \`untranslate\`.
+Commands: \`<profile> [${INTENSITY_ARGS}]\`, \`surprise [${INTENSITY_ARGS}]\`, \`intensity <${INTENSITY_ARGS}>\`, \`off\`, \`status\`, \`list\`, and \`untranslate\`.
 
 ## Examples
 

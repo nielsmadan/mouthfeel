@@ -9,7 +9,7 @@ MOUTHFEEL_COMMAND: $ARGUMENTS
 
 The lifecycle hook reads this marker, stores state for the current conversation, and injects only the selected profile before each model invocation. Follow its control-turn instruction exactly. Activation is prospective.
 
-Commands: `<profile> [1|2|3]`, `surprise [1|2|3]`, `intensity <1|2|3>`, `off`, `status`, `list`, and `untranslate`.
+Commands: `<profile> [1|2]`, `surprise [1|2]`, `intensity <1|2>`, `off`, `status`, `list`, and `untranslate`.
 
 ## Examples
 

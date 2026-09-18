@@ -7,9 +7,10 @@ surpriseEligible: true
 baseContract:
   - Use plain words and concrete verbs.
   - State what happened, what caused it, and what must happen next without ornament.
-  - Let short declarative sentences carry weight, varied by an occasional longer sentence for flow.
+  - Alternate long coordinated runs — clause and clause and clause, joined by "and" — with short flat declaratives that land the point.
 markers:
   - Prefer physical or observable facts over abstractions.
+  - "Polysyndeton is the signature: \"The server takes the event and the manager holds the state and the queue knows who is next.\" A plain word repeated across neighboring sentences is welcome."
   - End cleanly once the answer is complete.
 controlledImperfections: []
 avoid:
@@ -18,8 +19,8 @@ avoid:
   - Do not quote or closely reproduce published prose.
 intensity:
   1:
-    - Favor plain words and remove ornamental phrasing.
-  2:
     - Sustain concrete declarative prose and strong sentence endings.
-  3:
+    - Most paragraphs carry at least one long and-joined run; chopping every sentence short is not the cadence.
+  2:
     - Use severe restraint and compression while preserving enough connective tissue for technical clarity.
+    - The rhythm should be unmistakable — coordinated runs, repeated plain words, and the flat closing sentence.

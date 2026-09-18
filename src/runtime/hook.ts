@@ -7,7 +7,7 @@ import { renderActivationGreeting, renderRuntimeCard, renderRuntimeReminder } fr
 import { loadRegistry } from "../core/registry.js";
 import { activeSessionState, applyCommand, markStyled } from "../core/state.js";
 import { SidecarStore } from "../core/storage.js";
-import type { CompiledProfile } from "../core/types.js";
+import type { CompiledProfile, Intensity } from "../core/types.js";
 
 export interface HookInput {
   session_id?: string;
@@ -21,6 +21,7 @@ interface HookOptionBase {
   random?: () => number;
   now?: () => Date;
   remindOnEveryActiveTurn?: boolean;
+  reinforceCard?: boolean;
 }
 
 type HookOptions = HookOptionBase & (
@@ -36,6 +37,10 @@ export interface HookOutput {
 }
 
 const PROFILE_REVOCATION = "Mouthfeel is off for future replies. Ignore every earlier Mouthfeel profile card and reminder in this conversation. Use the host baseline voice unless the user explicitly requests another style.";
+
+function renderCard(profile: CompiledProfile, intensity: Intensity, options: HookOptions): string {
+  return renderRuntimeCard(profile, intensity, "", { reinforce: options.reinforceCard === true });
+}
 
 function output(event: "SessionStart" | "UserPromptSubmit", additionalContext: string): HookOutput {
   return {
@@ -84,7 +89,7 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
     }
     const context = [
       "Mouthfeel remains active after this session transition.",
-      renderRuntimeCard(profile, restored.intensity, ""),
+      renderCard(profile, restored.intensity, options),
     ].join("\n\n");
     return output("SessionStart", context);
   }
@@ -121,12 +126,12 @@ export async function handleHook(input: HookInput, options: HookOptions): Promis
     if (storedState) await options.store.write(sessionId, storedState);
     else await options.store.delete(sessionId);
     const context = greetingProfile && result.effect === "profile-greeting"
-      ? renderActivationGreeting(greetingProfile, result)
+      ? renderActivationGreeting(greetingProfile, result, { reinforce: options.reinforceCard === true })
       : [
           ...(selectedProfile && activeResult
             ? [
                 "The profile card below applies only to future replies. Do not apply it to this control response.",
-                renderRuntimeCard(selectedProfile, activeResult.intensity, ""),
+                renderCard(selectedProfile, activeResult.intensity, options),
               ]
             : []),
           ...(result.effect === "profile-disabled" ? [PROFILE_REVOCATION] : []),
@@ -185,6 +190,7 @@ async function main(): Promise<void> {
       loadProfiles: () => loadRegistry(join(packageRoot(), "registry.json")),
       store: new SidecarStore(stateRoot()),
       remindOnEveryActiveTurn: process.argv.includes("--remind-every-active-turn"),
+      reinforceCard: process.argv.includes("--reinforce-card"),
     });
     if (result) process.stdout.write(`${JSON.stringify(result)}\n`);
   } catch (error) {

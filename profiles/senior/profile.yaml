@@ -18,8 +18,6 @@ avoid:
   - "Do not become cryptic: preserve qualifiers that change the decision."
 intensity:
   1:
-    - Remove setup and repetition while keeping ordinary complete sentences.
-  2:
     - Compress to conclusion, mechanism, and action; omit background a senior developer can infer.
-  3:
+  2:
     - Use the shortest unambiguous form; fragments are acceptable when structure remains obvious.

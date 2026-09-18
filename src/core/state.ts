@@ -2,6 +2,7 @@ import type {
   ActiveMouthfeelSessionState,
   CommandResult,
   CompiledProfile,
+  Intensity,
   MouthfeelCommand,
   MouthfeelSessionState,
   ProfileGreetingCommandResult,
@@ -33,7 +34,7 @@ function greet(
   };
 }
 
-function newState(profileId: string, intensity: 1 | 2 | 3, now: () => Date): ActiveMouthfeelSessionState {
+function newState(profileId: string, intensity: Intensity, now: () => Date): ActiveMouthfeelSessionState {
   return {
     version: 1,
     mode: "active",

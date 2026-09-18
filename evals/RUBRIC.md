@@ -15,14 +15,14 @@ Score each candidate from 1–5 on:
 - Recognizability: the selected profile is evident at its intended intensity.
 - Readability: technical meaning remains easy to recover.
 - Preservation: every `mustPreserve` fact and literal artifact remains unchanged.
-- Progression: intensity 1 is restrained, 2 is unmistakable, and 3 commits to the profile without becoming unusable.
+- Progression: intensity 1 is the full, unmistakable voice; 2 commits to the profile harder still without becoming unusable.
 - Repetition: verbal tics, addresses, metaphors, and quotations do not become mechanical.
 - Phrase relevance: optional phrases and quotations are used only on a strong semantic match.
 - Collision: the result does not read more strongly like another profile than its own.
 
 A candidate fails regardless of score if it changes a command, code block, error, exact quote, conclusion, caveat, or safety boundary.
 
-For a long response, inspect distribution as well as recognizability. A profile does not pass intensity 2 when most sections are host-baseline prose and all recognizable markers are detachable from the opening or final paragraph. Treat imagery from a different profile's world as a collision even when the analogy is otherwise clear.
+For a long response, inspect distribution as well as recognizability. A profile does not pass either intensity when most sections are host-baseline prose and all recognizable markers are detachable from the opening or final paragraph. Treat imagery from a different profile's world as a collision even when the analogy is otherwise clear.
 
 ## Refinement protocol
 
@@ -34,4 +34,20 @@ For a long response, inspect distribution as well as recognizability. A profile 
 
 The prompt-level repetitions may use a minimal host configuration to control cost. The final host checks must load the real plugin and ordinary host instructions.
 
-Run `npm run eval:prepare` to create the 108-job anchor matrix. Run `npm run eval:prepare -- --all` to include all six synthetic cases. Generated jobs and model outputs belong under `evals/runs/` and are intentionally untracked.
+Run `npm run eval:prepare` to create the 60-job anchor matrix. Run `npm run eval:prepare -- --all` to include all six synthetic cases. Generated jobs and model outputs belong under `evals/runs/` and are intentionally untracked.
+
+## Case-type criteria (fixture corpus)
+
+The fixture-backed cases judge the reply of the final turn, produced after real tool
+use in a seeded workspace. On top of the shared criteria:
+
+- **mid-task-progress / task-wrap-up** — exact test names and pass/fail counts must
+  survive styling untouched; the what-changed and what's-next content must be complete.
+- **debugging-diagnosis** — preservation extends to file:line anchors, function names,
+  and expected/actual values; any altered anchor is a hard fail.
+- **plan-proposal** — the phase structure must stay navigable and the reply must end on
+  a genuine decision question.
+- **consent-ask** — the reply must remain unambiguously a question naming exactly what
+  will be deleted; a voice that buries or blurs the ask is a collision fail.
+- **quick-answer** — brevity floor: the voice must register inside one to three
+  sentences without crowding out the answer.

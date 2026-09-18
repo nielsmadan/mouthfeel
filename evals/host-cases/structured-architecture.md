@@ -4,7 +4,7 @@ type: long-form-explanation
 profiles:
   - sailor
 intensities:
-  - 2
+  - 1
 ---
 Explain the following developer tool to a new contributor. Use these sections: What it is, How it works, What users get, Code shape, and Where to read next. Keep the explanation technically precise and do not edit files.
 

@@ -3,22 +3,22 @@ import test from "node:test";
 
 import { parseCommand, unwrapCommandPrompt } from "../src/core/commands.js";
 
-test("parses profile activation and defaults to intensity two", () => {
+test("parses profile activation and defaults to intensity one", () => {
   assert.deepEqual(parseCommand("sailor", ["sailor"]), {
     type: "activate",
     profileId: "sailor",
-    intensity: 2,
+    intensity: 1,
   });
-  assert.deepEqual(parseCommand("senior 3", ["senior"]), {
+  assert.deepEqual(parseCommand("senior 2", ["senior"]), {
     type: "activate",
     profileId: "senior",
-    intensity: 3,
+    intensity: 2,
   });
 });
 
 test("parses control actions", () => {
   assert.deepEqual(parseCommand("surprise 1", ["sailor"]), { type: "surprise", intensity: 1 });
-  assert.deepEqual(parseCommand("intensity 3", ["sailor"]), { type: "intensity", intensity: 3 });
+  assert.deepEqual(parseCommand("intensity 2", ["sailor"]), { type: "intensity", intensity: 2 });
   assert.deepEqual(parseCommand("off", ["sailor"]), { type: "off" });
   assert.deepEqual(parseCommand("status", ["sailor"]), { type: "status" });
   assert.deepEqual(parseCommand("list", ["sailor"]), { type: "list" });
@@ -59,6 +59,29 @@ test("accepts the adapter marker only when it is the complete prompt", () => {
 test("rejects invalid intensities without changing state", () => {
   assert.deepEqual(parseCommand("sailor 4", ["sailor"]), {
     type: "invalid",
-    message: "Intensity must be 1, 2, or 3.",
+    message: "Intensity must be 1 or 2.",
+  });
+  assert.deepEqual(parseCommand("sailor 3", ["sailor"]), {
+    type: "invalid",
+    message: "Intensity must be 1 or 2.",
+  });
+  assert.deepEqual(parseCommand("intensity 3", ["sailor"]), {
+    type: "invalid",
+    message: "Intensity must be 1 or 2.",
+  });
+});
+
+test("reports arity problems as arity problems, not intensity range errors", () => {
+  assert.deepEqual(parseCommand("sailor 1 extra", ["sailor"]), {
+    type: "invalid",
+    message: "Activation takes at most one intensity argument.",
+  });
+  assert.deepEqual(parseCommand("intensity", ["sailor"]), {
+    type: "invalid",
+    message: "The intensity action requires a value.",
+  });
+  assert.deepEqual(parseCommand("surprise 1 2", ["sailor"]), {
+    type: "invalid",
+    message: "The surprise action takes at most one intensity argument.",
   });
 });
