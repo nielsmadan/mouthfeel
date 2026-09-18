@@ -17,7 +17,8 @@
     "node": ">=22.19.0"
   },
   "scripts": {
-    "prepare": "lefthook install || true",
+    "setup": "npm ci && lefthook install && npm run doctor",
+    "doctor": "test -d node_modules && lefthook validate && test -x \"$(git rev-parse --git-path hooks/pre-commit)\" && test -x \"$(git rev-parse --git-path hooks/pre-push)\" || { echo 'Setup incomplete; run npm run setup' >&2; exit 1; }",
     "build": "tsx scripts/build.ts",
     "check": "python3 -B -m unittest discover -s scripts -p 'test_release*.py' && tsc --noEmit && npm test",
     "type-check": "tsc --noEmit",

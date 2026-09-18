@@ -148,6 +148,8 @@ Claude Code and Codex inject the complete profile card when a profile is selecte
 ## Development
 
 Development checks and release tooling require Python 3.9+ in addition to Node/npm.
+Run `npm run setup` after cloning to install locked dependencies and Git hooks.
+It runs `npm run doctor` to validate the local setup.
 
 - Canonical profile sources: `profiles/<id>/`
 - Shared controller and storage: `src/core/`
