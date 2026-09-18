@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { access, chmod, copyFile, cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { access, chmod, copyFile, cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
@@ -11,6 +11,7 @@ import {
   fixturesDir,
   hostCasesDir,
   repoRoot,
+  sandboxRoot,
   workerNamePrefix,
 } from "./config.js";
 import {
@@ -116,15 +117,27 @@ async function preflight(
   return { csdBinary, shims };
 }
 
-async function initWorkspaceRepo(workspace: string): Promise<void> {
-  const git = (...args: string[]) =>
-    execFileAsync("git", ["-c", "user.name=mouthfeel-harness", "-c", "user.email=harness@mouthfeel.local", ...args], {
-      cwd: workspace,
-      timeout: 30_000,
-    });
-  await git("init", "-q");
-  await git("add", "-A");
-  await git("commit", "-q", "--allow-empty", "-m", "fixture baseline");
+const sandboxGit = (...args: string[]) =>
+  execFileAsync("git", ["-c", "user.name=mouthfeel-harness", "-c", "user.email=harness@mouthfeel.local", ...args], {
+    cwd: sandboxRoot,
+    timeout: 30_000,
+  });
+
+async function ensureSandboxRepo(): Promise<void> {
+  await mkdir(sandboxRoot, { recursive: true });
+  try {
+    await access(join(sandboxRoot, ".git"));
+  } catch {
+    await sandboxGit("init", "-q");
+  }
+}
+
+async function resetWorkspace(workspace: string, setup: string | undefined): Promise<void> {
+  await rm(workspace, { recursive: true, force: true });
+  await mkdir(workspace, { recursive: true });
+  if (setup) await cp(join(fixturesDir, setup), workspace, { recursive: true });
+  await sandboxGit("add", "-A");
+  await sandboxGit("commit", "-q", "--allow-empty", "-m", "fixture baseline");
 }
 
 async function writeDiagnostics(jobDir: string, worker: WorkerHandle | undefined, error: unknown): Promise<void> {
@@ -156,14 +169,10 @@ async function runJob(
   const codexEffort = job.host === "codex" ? effort : undefined;
   const jobDir = join(runDir, jobDirName(job));
   await mkdir(jobDir, { recursive: true });
-  const workspace = join(jobDir, "workspace");
-  await mkdir(workspace, { recursive: true });
-  if (hostCase.setup) {
-    await cp(join(fixturesDir, hostCase.setup), workspace, { recursive: true });
-  }
-  // Workspaces live inside this repo; without their own .git, a worker's git
-  // commands would operate on the enclosing checkout.
-  await initWorkspaceRepo(workspace);
+  // Workspaces are subdirectories of one sandbox repo, never roots of their own:
+  // a worker's git commands stay inside it and never reach the enclosing checkout.
+  const workspace = join(sandboxRoot, jobDirName(job));
+  await resetWorkspace(workspace, hostCase.setup);
 
   const timingsMs: Record<string, number> = {};
   let worker: WorkerHandle | undefined;
@@ -258,6 +267,7 @@ async function runJob(
       timingsMs,
     };
   } finally {
+    await cp(workspace, join(jobDir, "workspace"), { recursive: true }).catch(() => {});
     if (worker && !keep) await stopWorker(worker);
   }
 }
@@ -297,6 +307,7 @@ async function main(): Promise<void> {
   if (codexEffort) console.log(`codex reasoning effort: ${codexEffort}`);
   const runDir = join(artifactRoot, new Date().toISOString().replace(/[:.]/g, "-"));
   await mkdir(runDir, { recursive: true });
+  await ensureSandboxRepo();
   const { csdBinary, shims } = await preflight(jobs, runDir, codexEffort);
 
   const results: JobResult[] = [];

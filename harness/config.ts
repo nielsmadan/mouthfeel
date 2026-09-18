@@ -8,6 +8,9 @@ export const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 export const hostCasesDir = join(repoRoot, "evals", "host-cases");
 export const fixturesDir = join(repoRoot, "evals", "fixtures");
 export const artifactRoot = join(repoRoot, "evals", "runs", "host-smoke");
+// One stable git root for every worker cwd: Claude Code keys folder trust on
+// the repo root, so a per-job root would prompt on each fresh path.
+export const sandboxRoot = join(repoRoot, "evals", "runs", ".sandbox");
 export const baselinesDir = join(repoRoot, "evals", "baselines");
 export const feedbackFile = join(repoRoot, "evals", "feedback", "feedback.json");
 export const claudeNotesFile = join(repoRoot, "evals", "feedback", "claude-notes.json");
