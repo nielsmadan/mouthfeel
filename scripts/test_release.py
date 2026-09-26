@@ -16,6 +16,23 @@ SPEC = importlib.util.spec_from_file_location("release", SCRIPT)
 release = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(release)
 
+# git exports these to hooks and child processes (`git rev-parse --local-env-vars`);
+# inherited, they point the temporary repositories these tests create at the real checkout.
+GIT_LOCAL_ENV_VARS = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_DIR",
+    "GIT_GRAFT_FILE",
+    "GIT_IMPLICIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_NO_REPLACE_OBJECTS",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_PREFIX",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_SHALLOW_FILE",
+    "GIT_WORK_TREE",
+)
+
 
 class ReleaseTests(unittest.TestCase):
     def setUp(self):
@@ -25,7 +42,10 @@ class ReleaseTests(unittest.TestCase):
         self.root = self.directory / "checkout"
         self.remote = self.directory / "origin.git"
         self.root.mkdir()
-        self.env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+        environment = {
+            key: value for key, value in os.environ.items() if key not in GIT_LOCAL_ENV_VARS
+        }
+        self.env = dict(environment, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
         self.command("git", "init", "--bare", str(self.remote))
         self.command("git", "init", "-b", "main")
         self.git("config", "user.name", "Release test")

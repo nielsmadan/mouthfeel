@@ -5,7 +5,7 @@ import { cp, mkdir, readFile, readdir, symlink, writeFile } from "node:fs/promis
 import { join, relative, resolve } from "node:path";
 import test from "node:test";
 import type { TestContext } from "node:test";
-import { promisify } from "node:util";
+import { promisify, stripVTControlCharacters } from "node:util";
 
 import { prepareRelease, releaseVersion, validateMarketplace, validatePackage, validateReleaseVersion } from "../scripts/release.js";
 import { tempDirectory } from "./helpers.js";
@@ -176,7 +176,10 @@ test("release rejects a misplaced marketplace source", async (context) => {
   const directory = join(root, "combined-marketplace");
   await cp(join(root, "dist/claude/.claude-plugin"), join(directory, ".claude-plugin"), { recursive: true });
   await cp(join(root, "dist/codex/.agents"), join(directory, ".agents"), { recursive: true });
-  await assert.rejects(validateMarketplace(directory, version), /\.\/claude\/mouthfeel/);
+  await assert.rejects(
+    validateMarketplace(directory, version),
+    (error: Error) => /\.\/claude\/mouthfeel/.test(stripVTControlCharacters(error.message)),
+  );
 });
 
 test("release rejects files outside the bundled npm package contract", async (context) => {
