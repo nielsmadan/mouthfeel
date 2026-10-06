@@ -1,12 +1,16 @@
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 import test from "node:test";
 import type { TestContext } from "node:test";
+import { promisify } from "node:util";
 
 import { prepareRelease, releaseVersion, validateMarketplace, validatePackage, validateReleaseVersion } from "../scripts/release.js";
 import { tempDirectory } from "./helpers.js";
+
+const exec = promisify(execFile);
 
 async function fixture(context: TestContext): Promise<{ root: string; version: string }> {
   const temporary = await tempDirectory(context, "mouthfeel-release-test-");
@@ -52,6 +56,11 @@ test("release checks lockfile and adapter version alignment", async (context) =>
 
 test("release packages survive extraction and validate all five native entrypoints", async (context) => {
   const { root, version } = await fixture(context);
+  if (process.platform === "darwin") {
+    const file = join(root, "dist/claude/mouthfeel/README.md");
+    await exec("xattr", ["-w", "org.mouthfeel.release-test", "private-metadata", file]);
+    assert.equal((await exec("xattr", ["-p", "org.mouthfeel.release-test", file])).stdout.trim(), "private-metadata");
+  }
   const destination = await prepareRelease(root, `v${version}`);
   assert.equal(destination, join(root, "release", `v${version}`));
   const artifacts = join(destination, "artifacts");
@@ -76,6 +85,20 @@ test("release packages survive extraction and validate all five native entrypoin
     const hash = createHash("sha256").update(await readFile(join(artifacts, filename))).digest("hex");
     assert.equal(report.artifacts[filename], hash);
     assert.ok(checksums.split("\n").includes(`${hash}  ${filename}`));
+    const { stdout } = await exec("python3", ["-c", `
+import json, sys, tarfile
+with tarfile.open(sys.argv[1]) as archive:
+    print(json.dumps([
+        {"name": entry.name, "owner": [entry.uid, entry.gid, entry.uname, entry.gname], "pax": entry.pax_headers}
+        for entry in archive
+    ]))
+`, join(artifacts, filename)]);
+    const entries = JSON.parse(stdout) as { name: string; owner: [number, number, string, string]; pax: Record<string, string> }[];
+    assert.ok(entries.length > 0, `${filename}: archive must contain entries`);
+    for (const entry of entries) {
+      assert.deepEqual(entry.owner, [0, 0, "", ""], `${filename}: ${entry.name} owner`);
+      assert.deepEqual(entry.pax, {}, `${filename}: ${entry.name} extended metadata`);
+    }
   }
   await validateMarketplace(join(destination, "marketplace"), version);
   assert.deepEqual(await readdir(join(root, "release")), [`v${version}`]);
@@ -86,6 +109,13 @@ test("release packages survive extraction and validate all five native entrypoin
   await assert.rejects(prepareRelease(root), /ERR_MODULE_NOT_FOUND/);
   assert.deepEqual(await releaseSnapshot(destination), previous);
   assert.deepEqual(await readdir(join(root, "release")), [`v${version}`]);
+});
+
+test("git ignores local credentials and logs but keeps environment templates visible", async () => {
+  const ignored = [".env", ".env.local", "nested/.env.production", ".npmrc", "nested/.npmrc", "debug.log", "logs/session.log"];
+  const templates = [".env.example", ".env.template", "nested/.env.example", "nested/.env.template"];
+  const { stdout } = await exec("git", ["check-ignore", "--no-index", "--", ...ignored, ...templates]);
+  assert.deepEqual(stdout.trim().split("\n"), ignored);
 });
 
 for (const host of ["claude", "codex"] as const) {

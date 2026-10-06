@@ -119,7 +119,10 @@ export async function validateMarketplace(directory: string, version: string): P
 }
 
 async function archive(directory: string, output: string): Promise<void> {
-  await exec("tar", ["-czf", output, "-C", directory, "."], {
+  await exec("tar", [
+    "--format=ustar", "--owner=0", "--group=0", "--numeric-owner", "--no-xattrs", "--no-acls",
+    "-czf", output, "-C", directory, ".",
+  ], {
     env: { ...process.env, COPYFILE_DISABLE: "1" },
   });
 }

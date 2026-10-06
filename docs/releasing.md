@@ -60,7 +60,16 @@ artifacts/
 Rerunning replaces the previous generated output only after validation succeeds.
 A failed preparation preserves the previous completed release. Checksums describe
 the exact files produced by that run; archive timestamps can differ between runs.
+Archive ownership is normalized to UID/GID zero with no user or group names.
+Native and marketplace archives use ustar, without extended attributes or ACLs;
+the packaging tests inspect all six archives for local ownership and extended metadata.
 The command does not install plugins, commit, tag, push, or publish anything.
+
+The Secret scan workflow runs pinned Gitleaks against full Git history on pushes,
+pull requests, and manual dispatches. Findings fail the job and are redacted in
+its logs. Local `.env` files, `.npmrc` files, and logs are ignored; `.env.example`
+and `.env.template` remain eligible for version control and must contain only
+safe placeholders. Ignore rules do not protect files that are already tracked.
 
 ## Tag and create a draft release
 

@@ -4,3 +4,9 @@ evals/runs/
 .DS_Store
 coverage/
 release/
+.env
+.env.*
+!.env.example
+!.env.template
+.npmrc
+*.log
