@@ -6,12 +6,12 @@ A locally developed plugin that switches a coding-agent conversation into a chos
 |---------|-------------|
 | `npm run setup` | `npm ci`, install Git hooks, then run doctor. |
 | `npm run doctor` | Validate that dependencies and Git hooks are installed. |
-| `npm run check` | Release-tool tests, `tsc --noEmit`, then build and run the test suite. |
+| `npm run check` | Release policy tests, `tsc --noEmit`, then build and run the test suite. |
 | `npm run dev:claude` | Rebuild and reinstall the Claude plugin under a cache-busted version. |
 | `npm run dev:codex` | Same, for Codex. |
 | `npm run dev:pi` | Same, for Pi. |
 | `npm run dev:oc` | Same, for OpenCode. |
-| `npm run release` | Run `scripts/release.py` to prepare and publish a release. |
+| `npm run release` | Run [curtains](https://github.com/nielsmadan/curtaincall) to prepare and publish a release. |
 
 ## Gotchas
 - `dist/` is generated from `profiles/`, `src/core/`, `src/adapters/`, and `src/runtime/`. Edit the sources, never the packages under `dist/`.

@@ -35,7 +35,7 @@
     "release:prepare": "tsx scripts/release.ts",
     "pretest": "npm run build",
     "test": "tsx --test \"tests/**/*.test.ts\"",
-    "release": "python3 scripts/release.py"
+    "release": "curtains"
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2",

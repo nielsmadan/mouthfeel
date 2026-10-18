@@ -73,7 +73,9 @@ safe placeholders. Ignore rules do not protect files that are already tracked.
 
 ## Tag and create a draft release
 
-From a clean, current `main` checkout, `npm run release` proposes the first version
+Releases use [curtains](https://github.com/nielsmadan/curtaincall); install it
+first with `brew install nielsmadan/tap/curtaincall`. From a clean, current
+`main` checkout, `npm run release` runs curtains, which proposes the first version
 as `0.9.0`, runs the checks, and asks for confirmation. After confirmation it
 updates versions, rebuilds and tests `dist`, commits those changes, and pushes
 `main` and an annotated tag atomically. It prints workflow and draft-release links
@@ -82,9 +84,13 @@ history and tags plus Git push access, but not the `gh` CLI. Local success confi
 the push, not publication. Check the linked workflow, then inspect and publish the
 draft manually.
 
+Curtains never fetches: the fetched `origin/main` must be an ancestor of `HEAD`.
+Every historical `vMAJOR.MINOR.PATCH` tag must exist both locally and on origin
+and point to the same commit, not just the latest one.
+
 For later prompt refinements, use `npm run release -- patch`. Use
-`npm run release -- --dry-run` to preview without running checks or changing Git
-or release state. `--yes` explicitly confirms unattended execution.
+`npm run release -- --dry-run` to preview without the tool check, running checks,
+or changing Git or release state. `--yes` explicitly confirms unattended execution.
 
 To manage the version, commit, and tag manually instead:
 

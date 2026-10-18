@@ -183,9 +183,10 @@ This runs the checks and produces validated npm packages, host archives, a combi
 
 ### Create a draft release
 
-Run `npm run release` from a clean, current `main` checkout with complete Git history and tags,
-and Git push access to the repository. It proposes a version from
-commits since the latest release tag, runs `npm run check`, then prompts. Enter `y` to create the draft,
+Install [curtains](https://github.com/nielsmadan/curtaincall) first
+(`brew install nielsmadan/tap/curtaincall`). Then run `npm run release` from a clean, current
+`main` checkout with complete Git history and tags, and Git push access to the repository.
+It proposes a version from commits since the latest release tag, runs `npm run check`, then prompts. Enter `y` to create the draft,
 enter a version or `patch`/`minor`/`major` and then confirm, or press Enter to cancel.
 
 ```sh
@@ -199,8 +200,10 @@ npm run release -- patch --yes
 The first release defaults to `0.9.0`. Later, `feat` proposes a minor bump, `fix`/`perf` a patch,
 and breaking changes a major bump (minor during `0.x`). Maintenance-only changes require an
 explicit bump. Use `patch` for prompt refinements in the `0.9.x` series.
-`--dry-run` reads local/origin state and previews without checks or publication;
+`--dry-run` reads local/origin state and previews without the tool check, checks or publication;
 `--yes` explicitly confirms unattended use. Nonterminal invocations otherwise fail.
+Curtains never fetches: the fetched `origin/main` must be an ancestor of `HEAD`, and every
+historical `v*` release tag must exist locally and on origin and point to the same commit.
 
 After confirmation, the command updates `package.json` and `package-lock.json`, rebuilds and tests
 all five generated packages, and commits those files with `dist/`. It atomically pushes `main`
