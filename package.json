@@ -38,7 +38,7 @@
     "release": "curtains"
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "^0.84.2",
+    "@earendil-works/pi-coding-agent": "^1.5.0",
     "@opencode-ai/plugin": "^1.18.18",
     "@types/node": "^24.0.0",
     "esbuild": "^0.25.0",
