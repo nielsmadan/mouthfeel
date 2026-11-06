@@ -40,7 +40,7 @@
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.84.2",
     "@opencode-ai/plugin": "^1.18.18",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.6.6",
     "esbuild": "^0.25.0",
     "lefthook": "^2.1.14",
     "tsx": "^4.20.0",
