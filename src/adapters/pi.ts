@@ -72,7 +72,8 @@ export function createPiExtension(profiles: readonly CompiledProfile[]) {
       }
       const active = activeSessionState(state);
       if (!active) return undefined;
-      if (/<scheduled-task\b/i.test(event.prompt)) {
+      const prompt = event.messageType === "user" ? event.prompt : "";
+      if (/<scheduled-task\b/i.test(prompt)) {
         state = { ...active, lastReplyStyled: false, updatedAt: new Date().toISOString() };
         persist();
         return undefined;
@@ -86,7 +87,7 @@ export function createPiExtension(profiles: readonly CompiledProfile[]) {
       state = markStyled(active);
       persist();
       return {
-        systemPrompt: `${event.systemPrompt}\n\n${renderRuntimeCard(profile, state.intensity, event.prompt)}`,
+        systemPrompt: `${event.systemPrompt}\n\n${renderRuntimeCard(profile, state.intensity, prompt)}`,
       };
     });
   };

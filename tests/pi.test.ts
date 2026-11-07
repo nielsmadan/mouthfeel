@@ -62,7 +62,7 @@ function harness(initialEntries: unknown[] = []) {
 }
 
 async function inject(candidate: ReturnType<typeof harness>, prompt: string) {
-  return await candidate.handlers.get("before_agent_start")?.({ prompt, systemPrompt: "base" }, candidate.context) as
+  return await candidate.handlers.get("before_agent_start")?.({ messageType: "user", prompt, systemPrompt: "base" }, candidate.context) as
     | { systemPrompt: string }
     | undefined;
 }
@@ -114,6 +114,17 @@ test("Pi follows state when navigating between session-tree branches", async () 
   const result = (await inject(pi, "Back on the active branch"))?.systemPrompt ?? "";
   assert.match(result, /^base\n\n/);
   assert.match(result, /one$/);
+});
+
+test("Pi styles runs started by an extension message", async () => {
+  const pi = harness();
+  await pi.commands.get("mouthfeel")?.("sailor 2", pi.context);
+  const result = await pi.handlers.get("before_agent_start")?.(
+    { messageType: "custom", message: { customType: "task-done", content: "Done" }, systemPrompt: "base" },
+    pi.context,
+  ) as { systemPrompt: string } | undefined;
+  assert.match(result?.systemPrompt ?? "", /^base\n\n/);
+  assert.match(result?.systemPrompt ?? "", /two$/);
 });
 
 test("Pi scheduled tasks clear untranslate eligibility", async () => {

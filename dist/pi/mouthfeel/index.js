@@ -299,7 +299,8 @@ ${instruction}` };
       }
       const active = activeSessionState(state);
       if (!active) return void 0;
-      if (/<scheduled-task\b/i.test(event.prompt)) {
+      const prompt = event.messageType === "user" ? event.prompt : "";
+      if (/<scheduled-task\b/i.test(prompt)) {
         state = { ...active, lastReplyStyled: false, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
         persist();
         return void 0;
@@ -315,7 +316,7 @@ ${instruction}` };
       return {
         systemPrompt: `${event.systemPrompt}
 
-${renderRuntimeCard(profile, state.intensity, event.prompt)}`
+${renderRuntimeCard(profile, state.intensity, prompt)}`
       };
     });
   };
