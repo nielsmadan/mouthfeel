@@ -362,6 +362,7 @@ var SidecarStore = class {
   constructor(root) {
     this.root = root;
   }
+  root;
   pathFor(sessionId) {
     const name = createHash("sha256").update(sessionId).digest("hex");
     return join(this.root, `${name}.json`);
