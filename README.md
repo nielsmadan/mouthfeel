@@ -209,8 +209,9 @@ After confirmation, the command updates `package.json` and `package-lock.json`, 
 all five generated packages, and commits those files with `dist/`. It atomically pushes `main`
 and the annotated tag, including existing local commits counted in the preview. It then prints
 workflow and release links and finishes. Publication runs asynchronously, so local success confirms
-the Git push. The workflow uses `softprops/action-gh-release` to create a GitHub draft release
-with six archives, checksums, and the release inventory. Check the linked workflow for publication
+the Git push. The workflow checks the tag with `curtains ci validate-tag`, then uses
+`curtains ci publish` to create a GitHub draft release with six archives, checksums, the release
+inventory and GitHub-generated notes since the previous tag. Check the linked workflow for publication
 success or failure. Inspect and publish the draft separately; npm registry publication is a
 future distribution step.
 

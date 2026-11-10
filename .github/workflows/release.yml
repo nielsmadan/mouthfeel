@@ -15,21 +15,39 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - uses: nielsmadan/curtaincall@970d648bc9aaf685b4c924e05c7edf359948b209 # v1.2.0
+      - name: Validate annotated tag and ancestry
+        run: |
+          RELEASE_COMMIT=$(curtains ci validate-tag "$RELEASE_TAG" "$GITHUB_SHA")
+          echo "RELEASE_COMMIT=$RELEASE_COMMIT" >> "$GITHUB_ENV"
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run release:prepare -- --tag "$RELEASE_TAG"
+      - name: Write release notes
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
-      - uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3
-        with:
-          files: |
-            release/v*/artifacts/*
-            release/v*/release.json
-          fail_on_unmatched_files: true
-          draft: true
-          generate_release_notes: true
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PREV_TAG=$(curtains ci previous-tag "$RELEASE_TAG")
+          args=(-f "tag_name=$RELEASE_TAG" -f "target_commitish=$RELEASE_COMMIT")
+          if [ -n "$PREV_TAG" ]; then
+            args+=(-f "previous_tag_name=$PREV_TAG")
+          fi
+          gh api --method POST "repos/$GITHUB_REPOSITORY/releases/generate-notes" "${args[@]}" \
+            --jq .body > "$RUNNER_TEMP/release-notes.md"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curtains ci publish "$RELEASE_TAG" "$RELEASE_COMMIT" \
+            --notes "$RUNNER_TEMP/release-notes.md" \
+            --title "$RELEASE_TAG" \
+            release/"$RELEASE_TAG"/artifacts/* release/"$RELEASE_TAG"/release.json

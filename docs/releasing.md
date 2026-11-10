@@ -107,15 +107,19 @@ To manage the version, commit, and tag manually instead:
    git push origin v0.9.0
    ```
 
-5. The tag workflow repeats release preparation, rejects a tag/version mismatch,
-   and uploads the six archives, checksums, and inventory to a **draft** GitHub
-   release. It does not publish to npm or update a marketplace branch.
+5. The tag workflow checks that the tag is annotated, on `main` and the pushed
+   commit (`curtains ci validate-tag`), repeats release preparation, rejects a
+   tag/version mismatch, and uses `curtains ci publish` to upload the six archives,
+   checksums, and inventory to a **draft** GitHub release. Its notes are
+   GitHub-generated from the previous release tag (`curtains ci previous-tag`).
+   It does not publish to npm or update a marketplace branch.
 6. Inspect the draft, download its artifacts, verify checksums, and smoke-test
    the installation paths in [the installation guide](install.md). Publish the
    draft when ready. Treat published release artifacts as immutable.
 
-Do not run the tag workflow again after making a release public: it can replace
-assets and their checksums. Cut a new patch release for changed content.
+Rerunning the tag workflow completes an unfinished draft. Once the release is
+public, a rerun is refused rather than replacing its assets; cut a new patch
+release for changed content.
 
 ## Remaining distribution setup
 
