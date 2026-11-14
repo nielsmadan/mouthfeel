@@ -2,6 +2,7 @@
   "branch": "main",
   "components": 3,
   "initial_version": "0.9.0",
+  "sign": true,
   "checks": [
     [
       "npm",

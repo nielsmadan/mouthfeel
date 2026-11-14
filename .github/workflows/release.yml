@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: nielsmadan/curtaincall@v1.2.0
+      - uses: nielsmadan/curtaincall@v1.3.0
       - name: Validate annotated tag and ancestry
         run: |
           RELEASE_COMMIT=$(curtains ci validate-tag "$RELEASE_TAG" "$GITHUB_SHA")
